@@ -9,6 +9,9 @@ by code then message:
 * ``school_dependent`` - Rahu or Ketu exalted or debilitated, which depends on the
   NODE_DIGNITY_SCHOOL table (spec 5.5);
 * ``range_clamped`` (Sade Sati), ``polar_sunrise`` / ``range_sunrise`` (Shadbala, Ruling R26).
+
+``bhavas_detail`` (bhava table with lord, occupants, aspects, karakas) and ``vargottama`` are
+the House screen's facts (``vedic_engine.bhava``); they carry no warnings of their own.
 """
 
 from collections.abc import Mapping, Sequence
@@ -19,6 +22,8 @@ from vedic_engine import __version__, ephemeris
 from vedic_engine.angles import nak_of, sign_of
 from vedic_engine.ashtakavarga import bav, sav
 from vedic_engine.avastha import baladi
+from vedic_engine.bhava import BhavaFact, bhava_facts
+from vedic_engine.bhava import vargottama as vargottama_of
 from vedic_engine.constants import SEVEN, Graha
 from vedic_engine.dasha import DashaPeriod
 from vedic_engine.dasha.vimshottari import balance, vimshottari
@@ -47,8 +52,10 @@ class Kundli:
     grahas: dict[Graha, GrahaPosition]
     lagna_lon: float
     bhavas: tuple[int, ...]
+    bhavas_detail: tuple[BhavaFact, ...]
     panchang: PanchangAt
     vargas: dict[int, dict[str, int]]
+    vargottama: dict[Graha, bool]
     dignity: dict[Graha, Dignity]
     combust: dict[Graha, bool]
     avastha: dict[Graha, str]
@@ -70,6 +77,8 @@ class PartialKundli:
 
     dignity: dict[Graha, Dignity]
     vargas: dict[int, dict[str, int]]
+    bhavas_detail: tuple[BhavaFact, ...]
+    vargottama: dict[Graha, bool]
     maha_lord: Graha
     balance_years: float
     nakshatra: int
@@ -149,8 +158,10 @@ def build_kundli(
         grahas=grahas,
         lagna_lon=lagna_lon,
         bhavas=bhava_rashis(lagna_lon),
+        bhavas_detail=bhava_facts(lagna_lon, lons),
         panchang=elements_at(jd, birth.lat, birth.lon, birth.alt, settings),
         vargas=_vargas(lons, lagna_lon, vargas),
+        vargottama=vargottama_of(lons),
         dignity=dig,
         combust={g: is_combust(g, p.lon, lons[Graha.SUN], p.retro) for g, p in grahas.items()},
         avastha={g: baladi(lon) for g, lon in lons.items()},
@@ -168,9 +179,10 @@ def build_kundli(
 
 
 def chart_from_placements(lagna_lon: float, lons: Mapping[Graha, float]) -> PartialKundli:
-    """Dignity, vargas, birth dasha and syllable from fixed placements (no date needed).
+    """Dignity, vargas, house facts, birth dasha and syllable from fixed placements (no date).
 
-    ``lons`` must include the Moon and every graha whose sign lord is consulted for dignity.
+    ``lons`` must include the Moon and the seven classical grahas (every house lord is looked up
+    for the bhava table); Rahu and Ketu are optional.
     """
     moon = lons[Graha.MOON]
     lord, years = balance(moon)
@@ -178,6 +190,8 @@ def chart_from_placements(lagna_lon: float, lons: Mapping[Graha, float]) -> Part
     return PartialKundli(
         dignity=_dignities(lons),
         vargas=_vargas(lons, lagna_lon, VARGAS),
+        bhavas_detail=bhava_facts(lagna_lon, lons),
+        vargottama=vargottama_of(lons),
         maha_lord=lord,
         balance_years=years,
         nakshatra=nak,

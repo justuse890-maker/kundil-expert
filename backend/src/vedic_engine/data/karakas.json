@@ -1,0 +1,19 @@
+{
+ "_source": "Brihat Parasara Hora Sastra, tr. R. Santhanam, Vol. 1 (Ranjan Publications, New Delhi, 1992), Ch. 32 verses 31-34 (Bhava karakas): the Sanskrit of verse 34 is on printed p. 324 and the English plus Santhanam's numbered table of the twelve significators is on p. 325; archive.org item heag_brihat-parasara-hora-sastra-vol-1-by-maharshi-parasara-commentary-editor-tr, page images n328 and n329 checked.",
+ "_pages": "324-325",
+ "_note": "One natural karaka per house, exactly as verse 34 and Santhanam's table (p. 325): 1 Sun, 2 Jupiter, 3 Mars, 4 Moon, 5 Jupiter, 6 Mars, 7 Venus, 8 Saturn, 9 Jupiter, 10 Mercury, 11 Jupiter, 12 Saturn. VARIANTS (recorded, not applied): (a) Phaladeepika, tr. V. Subrahmanya Sastri, 2nd ed. 1950 (archive.org item Phaladeepika2ndEd.1950ByVSubrahmanyaSastri), Ch. XV sloka 17, printed p. 159 (page image n195 checked) lists several karakas for four houses: 4th Moon and Mercury; 6th Saturn and Mars; 9th Sun and Jupiter; 10th Jupiter, Sun, Mercury, Saturn (that is, the 10th-house variant is Sun, Mercury, Jupiter, Saturn, against BPHS Mercury alone). Houses 1, 2, 3, 5, 7, 8, 11 and 12 agree with BPHS. (b) Santhanam's own note on p. 325 says that for other significations a different planet signifies the house: the Sun for the father from the 9th house, and Ketu (not Saturn) for final emancipation from the 12th house. Those context-specific significators are not in the table. Rahu and Ketu have no natural bhava karaka in either source.",
+ "houses": {
+  "1": ["sun"],
+  "2": ["jupiter"],
+  "3": ["mars"],
+  "4": ["moon"],
+  "5": ["jupiter"],
+  "6": ["mars"],
+  "7": ["venus"],
+  "8": ["saturn"],
+  "9": ["jupiter"],
+  "10": ["mercury"],
+  "11": ["jupiter"],
+  "12": ["saturn"]
+ }
+}

@@ -12,13 +12,14 @@ import pytest
 
 from vedic_engine import __version__, ephemeris
 from vedic_engine.angles import nak_of, sign_of
-from vedic_engine.constants import SEVEN, Graha
+from vedic_engine.bhava import BhavaFact
+from vedic_engine.constants import RASHIS, SEVEN, Graha
 from vedic_engine.dasha.vimshottari import balance
 from vedic_engine.dignity import Dignity
 from vedic_engine.kundli import Kundli, build_kundli
 from vedic_engine.models import BirthInput, Settings
 from vedic_engine.names import syllable
-from vedic_engine.varga import VARGAS
+from vedic_engine.varga import VARGAS, varga_sign
 
 # Mean Rahu in sidereal Vrishabha (its default exaltation sign), Ketu in Vrishchika.
 DELHI_1947 = BirthInput(datetime(1947, 8, 15, 0, 0), "Asia/Kolkata", 28.6139, 77.2090)
@@ -65,6 +66,10 @@ def test_kundli_deterministic() -> None:
     b = _serialise(build_kundli(DELHI_1947))
     assert a == b
     assert '"vimshottari"' in a and '"shadbala"' in a
+    assert '"bhavas_detail"' in a and '"vargottama"' in a
+    detail = json.loads(a)["bhavas_detail"]
+    assert detail[0]["lord"] == "venus" and detail[0]["occupants"] == ["rahu"]  # enums as values
+    assert json.loads(a)["vargottama"].keys() == {g.value for g in Graha}
 
 
 def test_meta() -> None:
@@ -97,6 +102,44 @@ def test_composes_the_modules() -> None:
     assert tuple(i.item for i in k.sensitivity) == (
         "lagna", "moon_nakshatra_pada", "tithi", "d9_lagna", "d10_lagna",
     )  # fmt: skip
+
+
+def test_house_facts_for_india_1947() -> None:
+    k = _build(DELHI_1947)
+    h = k.bhavas_detail
+    assert len(h) == 12 and all(isinstance(f, BhavaFact) for f in h)
+    assert [f.rashi for f in h] == list(k.bhavas)
+    assert (h[0].rashi, h[0].lord, h[0].lord_house) == (RASHIS.index("vrishabha"), Graha.VENUS, 3)
+    assert h[0].occupants == (Graha.RAHU,)  # mean Rahu in the lagna sign
+    assert h[1].occupants == (Graha.MARS,)
+    assert h[2].occupants == (Graha.SUN, Graha.MOON, Graha.MERCURY, Graha.VENUS, Graha.SATURN)
+    assert h[5].occupants == (Graha.JUPITER,)
+    assert h[6].occupants == (Graha.KETU,)
+    assert h[8].aspected_by == (
+        Graha.SUN,
+        Graha.MOON,
+        Graha.MARS,
+        Graha.MERCURY,
+        Graha.VENUS,
+        Graha.SATURN,
+    )
+
+
+def test_house_facts_invariants_on_every_test_chart() -> None:
+    for b in (DELHI_1947, DELHI_2002, POLAR):
+        k = _build(b)
+        assert sorted(g for f in k.bhavas_detail for g in f.occupants) == sorted(Graha)
+        assert all(1 <= f.lord_house <= 12 and f.karakas for f in k.bhavas_detail)
+
+
+def test_vargottama_matches_d1_d9() -> None:
+    for b in (DELHI_1947, DELHI_2002):
+        k = _build(b)
+        assert set(k.vargottama) == set(Graha)
+        for g, p in k.grahas.items():
+            assert k.vargottama[g] == (varga_sign(p.lon, 1) == varga_sign(p.lon, 9))
+            # consistent with the stored D1 and D9 charts
+            assert k.vargottama[g] == (k.vargas[1][g.value] == k.vargas[9][g.value])
 
 
 def _depth(p: Any) -> int:
