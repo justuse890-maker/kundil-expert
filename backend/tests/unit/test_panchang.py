@@ -236,3 +236,22 @@ def test_end_time_beyond_range_raises() -> None:
     jd0 = LIMIT - 0.1
     with pytest.raises(EphemerisRangeError):
         panchang.find_end(_ranged_linear(jd0, 0.0, 12.0), jd0, 12.0)
+
+
+@pytest.mark.parametrize(
+    ("place", "tz", "local", "vaar"),
+    [
+        ((51.5074, -0.1278), "Europe/London", datetime(2024, 7, 9, 4, 30), "soma"),
+        ((51.5074, -0.1278), "Europe/London", datetime(2024, 7, 9, 5, 15), "mangala"),
+        ((59.9139, 10.7522), "Europe/Oslo", datetime(2024, 6, 21, 3, 40), "guru"),
+        ((59.9139, 10.7522), "Europe/Oslo", datetime(2024, 6, 21, 4, 10), "shukra"),
+    ],
+    ids=["london-before", "london-after", "oslo-before", "oslo-after"],
+)
+def test_vaar_high_latitude_summer(
+    place: tuple[float, float], tz: str, local: datetime, vaar: str
+) -> None:
+    """Summer sunrises more than 24 h apart (London, Oslo): vaar still turns at sunrise
+    (London 2024-07-09 ~04:52 BST, a Tuesday; Oslo 2024-06-21 ~03:54 CEST, a Friday)."""
+    jd = jd_from_utc(to_utc(local, tz))
+    assert panchang.elements_at(jd, *place, 0.0, DEFAULT).vaar == vaar

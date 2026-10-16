@@ -34,7 +34,7 @@ from vedic_engine import ephemeris
 from vedic_engine.angles import arc, deg_in_sign, norm, sign_of
 from vedic_engine.constants import RASHI_LORD, SEVEN, Graha
 from vedic_engine.dignity import Dignity, dignity, natural_relation, temporal_relation
-from vedic_engine.models import Settings
+from vedic_engine.models import EngineWarning, Settings
 from vedic_engine.timeutil import utc_from_jd
 from vedic_engine.varga import varga_sign
 
@@ -278,7 +278,12 @@ def _is_benefic(graha: Graha, lon: Mapping[Graha, float]) -> bool:
 
 def _paksha(graha: Graha, lon: Mapping[Graha, float]) -> float:
     """Paksha bala. BPHS 27.10-11: (Moon - Sun, folded to 180) / 3 for benefics, 60 minus that
-    for malefics; the Moon's own value is doubled (Raman Art. 55, rules a-c)."""
+    for malefics; the Moon's own value is doubled (Raman Art. 55, rules a-c).
+
+    A malefic Moon takes the malefic value, doubled: Raman p. 34 (Art. 53) makes the Moon a
+    malefic outside the 8th bright to 8th dark tithi, and p. 35 rule (c) doubles her value
+    "always"; Santhanam's note to 27.10-11 (p. 269) doubles it "whether the Moon is in a group
+    of benefics or otherwise". So a Moon 30 deg from the Sun scores 2 x (60 - 10) = 100."""
     benefic = _reduced(lon[Graha.MOON] - lon[Graha.SUN]) / 3.0
     value = benefic if _is_benefic(graha, lon) else 60.0 - benefic
     return 2.0 * value if graha is Graha.MOON else value
@@ -538,41 +543,75 @@ def shadbala_from_inputs(inp: ShadbalaInputs) -> dict[Graha, ShadbalaRow]:
     return rows
 
 
+_SUNRISE_SEARCH_WINDOWS = 3  # one-day rise_set windows tried before the Sun counts as polar
+
+
+def _first_sun_event(
+    start: float, kind: Literal["rise", "set"], lat: float, lon: float, settings: Settings
+) -> float | None:
+    """First sunrise/sunset at or after ``start``, searching up to three one-day windows.
+
+    ``ephemeris.rise_set`` only reports an event inside [start, start + 1), and at high
+    latitudes consecutive sunrises can be more than 24 h apart, so one window is not enough.
+    Window starts are kept inside the supported range.
+    """
+    s = max(start, ephemeris.JD_MIN)
+    for _ in range(_SUNRISE_SEARCH_WINDOWS):
+        t = ephemeris.rise_set(min(s, ephemeris.JD_MAX), lat, lon, 0.0, "sun", kind, settings)
+        if t is not None and t >= start:
+            return t
+        if s >= ephemeris.JD_MAX:
+            return None
+        s += 1.0
+    return None
+
+
 def _day_frame(
     jd_ut: float, lat: float, lon: float, settings: Settings
-) -> tuple[bool, float, float, date]:
-    """(is_day, part_elapsed, hours_from_sunrise, civil date of that sunrise) at ``jd_ut``.
+) -> tuple[bool, float, float, date, EngineWarning | None]:
+    """(is_day, part_elapsed, hours_from_sunrise, civil date of that sunrise, warning).
 
-    The Hindu day runs from sunrise to sunrise. Where the Sun does not rise or set (polar day
-    or night) 06:00 and 18:00 local mean time stand in for sunrise and sunset.
+    The Hindu day runs from the last sunrise at or before ``jd_ut`` to the next one. Only
+    where those sunrises or the sunset between them do not exist (polar day or night, or the
+    edge of the supported range) do 06:00 and 18:00 local mean time stand in for sunrise and
+    sunset, and a warning says so.
     """
 
-    def event(start: float, kind: Literal["rise", "set"]) -> float | None:
-        return ephemeris.rise_set(start, lat, lon, 0.0, "sun", kind, settings)
+    def first(start: float, kind: Literal["rise", "set"]) -> float | None:
+        return _first_sun_event(start, kind, lat, lon, settings)
 
     lmt_offset = lon / 360.0
-    rise = event(max(jd_ut - 1.0, ephemeris.JD_MIN), "rise")
-    sett = nxt = None
-    if rise is not None:
-        sett = event(rise, "set")
-        nxt = event(rise + _MINUTE, "rise")
-        if nxt is not None and nxt <= jd_ut:  # two sunrises fell in the 24 h window
-            rise, sett, nxt = nxt, event(nxt, "set"), event(nxt + _MINUTE, "rise")
-    if rise is None or sett is None or nxt is None:
+    rise: float | None = None
+    t = first(jd_ut - 2.0, "rise")
+    while t is not None and t <= jd_ut:
+        rise, t = t, first(t + _MINUTE, "rise")
+    nxt = t
+    sett = None if rise is None else first(rise, "set")
+    warning = None
+    if rise is None or nxt is None or sett is None or sett > nxt:
         rise = math.floor(jd_ut + lmt_offset - 0.75) + 0.75 - lmt_offset  # last 06:00 LMT
         sett, nxt = rise + 0.5, rise + 1.0
+        at_edge = jd_ut - 2.0 < ephemeris.JD_MIN or jd_ut + 2.0 > ephemeris.JD_MAX
+        warning = EngineWarning(
+            "range_sunrise" if at_edge else "polar_sunrise",
+            ("the sunrise before the birth lies outside the supported range"
+             if at_edge else "the Sun does not rise or set around the birth (polar day or night)")
+            + ": Shadbala time lords use 06:00 and 18:00 local mean time",
+        )  # fmt: skip
     day = utc_from_jd(rise + lmt_offset).date()
     hours = (jd_ut - rise) * 24.0
     if jd_ut < sett:
-        return True, (jd_ut - rise) / (sett - rise), hours, day
-    return False, (jd_ut - sett) / (nxt - sett), hours, day
+        return True, (jd_ut - rise) / (sett - rise), hours, day, warning
+    return False, (jd_ut - sett) / (nxt - sett), hours, day, warning
 
 
-def shadbala(jd_ut: float, lat: float, lon: float, settings: Settings) -> dict[Graha, ShadbalaRow]:
-    """Shadbala of Sun to Saturn at ``jd_ut`` for geographic ``lat``/``lon`` (east positive)."""
+def shadbala_report(
+    jd_ut: float, lat: float, lon: float, settings: Settings
+) -> tuple[dict[Graha, ShadbalaRow], tuple[EngineWarning, ...]]:
+    """Shadbala of Sun to Saturn with the warnings the kundli must surface (polar frame)."""
     pos = ephemeris.positions(jd_ut, settings)
     lons = {g: pos[g].lon for g in SEVEN}
-    is_day, part, hours, day = _day_frame(jd_ut, lat, lon, settings)
+    is_day, part, hours, day, warning = _day_frame(jd_ut, lat, lon, settings)
     apparent = jd_ut + lon / 360.0 + ephemeris.equation_of_time(jd_ut) + 0.5
     mean, sighra = raman_mean_positions(
         jd_ut - _MEAN_EPOCH_JD, utc_from_jd(jd_ut + lon / 360.0).year
@@ -590,4 +629,12 @@ def shadbala(jd_ut: float, lat: float, lon: float, settings: Settings) -> dict[G
         mean_lon=mean,
         seeghrochcha=sighra,
     )
-    return shadbala_from_inputs(inputs)
+    return shadbala_from_inputs(inputs), (() if warning is None else (warning,))
+
+
+def shadbala(jd_ut: float, lat: float, lon: float, settings: Settings) -> dict[Graha, ShadbalaRow]:
+    """Shadbala of Sun to Saturn at ``jd_ut`` for geographic ``lat``/``lon`` (east positive).
+
+    The brief's interface; callers that report warnings use ``shadbala_report``.
+    """
+    return shadbala_report(jd_ut, lat, lon, settings)[0]

@@ -1,16 +1,17 @@
 """Shadbala unit tests (BPHS Ch 27, as worked by B. V. Raman, Graha and Bhava Balas, 1942)."""
 
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 
 import pytest
 
-from vedic_engine import ephemeris
+from vedic_engine import ephemeris, panchang
 from vedic_engine.constants import SEVEN, Graha
 from vedic_engine.models import Settings
 from vedic_engine.shadbala import (
     REQUIRED_RUPA,
     SCHOOL,
+    _day_frame,
     _dig,
     _drishti,
     _kranti,
@@ -23,8 +24,20 @@ from vedic_engine.shadbala import (
     ahargana_lords,
     naisargika,
     shadbala,
+    shadbala_report,
 )
 from vedic_engine.timeutil import jd_from_utc, to_utc
+
+# Precision of these checks (not spec 7 tolerances): naisargika is printed to 2 decimals; the
+# sunrise frame must reproduce panchang's own sunrise/sunset to well under a second.
+NAISARGIKA_PRINT_PRECISION = 0.005
+FRAME_HOURS_PRECISION = 1e-4
+
+DEFAULT = Settings()
+LONDON = (51.5074, -0.1278)
+OSLO = (59.9139, 10.7522)
+BANGALORE = (12.9716, 77.5946)
+SVALBARD = (78.2232, 15.6267)
 
 DEEP_EXALTATION = {
     Graha.SUN: 10.0, Graha.MOON: 33.0, Graha.MARS: 298.0, Graha.MERCURY: 165.0,
@@ -42,7 +55,7 @@ def test_naisargika_constants() -> None:
         Graha.MERCURY: 25.71, Graha.MARS: 17.14, Graha.SATURN: 8.57,
     }  # fmt: skip
     for g, v in expected.items():
-        assert naisargika(g) == pytest.approx(v, abs=0.005)
+        assert naisargika(g) == pytest.approx(v, abs=NAISARGIKA_PRINT_PRECISION)
 
 
 @pytest.mark.parametrize("graha", SEVEN, ids=[g.value for g in SEVEN])
@@ -185,6 +198,26 @@ def test_paksha_malefic_moon_and_afflicted_mercury() -> None:
     assert _paksha(Graha.SATURN, lon) == pytest.approx(0.0)
 
 
+def test_paksha_malefic_moon_takes_malefic_value_doubled() -> None:
+    """Raman pp. 34-35 (Art. 53, 55 rule c) and Santhanam p. 269 (note to 27.10-11): the Moon
+    is malefic outside the 8th bright to 8th dark tithi and her value is always doubled."""
+    for moon in (130.0, 70.0):  # 30 deg after and 30 deg before the Sun at 100
+        assert _paksha(Graha.MOON, _lons(sun=100.0, moon=moon)) == pytest.approx(100.0)
+    assert _paksha(Graha.MOON, _lons(sun=100.0, moon=184.0)) == pytest.approx(2.0 * 84.0 / 3.0)
+    assert _paksha(Graha.MOON, _lons(sun=100.0, moon=183.9)) == pytest.approx(
+        2.0 * (60.0 - 83.9 / 3.0)
+    )
+
+
+@pytest.mark.usefixtures("_ephe")
+def test_shadbala_at_range_edges() -> None:
+    for jd in (ephemeris.JD_MIN, ephemeris.JD_MAX):
+        rows, warnings = shadbala_report(jd, 28.6139, 77.209, DEFAULT)
+        assert tuple(rows) == SEVEN
+        # 1800-01-01 06:00 UT is after Delhi's sunrise, which precedes the supported range.
+        assert [w.code for w in warnings] == (["range_sunrise"] if jd < 2.4e6 else [])
+
+
 def test_yuddha_lesser_longitude_wins() -> None:
     lon = _lons(mars=200.0, venus=200.5)
     strength = {g: 100.0 for g in SEVEN} | {Graha.MARS: 150.0, Graha.VENUS: 114.0}
@@ -217,3 +250,92 @@ def test_live_raman_chart_time_lords() -> None:
     }  # fmt: skip
     for key, lords in expected.items():
         assert {g for g, r in rows.items() if r.components[key] > 0.0} == lords, key
+
+
+def test_ahargana_lords_before_1900() -> None:
+    """Raman's ahargana counts back past 1900 (and below zero before 1827) without a seam."""
+    assert ahargana_lords(ahargana(date(1850, 1, 1)))[2] is Graha.MARS  # a Tuesday
+    assert ahargana(date(1800, 1, 1)) < 0
+    assert ahargana_lords(ahargana(date(1800, 1, 1)))[2] is Graha.MERCURY  # a Wednesday
+    weekday_lord = (Graha.MOON, Graha.MARS, Graha.MERCURY, Graha.JUPITER, Graha.VENUS,
+                    Graha.SATURN, Graha.SUN)  # fmt: skip  # date.weekday(): Monday = 0
+    day = date(1800, 1, 1)
+    for _ in range(800):
+        assert ahargana_lords(ahargana(day))[2] is weekday_lord[day.weekday()], day
+        day += timedelta(days=1)
+
+
+def _sun_events(day: date, tz: str, place: tuple[float, float]) -> tuple[float, float, float]:
+    """(sunrise, sunset, next sunrise) of civil ``day`` from panchang, as JDs."""
+    today = panchang.day_panchang(day, tz, *place, 0.0, DEFAULT)
+    tomorrow = panchang.day_panchang(day + timedelta(days=1), tz, *place, 0.0, DEFAULT)
+    return (
+        jd_from_utc(today.sunrise_utc),
+        jd_from_utc(today.sunset_utc),
+        jd_from_utc(tomorrow.sunrise_utc),
+    )
+
+
+@pytest.mark.usefixtures("_ephe")
+@pytest.mark.parametrize(
+    ("place", "tz", "local"),
+    [
+        (LONDON, "Europe/London", datetime(2024, 7, 9, 12, 0)),
+        (LONDON, "Europe/London", datetime(2024, 7, 9, 23, 30)),
+        (LONDON, "Europe/London", datetime(2024, 10, 15, 12, 0)),
+        (LONDON, "Europe/London", datetime(2024, 12, 21, 20, 0)),
+        (OSLO, "Europe/Oslo", datetime(2024, 6, 21, 13, 0)),
+        (OSLO, "Europe/Oslo", datetime(2024, 6, 21, 23, 50)),
+        (BANGALORE, "Asia/Kolkata", datetime(2024, 12, 20, 14, 0)),
+    ],
+    ids=["london-jul-noon", "london-jul-night", "london-oct-noon", "london-dec-night",
+         "oslo-midsummer-day", "oslo-midsummer-night", "bangalore-dec-noon"],
+)  # fmt: skip
+def test_day_frame_matches_panchang_sunrise(
+    place: tuple[float, float], tz: str, local: datetime
+) -> None:
+    """Sunrises more than 24 h apart (high latitudes) must not fall back to a fixed frame."""
+    jd = jd_from_utc(to_utc(local, tz))
+    rise, sett, nxt = _sun_events(local.date(), tz, place)
+    is_day, part, hours, day, warning = _day_frame(jd, *place, DEFAULT)
+    assert warning is None
+    assert day == local.date()
+    assert hours == pytest.approx((jd - rise) * 24.0, abs=FRAME_HOURS_PRECISION)
+    assert is_day is (jd < sett)
+    expected = (jd - rise) / (sett - rise) if is_day else (jd - sett) / (nxt - sett)
+    assert part == pytest.approx(expected, abs=FRAME_HOURS_PRECISION / 24.0)
+
+
+@pytest.mark.usefixtures("_ephe")
+@pytest.mark.parametrize(
+    ("place", "tz", "day"),
+    [(BANGALORE, "Asia/Kolkata", date(2024, 12, 20)), (LONDON, "Europe/London", date(2024, 7, 9))],
+    ids=["bangalore", "london-summer"],
+)
+def test_day_frame_seconds_before_sunrise_is_previous_night(
+    place: tuple[float, float], tz: str, day: date
+) -> None:
+    rise, _sett, _nxt = _sun_events(day, tz, place)
+    jd = rise - 5.0 / 86400.0
+    is_day, part, hours, civil, warning = _day_frame(jd, *place, DEFAULT)
+    assert warning is None
+    assert not is_day
+    assert civil == day - timedelta(days=1)
+    assert part > 0.999
+    prev_rise, _, _ = _sun_events(day - timedelta(days=1), tz, place)
+    assert hours == pytest.approx((jd - prev_rise) * 24.0, abs=FRAME_HOURS_PRECISION)
+    rows = shadbala(jd, *place, DEFAULT)
+    assert {g for g, r in rows.items() if r.components["tribhaga"] > 0.0} == {
+        Graha.MARS, Graha.JUPITER,
+    }  # fmt: skip
+
+
+@pytest.mark.usefixtures("_ephe")
+def test_polar_day_falls_back_with_warning() -> None:
+    jd = jd_from_utc(datetime(2024, 6, 21, 12, tzinfo=UTC))
+    rows, warnings = shadbala_report(jd, *SVALBARD, DEFAULT)
+    assert tuple(rows) == SEVEN
+    assert [w.code for w in warnings] == ["polar_sunrise"]
+    assert shadbala(jd, *SVALBARD, DEFAULT) == rows
+    _rows, warnings = shadbala_report(jd, *LONDON, DEFAULT)
+    assert warnings == ()

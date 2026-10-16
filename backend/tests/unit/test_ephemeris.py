@@ -13,6 +13,8 @@ from vedic_engine.models import EngineError, EphemerisRangeError, InputError, Se
 from vedic_engine.timeutil import jd_from_utc
 
 DEFAULT = Settings()
+# Precision of the equation-of-time extremes as quoted to 0.1 min (not a spec 7 tolerance).
+EOT_EXTREME_PRECISION_MIN = 0.2
 TRUE_NODE = Settings(node="TRUE")
 CENTER = Settings(sunrise="CENTER_NO_REFRACTION")
 JD_2024 = jd_from_utc(datetime(2024, 4, 10, tzinfo=UTC))
@@ -274,4 +276,6 @@ def test_midheaven_and_equation_of_time_reject_out_of_range() -> None:
 )
 def test_equation_of_time_extremes(dt: datetime, minutes: float) -> None:
     """Apparent minus mean solar time; the annual extremes are about +16.4 and -14.2 min."""
-    assert ephemeris.equation_of_time(jd_from_utc(dt)) * 1440.0 == pytest.approx(minutes, abs=0.2)
+    assert ephemeris.equation_of_time(jd_from_utc(dt)) * 1440.0 == pytest.approx(
+        minutes, abs=EOT_EXTREME_PRECISION_MIN
+    )
