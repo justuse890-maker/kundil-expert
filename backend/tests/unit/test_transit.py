@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from vedic_engine import ephemeris
+from vedic_engine import ephemeris, transit
 from vedic_engine.constants import Graha
 from vedic_engine.models import Settings
 from vedic_engine.timeutil import jd_from_utc, utc_from_jd
@@ -57,3 +57,24 @@ def test_positions_at_matches_ephemeris() -> None:
     got = positions_at(dt, S)
     assert got == ephemeris.positions(jd_from_utc(dt), S)
     assert set(got) == set(Graha)
+
+
+def _hover(t0: float):  # type: ignore[no-untyped-def]
+    """Synthetic longitude: 29.9 -> 30.1 -> 29.9 over 0.6 day from t0, else 29.9."""
+
+    def lon(jd: float, graha: Graha, settings: Settings) -> float:
+        x = (jd - t0) / 0.6
+        return 29.9 + 0.2 * (1 - abs(2 * x - 1)) if 0.0 <= x <= 1.0 else 29.9
+
+    return lon
+
+
+def test_station_hover_cross_and_recross_within_one_step(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    t0 = 2460000.0
+    monkeypatch.setattr(transit, "_lon", _hover(t0))
+    ing = sign_ingresses(Graha.SATURN, t0 - 0.2, t0 + 0.8, S)  # one 1-day scan step
+    assert [s for _, s in ing] == [1, 0]
+    assert abs(ing[0][0] - (t0 + 0.15)) < 2 / 1440  # up-crossing at x = 0.25
+    assert abs(ing[1][0] - (t0 + 0.45)) < 2 / 1440  # down-crossing at x = 0.75

@@ -22,11 +22,14 @@ def _lon(sign: int) -> float:
     return sign * 30.0 + 10.0
 
 
-def test_manglik_7th_from_lagna_only_is_low() -> None:
-    # lagna Mesha, Mars Tula (7th)
+def test_manglik_7th_from_lagna_and_venus_is_medium() -> None:
+    # lagna Mesha, Mars Tula (7th from lagna and from Mesha-placed Venus)
     r = manglik(_lon(6), _lon(0), _lon(2), _lon(0))
     assert (r.from_lagna, r.from_moon, r.from_venus, r.level) == (True, False, True, "medium")
-    r = manglik(_lon(6), _lon(0), _lon(2), _lon(1))  # Venus Vrishabha: Mars 6th
+
+
+def test_manglik_7th_from_lagna_only_is_low() -> None:
+    r = manglik(_lon(6), _lon(0), _lon(2), _lon(1))  # Moon Mithuna: Mars 5th; Venus: Mars 6th
     assert (r.from_lagna, r.from_moon, r.from_venus, r.level) == (True, False, False, "low")
 
 
@@ -81,9 +84,25 @@ def test_kaal_sarpa_planet_on_axis_counts_outside() -> None:
     assert kaal_sarpa(_kp(both), lagna_lon=_lon(3)) is None
 
 
-def test_kaal_sarpa_names_cover_twelve_houses() -> None:
-    names = {kaal_sarpa(_kp(_INSIDE), lagna_lon=_lon(s)).name for s in range(12)}  # type: ignore[union-attr]
-    assert len(names) == 12
+def test_kaal_sarpa_partial_reverse_one_inside_six_beyond() -> None:
+    beyond = {g: o + 180.0 for g, o in _INSIDE.items()}
+    pos = {**beyond, Graha.MARS: 90.0}  # Mars alone between Rahu and Ketu
+    r = kaal_sarpa(_kp(pos), lagna_lon=_lon(3))
+    assert r is not None and r.kind == "partial" and r.outside == (Graha.MARS,)
+
+
+_NAMES = (
+    "anant", "kulik", "vasuki", "shankhpal", "padma", "mahapadma",
+    "takshak", "karkotak", "shankhachud", "ghatak", "vishdhar", "sheshnag",
+)  # fmt: skip
+
+
+@pytest.mark.parametrize("i", range(12))
+def test_kaal_sarpa_name_by_rahu_house(i: int) -> None:
+    lagna_sign = 5
+    rahu = ((lagna_sign + i) % 12) * 30.0 + 15.0  # Rahu in house i+1
+    r = kaal_sarpa(_kp(_INSIDE, rahu=rahu), lagna_lon=_lon(lagna_sign))
+    assert r is not None and r.name == _NAMES[i]
 
 
 def test_sade_sati_phases_ordered() -> None:
@@ -129,9 +148,12 @@ def test_sade_sati_retrograde_reentry_makes_separate_records() -> None:
 
 def test_sade_sati_clamped_to_range() -> None:
     birth = jd_from_utc(datetime(2350, 1, 1, tzinfo=UTC))
-    phases, warnings = sade_sati(100.0, birth, S)
+    # Moon at Saturn's own longitude at JD_MAX: Saturn is in the peak sign when the range ends.
+    moon = ephemeris.body_longitude(ephemeris.JD_MAX, Graha.SATURN, S)
+    phases, warnings = sade_sati(moon, birth, S)
     assert any(isinstance(w, EngineWarning) and w.code == "range_clamped" for w in warnings)
-    assert phases
+    assert phases[-1].kind == "sade_sati_peak"
+    assert phases[-1].end_utc == utc_from_jd(ephemeris.JD_MAX)
     assert all(p.end_utc <= utc_from_jd(ephemeris.JD_MAX) for p in phases)
 
 

@@ -61,8 +61,8 @@ def sign_ingresses(
         else:
             marks = [t_next]
         prev = t
-        for m in marks:
-            m_sign = sign_of(lon_next if m == t_next else _lon(m, graha, settings))
+        for i, m in enumerate(marks):
+            m_sign = sign_of(lon_next if i == len(marks) - 1 else _lon(m, graha, settings))
             if m_sign != sign:
                 cross = _bisect(prev, m, sign, graha, settings)
                 out.append((cross, m_sign))
