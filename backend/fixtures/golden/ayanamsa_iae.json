@@ -1,0 +1,125 @@
+{
+  "description": "Published Lahiri (Chitra paksha) ayanamsa values used to verify ephemeris.ayanamsa().",
+  "compared_quantity": "true ayanamsa (mean ayanamsa + nutation in longitude); compared with Swiss Ephemeris get_ayanamsa_ex_ut(jd, FLG_SWIEPH), which includes nutation",
+  "time_convention": "IAE tabulates 'TRUE AYANAMSA FOR 5h 29m'; IAE Indian Calendar timings are I.S.T. (UT+5h30m), so 5h29m IST = 23h59m UT on the previous civil date. Reading it as 5h29m UT instead changes the computed value by < 0.1\".",
+  "precision_note": "Published to 0.1 arcsec (rounding <= 0.05\").",
+  "excluded": "IAE 2026 lists 2027 Feb. 13 = 24 14 16.4, which breaks the monotonic sequence (Feb. 10 = 24 14 20.9) and is ~4.6\" off; treated as a misprint and not used.",
+  "retrieved": "2026-10-16",
+  "values": [
+    {
+      "label": "Lahiri definition epoch (Calendar Reform Committee): 1956 March 21, 0h",
+      "jd_ut": 2435553.5,
+      "ayanamsa_deg": 23.250182778,
+      "kind": "true",
+      "source": {
+        "document": "Lahiri ayanamsa definition 23 deg 15' 00.658\" for 1956 March 21 0h (value given in the Task 4 brief; same constant as Swiss Ephemeris SE_SIDM_LAHIRI). The IAE Indian Calendar explanatory note states the adopted value rounded to 23 deg 15' 00\".",
+        "page": "IAE 2024 explanatory note, PDF page 382",
+        "kind_evidence": "Swiss Ephemeris reproduces this value only when nutation is included (true 23.250221 deg vs mean 23.245561 deg), so it is compared as a true ayanamsa."
+      }
+    },
+    {
+      "label": "2024-01-01 5h29m IST",
+      "jd_ut": 2460310.499305556,
+      "ayanamsa_dms": "24°11'27.1\"",
+      "ayanamsa_deg": 24.190861111,
+      "kind": "true",
+      "source": {
+        "document": "Indian Astronomical Ephemeris 2024, Positional Astronomy Centre (India Meteorological Department), Kolkata",
+        "url": "https://packolkata.imd.gov.in/download/IAE2024.zip",
+        "table": "AYANAMSA, 2024 - TRUE AYANAMSA FOR 5h 29m (Mean Ayanamsa + nutation in longitude)",
+        "page": "printed p. 417 (PDF page 424); method in Indian Calendar explanatory note, PDF page 383"
+      }
+    },
+    {
+      "label": "2024-04-30 5h29m IST",
+      "jd_ut": 2460430.499305556,
+      "ayanamsa_dms": "24°11'43.7\"",
+      "ayanamsa_deg": 24.195472222,
+      "kind": "true",
+      "source": {
+        "document": "Indian Astronomical Ephemeris 2024, Positional Astronomy Centre (India Meteorological Department), Kolkata",
+        "url": "https://packolkata.imd.gov.in/download/IAE2024.zip",
+        "table": "AYANAMSA, 2024 - TRUE AYANAMSA FOR 5h 29m (Mean Ayanamsa + nutation in longitude)",
+        "page": "printed p. 417 (PDF page 424); method in Indian Calendar explanatory note, PDF page 383"
+      }
+    },
+    {
+      "label": "2024-08-28 5h29m IST",
+      "jd_ut": 2460550.499305556,
+      "ayanamsa_dms": "24°12'04.0\"",
+      "ayanamsa_deg": 24.201111111,
+      "kind": "true",
+      "source": {
+        "document": "Indian Astronomical Ephemeris 2024, Positional Astronomy Centre (India Meteorological Department), Kolkata",
+        "url": "https://packolkata.imd.gov.in/download/IAE2024.zip",
+        "table": "AYANAMSA, 2024 - TRUE AYANAMSA FOR 5h 29m (Mean Ayanamsa + nutation in longitude)",
+        "page": "printed p. 417 (PDF page 424); method in Indian Calendar explanatory note, PDF page 383"
+      }
+    },
+    {
+      "label": "2024-12-26 5h29m IST",
+      "jd_ut": 2460670.499305556,
+      "ayanamsa_dms": "24°12'21.4\"",
+      "ayanamsa_deg": 24.205944444,
+      "kind": "true",
+      "source": {
+        "document": "Indian Astronomical Ephemeris 2024, Positional Astronomy Centre (India Meteorological Department), Kolkata",
+        "url": "https://packolkata.imd.gov.in/download/IAE2024.zip",
+        "table": "AYANAMSA, 2024 - TRUE AYANAMSA FOR 5h 29m (Mean Ayanamsa + nutation in longitude)",
+        "page": "printed p. 417 (PDF page 424); method in Indian Calendar explanatory note, PDF page 383"
+      }
+    },
+    {
+      "label": "2026-01-01 5h29m IST",
+      "jd_ut": 2461041.499305556,
+      "ayanamsa_dms": "24°13'18.5\"",
+      "ayanamsa_deg": 24.221805556,
+      "kind": "true",
+      "source": {
+        "document": "Indian Astronomical Ephemeris 2026, Positional Astronomy Centre (India Meteorological Department), Kolkata",
+        "url": "https://packolkata.imd.gov.in/download/IAE2026.zip",
+        "table": "AYANAMSA, 2026 - TRUE AYANAMSA FOR 5h 29m (Mean Ayanamsa + nutation in longitude)",
+        "page": "printed p. 419 (PDF page 425); method in Indian Calendar explanatory note, printed p. 378 (PDF page 384)"
+      }
+    },
+    {
+      "label": "2026-05-01 5h29m IST",
+      "jd_ut": 2461161.499305556,
+      "ayanamsa_dms": "24°13'35.2\"",
+      "ayanamsa_deg": 24.226444444,
+      "kind": "true",
+      "source": {
+        "document": "Indian Astronomical Ephemeris 2026, Positional Astronomy Centre (India Meteorological Department), Kolkata",
+        "url": "https://packolkata.imd.gov.in/download/IAE2026.zip",
+        "table": "AYANAMSA, 2026 - TRUE AYANAMSA FOR 5h 29m (Mean Ayanamsa + nutation in longitude)",
+        "page": "printed p. 419 (PDF page 425); method in Indian Calendar explanatory note, printed p. 378 (PDF page 384)"
+      }
+    },
+    {
+      "label": "2026-08-29 5h29m IST",
+      "jd_ut": 2461281.499305556,
+      "ayanamsa_dms": "24°13'55.6\"",
+      "ayanamsa_deg": 24.232111111,
+      "kind": "true",
+      "source": {
+        "document": "Indian Astronomical Ephemeris 2026, Positional Astronomy Centre (India Meteorological Department), Kolkata",
+        "url": "https://packolkata.imd.gov.in/download/IAE2026.zip",
+        "table": "AYANAMSA, 2026 - TRUE AYANAMSA FOR 5h 29m (Mean Ayanamsa + nutation in longitude)",
+        "page": "printed p. 419 (PDF page 425); method in Indian Calendar explanatory note, printed p. 378 (PDF page 384)"
+      }
+    },
+    {
+      "label": "2026-12-27 5h29m IST",
+      "jd_ut": 2461401.499305556,
+      "ayanamsa_dms": "24°14'13.4\"",
+      "ayanamsa_deg": 24.237055556,
+      "kind": "true",
+      "source": {
+        "document": "Indian Astronomical Ephemeris 2026, Positional Astronomy Centre (India Meteorological Department), Kolkata",
+        "url": "https://packolkata.imd.gov.in/download/IAE2026.zip",
+        "table": "AYANAMSA, 2026 - TRUE AYANAMSA FOR 5h 29m (Mean Ayanamsa + nutation in longitude)",
+        "page": "printed p. 419 (PDF page 425); method in Indian Calendar explanatory note, printed p. 378 (PDF page 384)"
+      }
+    }
+  ]
+}

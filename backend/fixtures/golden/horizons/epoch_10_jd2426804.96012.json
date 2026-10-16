@@ -1,0 +1,23 @@
+{
+  "ephemeris": "DE441",
+  "frame": "geocentric apparent IAU76/80 ecliptic-of-date longitude (light-time, gravitational deflection, stellar aberration)",
+  "jd_ut": 2426804.96012,
+  "lon": {
+    "jupiter": 132.604768,
+    "mars": 3.2402986,
+    "mercury": 22.4860416,
+    "moon": 32.6154409,
+    "saturn": 303.6476665,
+    "sun": 17.4159822,
+    "venus": 62.5855327
+  },
+  "query": {
+    "ANG_FORMAT": "DEG",
+    "CENTER": "500@399",
+    "EPHEM_TYPE": "OBSERVER",
+    "QUANTITIES": "31",
+    "TIME_TYPE": "UT"
+  },
+  "retrieved": "2026-10-16",
+  "source": "JPL Horizons"
+}

@@ -32,6 +32,7 @@ packages = ["src/vedic_engine", "src/api"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["tests"]
 # Network tests are skipped by default; run them with: pytest -m network
 addopts = "-m 'not network'"
 markers = [
