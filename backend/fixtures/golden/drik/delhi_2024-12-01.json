@@ -1,0 +1,95 @@
+{
+  "source": "Drik Panchang (drikpanchang.com), day panchang page",
+  "url": "https://www.drikpanchang.com/panchang/day-panchang.html?geoname-id=1261481&date=01/12/2024",
+  "retrieved": "2026-10-16",
+  "date": "2024-12-01",
+  "why": "late autumn",
+  "chandramasa": {
+    "purnimanta": "Margashirsha",
+    "amanta": "Kartika"
+  },
+  "location": {
+    "name": "New Delhi, India",
+    "lat": 28.635556,
+    "lon": 77.224444,
+    "elevation_m": 212,
+    "tz": "Asia/Kolkata"
+  },
+  "sunrise_local": "2024-12-01T06:57",
+  "sunset_local": "2024-12-01T17:24",
+  "moonrise_local": "2024-12-01T07:03",
+  "moonset_local": "2024-12-01T17:09",
+  "elements": {
+    "tithi": [
+      {
+        "drik_name": "Amavasya",
+        "drik_index": 30,
+        "key": "amavasya",
+        "upto_display": "11:50 AM",
+        "ends_local": "2024-12-01T11:50"
+      },
+      {
+        "drik_name": "Pratipada",
+        "drik_index": 1,
+        "key": "shukla_pratipada",
+        "upto_display": null,
+        "ends_local": null
+      }
+    ],
+    "nakshatra": [
+      {
+        "drik_name": "Anuradha",
+        "drik_index": 17,
+        "key": "anuradha",
+        "upto_display": "02:24 PM",
+        "ends_local": "2024-12-01T14:24"
+      },
+      {
+        "drik_name": "Jyeshtha",
+        "drik_index": 18,
+        "key": "jyeshtha",
+        "upto_display": null,
+        "ends_local": null
+      }
+    ],
+    "yoga": [
+      {
+        "drik_name": "Sukarma",
+        "drik_index": 7,
+        "key": "sukarma",
+        "upto_display": "04:34 PM",
+        "ends_local": "2024-12-01T16:34"
+      },
+      {
+        "drik_name": "Dhriti",
+        "drik_index": 8,
+        "key": "dhriti",
+        "upto_display": null,
+        "ends_local": null
+      }
+    ],
+    "karana": [
+      {
+        "drik_name": "Nagava",
+        "drik_index": 60,
+        "key": "naga",
+        "upto_display": "11:50 AM",
+        "ends_local": "2024-12-01T11:50"
+      },
+      {
+        "drik_name": "Kinstughna",
+        "drik_index": 1,
+        "key": "kimstughna",
+        "upto_display": "12:20 AM, Dec 02",
+        "ends_local": "2024-12-02T00:20"
+      },
+      {
+        "drik_name": "Bava",
+        "drik_index": 2,
+        "key": "bava",
+        "upto_display": null,
+        "ends_local": null
+      }
+    ]
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "source": "Drik Panchang (drikpanchang.com), day panchang page",
+  "url": "https://www.drikpanchang.com/panchang/day-panchang.html?geoname-id=1261481&date=10/01/2024",
+  "retrieved": "2026-10-16",
+  "date": "2024-01-10",
+  "why": "winter; four karanas in one day (Vishti, Shakuni, Chatushpada)",
+  "chandramasa": {
+    "purnimanta": "Pausha",
+    "amanta": "Margashirsha"
+  },
+  "location": {
+    "name": "New Delhi, India",
+    "lat": 28.635556,
+    "lon": 77.224444,
+    "elevation_m": 212,
+    "tz": "Asia/Kolkata"
+  },
+  "sunrise_local": "2024-01-10T07:15",
+  "sunset_local": "2024-01-10T17:42",
+  "moonrise_local": null,
+  "moonset_local": "2024-01-10T16:15",
+  "elements": {
+    "tithi": [
+      {
+        "drik_name": "Chaturdashi",
+        "drik_index": 29,
+        "key": "krishna_chaturdashi",
+        "upto_display": "08:10 PM",
+        "ends_local": "2024-01-10T20:10"
+      },
+      {
+        "drik_name": "Amavasya",
+        "drik_index": 30,
+        "key": "amavasya",
+        "upto_display": null,
+        "ends_local": null
+      }
+    ],
+    "nakshatra": [
+      {
+        "drik_name": "Mula",
+        "drik_index": 19,
+        "key": "mula",
+        "upto_display": "07:40 PM",
+        "ends_local": "2024-01-10T19:40"
+      },
+      {
+        "drik_name": "Purva Ashadha",
+        "drik_index": 20,
+        "key": "purva_ashadha",
+        "upto_display": null,
+        "ends_local": null
+      }
+    ],
+    "yoga": [
+      {
+        "drik_name": "Dhruva",
+        "drik_index": 12,
+        "key": "dhruva",
+        "upto_display": "09:18 PM",
+        "ends_local": "2024-01-10T21:18"
+      },
+      {
+        "drik_name": "Vyaghata",
+        "drik_index": 13,
+        "key": "vyaghata",
+        "upto_display": null,
+        "ends_local": null
+      }
+    ],
+    "karana": [
+      {
+        "drik_name": "Vishti",
+        "drik_index": 57,
+        "key": "vishti",
+        "upto_display": "09:22 AM",
+        "ends_local": "2024-01-10T09:22"
+      },
+      {
+        "drik_name": "Shakuni",
+        "drik_index": 58,
+        "key": "shakuni",
+        "upto_display": "08:10 PM",
+        "ends_local": "2024-01-10T20:10"
+      },
+      {
+        "drik_name": "Chatushpada",
+        "drik_index": 59,
+        "key": "chatushpada",
+        "upto_display": "06:51 AM, Jan 11",
+        "ends_local": "2024-01-11T06:51"
+      },
+      {
+        "drik_name": "Nagava",
+        "drik_index": 60,
+        "key": "naga",
+        "upto_display": null,
+        "ends_local": null
+      }
+    ]
+  }
+}

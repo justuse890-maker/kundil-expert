@@ -1,0 +1,116 @@
+{
+  "source": "Drik Panchang (drikpanchang.com), day panchang page",
+  "url": "https://www.drikpanchang.com/panchang/day-panchang.html?geoname-id=1261481&date=12/03/2024",
+  "retrieved": "2026-10-16",
+  "date": "2024-03-12",
+  "why": "kshaya tithi: Shukla Tritiya starts after sunrise, ends before the next",
+  "chandramasa": {
+    "purnimanta": "Phalguna",
+    "amanta": "Phalguna"
+  },
+  "location": {
+    "name": "New Delhi, India",
+    "lat": 28.635556,
+    "lon": 77.224444,
+    "elevation_m": 212,
+    "tz": "Asia/Kolkata"
+  },
+  "sunrise_local": "2024-03-12T06:34",
+  "sunset_local": "2024-03-12T18:28",
+  "moonrise_local": "2024-03-12T07:51",
+  "moonset_local": "2024-03-12T20:45",
+  "elements": {
+    "tithi": [
+      {
+        "drik_name": "Dwitiya",
+        "drik_index": 2,
+        "key": "shukla_dwitiya",
+        "upto_display": "07:13 AM",
+        "ends_local": "2024-03-12T07:13"
+      },
+      {
+        "drik_name": "Tritiya",
+        "drik_index": 3,
+        "key": "shukla_tritiya",
+        "upto_display": "04:03 AM, Mar 13",
+        "ends_local": "2024-03-13T04:03"
+      },
+      {
+        "drik_name": "Chaturthi",
+        "drik_index": 4,
+        "key": "shukla_chaturthi",
+        "upto_display": null,
+        "ends_local": null
+      }
+    ],
+    "nakshatra": [
+      {
+        "drik_name": "Revati",
+        "drik_index": 27,
+        "key": "revati",
+        "upto_display": "08:29 PM",
+        "ends_local": "2024-03-12T20:29"
+      },
+      {
+        "drik_name": "Ashwini",
+        "drik_index": 1,
+        "key": "ashwini",
+        "upto_display": null,
+        "ends_local": null
+      }
+    ],
+    "karana": [
+      {
+        "drik_name": "Kaulava",
+        "drik_index": 4,
+        "key": "kaulava",
+        "upto_display": "07:13 AM",
+        "ends_local": "2024-03-12T07:13"
+      },
+      {
+        "drik_name": "Taitila",
+        "drik_index": 5,
+        "key": "taitila",
+        "upto_display": "05:35 PM",
+        "ends_local": "2024-03-12T17:35"
+      },
+      {
+        "drik_name": "Garaja",
+        "drik_index": 6,
+        "key": "gara",
+        "upto_display": "04:03 AM, Mar 13",
+        "ends_local": "2024-03-13T04:03"
+      },
+      {
+        "drik_name": "Vanija",
+        "drik_index": 7,
+        "key": "vanija",
+        "upto_display": null,
+        "ends_local": null
+      }
+    ],
+    "yoga": [
+      {
+        "drik_name": "Shukla",
+        "drik_index": 24,
+        "key": "shukla",
+        "upto_display": "07:53 AM",
+        "ends_local": "2024-03-12T07:53"
+      },
+      {
+        "drik_name": "Brahma",
+        "drik_index": 25,
+        "key": "brahma",
+        "upto_display": "04:08 AM, Mar 13",
+        "ends_local": "2024-03-13T04:08"
+      },
+      {
+        "drik_name": "Indra",
+        "drik_index": 26,
+        "key": "indra",
+        "upto_display": null,
+        "ends_local": null
+      }
+    ]
+  }
+}

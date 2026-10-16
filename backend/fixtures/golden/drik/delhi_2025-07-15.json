@@ -1,0 +1,95 @@
+{
+  "source": "Drik Panchang (drikpanchang.com), day panchang page",
+  "url": "https://www.drikpanchang.com/panchang/day-panchang.html?geoname-id=1261481&date=15/07/2025",
+  "retrieved": "2026-10-16",
+  "date": "2025-07-15",
+  "why": "monsoon",
+  "chandramasa": {
+    "purnimanta": "Shravana",
+    "amanta": "Ashadha"
+  },
+  "location": {
+    "name": "New Delhi, India",
+    "lat": 28.635556,
+    "lon": 77.224444,
+    "elevation_m": 212,
+    "tz": "Asia/Kolkata"
+  },
+  "sunrise_local": "2025-07-15T05:33",
+  "sunset_local": "2025-07-15T19:21",
+  "moonrise_local": "2025-07-15T22:31",
+  "moonset_local": "2025-07-15T09:40",
+  "elements": {
+    "tithi": [
+      {
+        "drik_name": "Panchami",
+        "drik_index": 20,
+        "key": "krishna_panchami",
+        "upto_display": "10:38 PM",
+        "ends_local": "2025-07-15T22:38"
+      },
+      {
+        "drik_name": "Shashthi",
+        "drik_index": 21,
+        "key": "krishna_shashthi",
+        "upto_display": null,
+        "ends_local": null
+      }
+    ],
+    "nakshatra": [
+      {
+        "drik_name": "Shatabhisha",
+        "drik_index": 24,
+        "key": "shatabhisha",
+        "upto_display": "06:26 AM",
+        "ends_local": "2025-07-15T06:26"
+      },
+      {
+        "drik_name": "Purva Bhadrapada",
+        "drik_index": 25,
+        "key": "purva_bhadrapada",
+        "upto_display": null,
+        "ends_local": null
+      }
+    ],
+    "yoga": [
+      {
+        "drik_name": "Saubhagya",
+        "drik_index": 4,
+        "key": "saubhagya",
+        "upto_display": "02:12 PM",
+        "ends_local": "2025-07-15T14:12"
+      },
+      {
+        "drik_name": "Shobhana",
+        "drik_index": 5,
+        "key": "shobhana",
+        "upto_display": null,
+        "ends_local": null
+      }
+    ],
+    "karana": [
+      {
+        "drik_name": "Kaulava",
+        "drik_index": 39,
+        "key": "kaulava",
+        "upto_display": "11:21 AM",
+        "ends_local": "2025-07-15T11:21"
+      },
+      {
+        "drik_name": "Taitila",
+        "drik_index": 40,
+        "key": "taitila",
+        "upto_display": "10:38 PM",
+        "ends_local": "2025-07-15T22:38"
+      },
+      {
+        "drik_name": "Garaja",
+        "drik_index": 41,
+        "key": "gara",
+        "upto_display": null,
+        "ends_local": null
+      }
+    ]
+  }
+}

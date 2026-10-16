@@ -1,0 +1,95 @@
+{
+  "source": "Drik Panchang (drikpanchang.com), day panchang page",
+  "url": "https://www.drikpanchang.com/panchang/day-panchang.html?geoname-id=1261481&date=01/08/2023",
+  "retrieved": "2026-10-16",
+  "date": "2023-08-01",
+  "why": "Adhik (Adhika) Shravana masa, 2023",
+  "chandramasa": {
+    "purnimanta": "Shravana (Adhik)",
+    "amanta": "Shravana (Adhik)"
+  },
+  "location": {
+    "name": "New Delhi, India",
+    "lat": 28.635556,
+    "lon": 77.224444,
+    "elevation_m": 212,
+    "tz": "Asia/Kolkata"
+  },
+  "sunrise_local": "2023-08-01T05:42",
+  "sunset_local": "2023-08-01T19:12",
+  "moonrise_local": "2023-08-01T19:22",
+  "moonset_local": null,
+  "elements": {
+    "tithi": [
+      {
+        "drik_name": "Purnima",
+        "drik_index": 15,
+        "key": "purnima",
+        "upto_display": "12:01 AM, Aug 02",
+        "ends_local": "2023-08-02T00:01"
+      },
+      {
+        "drik_name": "Pratipada",
+        "drik_index": 16,
+        "key": "krishna_pratipada",
+        "upto_display": null,
+        "ends_local": null
+      }
+    ],
+    "nakshatra": [
+      {
+        "drik_name": "Uttara Ashadha",
+        "drik_index": 21,
+        "key": "uttara_ashadha",
+        "upto_display": "04:03 PM",
+        "ends_local": "2023-08-01T16:03"
+      },
+      {
+        "drik_name": "Shravana",
+        "drik_index": 22,
+        "key": "shravana",
+        "upto_display": null,
+        "ends_local": null
+      }
+    ],
+    "yoga": [
+      {
+        "drik_name": "Priti",
+        "drik_index": 2,
+        "key": "priti",
+        "upto_display": "06:53 PM",
+        "ends_local": "2023-08-01T18:53"
+      },
+      {
+        "drik_name": "Ayushmana",
+        "drik_index": 3,
+        "key": "ayushman",
+        "upto_display": null,
+        "ends_local": null
+      }
+    ],
+    "karana": [
+      {
+        "drik_name": "Vishti",
+        "drik_index": 29,
+        "key": "vishti",
+        "upto_display": "01:57 PM",
+        "ends_local": "2023-08-01T13:57"
+      },
+      {
+        "drik_name": "Bava",
+        "drik_index": 30,
+        "key": "bava",
+        "upto_display": "12:01 AM, Aug 02",
+        "ends_local": "2023-08-02T00:01"
+      },
+      {
+        "drik_name": "Balava",
+        "drik_index": 31,
+        "key": "balava",
+        "upto_display": null,
+        "ends_local": null
+      }
+    ]
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "source": "Drik Panchang (drikpanchang.com), day panchang page",
+  "url": "https://www.drikpanchang.com/panchang/day-panchang.html?geoname-id=1261481&date=15/09/2024",
+  "retrieved": "2026-10-16",
+  "date": "2024-09-15",
+  "why": "monsoon",
+  "chandramasa": {
+    "purnimanta": "Bhadrapada",
+    "amanta": "Bhadrapada"
+  },
+  "location": {
+    "name": "New Delhi, India",
+    "lat": 28.635556,
+    "lon": 77.224444,
+    "elevation_m": 212,
+    "tz": "Asia/Kolkata"
+  },
+  "sunrise_local": "2024-09-15T06:06",
+  "sunset_local": "2024-09-15T18:26",
+  "moonrise_local": "2024-09-15T16:52",
+  "moonset_local": "2024-09-16T03:42",
+  "elements": {
+    "tithi": [
+      {
+        "drik_name": "Dwadashi",
+        "drik_index": 12,
+        "key": "shukla_dwadashi",
+        "upto_display": "06:12 PM",
+        "ends_local": "2024-09-15T18:12"
+      },
+      {
+        "drik_name": "Trayodashi",
+        "drik_index": 13,
+        "key": "shukla_trayodashi",
+        "upto_display": null,
+        "ends_local": null
+      }
+    ],
+    "nakshatra": [
+      {
+        "drik_name": "Shravana",
+        "drik_index": 22,
+        "key": "shravana",
+        "upto_display": "06:49 PM",
+        "ends_local": "2024-09-15T18:49"
+      },
+      {
+        "drik_name": "Dhanishtha",
+        "drik_index": 23,
+        "key": "dhanishta",
+        "upto_display": null,
+        "ends_local": null
+      }
+    ],
+    "yoga": [
+      {
+        "drik_name": "Atiganda",
+        "drik_index": 6,
+        "key": "atiganda",
+        "upto_display": "03:14 PM",
+        "ends_local": "2024-09-15T15:14"
+      },
+      {
+        "drik_name": "Sukarma",
+        "drik_index": 7,
+        "key": "sukarma",
+        "upto_display": null,
+        "ends_local": null
+      }
+    ],
+    "karana": [
+      {
+        "drik_name": "Bava",
+        "drik_index": 23,
+        "key": "bava",
+        "upto_display": "07:31 AM",
+        "ends_local": "2024-09-15T07:31"
+      },
+      {
+        "drik_name": "Balava",
+        "drik_index": 24,
+        "key": "balava",
+        "upto_display": "06:12 PM",
+        "ends_local": "2024-09-15T18:12"
+      },
+      {
+        "drik_name": "Kaulava",
+        "drik_index": 25,
+        "key": "kaulava",
+        "upto_display": "04:44 AM, Sep 16",
+        "ends_local": "2024-09-16T04:44"
+      },
+      {
+        "drik_name": "Taitila",
+        "drik_index": 26,
+        "key": "taitila",
+        "upto_display": null,
+        "ends_local": null
+      }
+    ]
+  }
+}

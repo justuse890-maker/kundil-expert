@@ -1,0 +1,95 @@
+{
+  "source": "Drik Panchang (drikpanchang.com), day panchang page",
+  "url": "https://www.drikpanchang.com/panchang/day-panchang.html?geoname-id=1261481&date=30/04/2025",
+  "retrieved": "2026-10-16",
+  "date": "2025-04-30",
+  "why": "spring",
+  "chandramasa": {
+    "purnimanta": "Vaishakha",
+    "amanta": "Vaishakha"
+  },
+  "location": {
+    "name": "New Delhi, India",
+    "lat": 28.635556,
+    "lon": 77.224444,
+    "elevation_m": 212,
+    "tz": "Asia/Kolkata"
+  },
+  "sunrise_local": "2025-04-30T05:41",
+  "sunset_local": "2025-04-30T18:56",
+  "moonrise_local": "2025-04-30T07:28",
+  "moonset_local": "2025-04-30T22:08",
+  "elements": {
+    "tithi": [
+      {
+        "drik_name": "Tritiya",
+        "drik_index": 3,
+        "key": "shukla_tritiya",
+        "upto_display": "02:12 PM",
+        "ends_local": "2025-04-30T14:12"
+      },
+      {
+        "drik_name": "Chaturthi",
+        "drik_index": 4,
+        "key": "shukla_chaturthi",
+        "upto_display": null,
+        "ends_local": null
+      }
+    ],
+    "nakshatra": [
+      {
+        "drik_name": "Rohini",
+        "drik_index": 4,
+        "key": "rohini",
+        "upto_display": "04:18 PM",
+        "ends_local": "2025-04-30T16:18"
+      },
+      {
+        "drik_name": "Mrigashira",
+        "drik_index": 5,
+        "key": "mrigashira",
+        "upto_display": null,
+        "ends_local": null
+      }
+    ],
+    "yoga": [
+      {
+        "drik_name": "Shobhana",
+        "drik_index": 5,
+        "key": "shobhana",
+        "upto_display": "12:02 PM",
+        "ends_local": "2025-04-30T12:02"
+      },
+      {
+        "drik_name": "Atiganda",
+        "drik_index": 6,
+        "key": "atiganda",
+        "upto_display": null,
+        "ends_local": null
+      }
+    ],
+    "karana": [
+      {
+        "drik_name": "Garaja",
+        "drik_index": 6,
+        "key": "gara",
+        "upto_display": "02:12 PM",
+        "ends_local": "2025-04-30T14:12"
+      },
+      {
+        "drik_name": "Vanija",
+        "drik_index": 7,
+        "key": "vanija",
+        "upto_display": "12:43 AM, May 01",
+        "ends_local": "2025-05-01T00:43"
+      },
+      {
+        "drik_name": "Vishti",
+        "drik_index": 8,
+        "key": "vishti",
+        "upto_display": null,
+        "ends_local": null
+      }
+    ]
+  }
+}

@@ -195,3 +195,42 @@ def test_rise_set_none_when_event_beyond_one_day() -> None:
     assert any(r is None for r in results)
     for d, r in enumerate(results):
         assert r is None or start + d <= r < start + d + 1
+
+
+def test_refraction_atmosphere_is_named_standard() -> None:
+    # Sunrise convention (Drik Panchang "Edge"): ISA sea-level atmosphere for refraction.
+    assert ephemeris.REFRACTION_PRESSURE_MBAR == 1013.25
+    assert ephemeris.REFRACTION_TEMP_C == 15.0
+
+
+def test_rise_set_window_may_extend_past_range_end() -> None:
+    # Search from 2399-12-31 03:00 UT: the 1-day window ends past JD_MAX, the sunrise does not.
+    start = ephemeris.JD_MAX - 21.0 / 24.0
+    rise = ephemeris.rise_set(start, -23.55, -46.63, 0.0, "sun", "rise", DEFAULT)
+    assert rise is not None and start <= rise < ephemeris.JD_MAX
+
+
+def test_rise_set_event_just_past_range_end_is_returned() -> None:
+    # Sao Paulo, search from 2399-12-31 03:00 UT (local midnight): the moonset of that civil
+    # day falls ~0.02 day after JD_MAX, a derived instant inside DERIVED_MARGIN_DAYS.
+    start = ephemeris.JD_MAX - 21.0 / 24.0
+    moonset = ephemeris.rise_set(start, -23.55, -46.63, 0.0, "moon", "set", DEFAULT)
+    assert moonset is not None and ephemeris.JD_MAX < moonset < ephemeris.JD_MAX + 0.1
+
+
+def test_derived_margin_uses_swiss_ephemeris_files() -> None:
+    # calc_ut refuses a Moshier fallback, so this proves the files cover the whole margin.
+    edge = ephemeris.JD_MAX + ephemeris.DERIVED_MARGIN_DAYS
+    for graha in (Graha.SUN, Graha.MOON):
+        ephemeris.body_longitude(edge, graha, DEFAULT, derived=True)
+    with pytest.raises(EphemerisRangeError):
+        ephemeris.body_longitude(ephemeris.JD_MAX + 1e-6, Graha.SUN, DEFAULT)
+    with pytest.raises(EphemerisRangeError):
+        ephemeris.body_longitude(edge + 1e-6, Graha.SUN, DEFAULT, derived=True)
+
+
+def test_rise_set_from_range_start() -> None:
+    rise = ephemeris.rise_set(ephemeris.JD_MIN, *DELHI, 0.0, "sun", "rise", DEFAULT)
+    assert rise is not None and rise >= ephemeris.JD_MIN
+    with pytest.raises(EphemerisRangeError):
+        ephemeris.rise_set(ephemeris.JD_MIN - 0.01, *DELHI, 0.0, "sun", "rise", DEFAULT)

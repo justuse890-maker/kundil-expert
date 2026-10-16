@@ -1,0 +1,95 @@
+{
+  "source": "Drik Panchang (drikpanchang.com), day panchang page",
+  "url": "https://www.drikpanchang.com/panchang/day-panchang.html?geoname-id=1261481&date=21/06/2024",
+  "retrieved": "2026-10-16",
+  "date": "2024-06-21",
+  "why": "June solstice, earliest-sunrise season",
+  "chandramasa": {
+    "purnimanta": "Jyeshtha",
+    "amanta": "Jyeshtha"
+  },
+  "location": {
+    "name": "New Delhi, India",
+    "lat": 28.635556,
+    "lon": 77.224444,
+    "elevation_m": 212,
+    "tz": "Asia/Kolkata"
+  },
+  "sunrise_local": "2024-06-21T05:24",
+  "sunset_local": "2024-06-21T19:22",
+  "moonrise_local": "2024-06-21T19:09",
+  "moonset_local": "2024-06-22T05:06",
+  "elements": {
+    "tithi": [
+      {
+        "drik_name": "Chaturdashi",
+        "drik_index": 14,
+        "key": "shukla_chaturdashi",
+        "upto_display": "07:31 AM",
+        "ends_local": "2024-06-21T07:31"
+      },
+      {
+        "drik_name": "Purnima",
+        "drik_index": 15,
+        "key": "purnima",
+        "upto_display": null,
+        "ends_local": null
+      }
+    ],
+    "nakshatra": [
+      {
+        "drik_name": "Jyeshtha",
+        "drik_index": 18,
+        "key": "jyeshtha",
+        "upto_display": "06:19 PM",
+        "ends_local": "2024-06-21T18:19"
+      },
+      {
+        "drik_name": "Mula",
+        "drik_index": 19,
+        "key": "mula",
+        "upto_display": null,
+        "ends_local": null
+      }
+    ],
+    "yoga": [
+      {
+        "drik_name": "Shubha",
+        "drik_index": 23,
+        "key": "shubha",
+        "upto_display": "06:42 PM",
+        "ends_local": "2024-06-21T18:42"
+      },
+      {
+        "drik_name": "Shukla",
+        "drik_index": 24,
+        "key": "shukla",
+        "upto_display": null,
+        "ends_local": null
+      }
+    ],
+    "karana": [
+      {
+        "drik_name": "Vanija",
+        "drik_index": 28,
+        "key": "vanija",
+        "upto_display": "07:31 AM",
+        "ends_local": "2024-06-21T07:31"
+      },
+      {
+        "drik_name": "Vishti",
+        "drik_index": 29,
+        "key": "vishti",
+        "upto_display": "07:08 PM",
+        "ends_local": "2024-06-21T19:08"
+      },
+      {
+        "drik_name": "Bava",
+        "drik_index": 30,
+        "key": "bava",
+        "upto_display": null,
+        "ends_local": null
+      }
+    ]
+  }
+}

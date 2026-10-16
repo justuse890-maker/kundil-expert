@@ -1,0 +1,95 @@
+{
+  "source": "Drik Panchang (drikpanchang.com), day panchang page",
+  "url": "https://www.drikpanchang.com/panchang/day-panchang.html?geoname-id=1261481&date=14/02/2025",
+  "retrieved": "2026-10-16",
+  "date": "2025-02-14",
+  "why": "late winter",
+  "chandramasa": {
+    "purnimanta": "Phalguna",
+    "amanta": "Magha"
+  },
+  "location": {
+    "name": "New Delhi, India",
+    "lat": 28.635556,
+    "lon": 77.224444,
+    "elevation_m": 212,
+    "tz": "Asia/Kolkata"
+  },
+  "sunrise_local": "2025-02-14T07:00",
+  "sunset_local": "2025-02-14T18:11",
+  "moonrise_local": "2025-02-14T19:57",
+  "moonset_local": "2025-02-14T07:56",
+  "elements": {
+    "tithi": [
+      {
+        "drik_name": "Dwitiya",
+        "drik_index": 17,
+        "key": "krishna_dwitiya",
+        "upto_display": "09:52 PM",
+        "ends_local": "2025-02-14T21:52"
+      },
+      {
+        "drik_name": "Tritiya",
+        "drik_index": 18,
+        "key": "krishna_tritiya",
+        "upto_display": null,
+        "ends_local": null
+      }
+    ],
+    "nakshatra": [
+      {
+        "drik_name": "Purva Phalguni",
+        "drik_index": 11,
+        "key": "purva_phalguni",
+        "upto_display": "11:09 PM",
+        "ends_local": "2025-02-14T23:09"
+      },
+      {
+        "drik_name": "Uttara Phalguni",
+        "drik_index": 12,
+        "key": "uttara_phalguni",
+        "upto_display": null,
+        "ends_local": null
+      }
+    ],
+    "yoga": [
+      {
+        "drik_name": "Atiganda",
+        "drik_index": 6,
+        "key": "atiganda",
+        "upto_display": "07:20 AM",
+        "ends_local": "2025-02-14T07:20"
+      },
+      {
+        "drik_name": "Sukarma",
+        "drik_index": 7,
+        "key": "sukarma",
+        "upto_display": null,
+        "ends_local": null
+      }
+    ],
+    "karana": [
+      {
+        "drik_name": "Taitila",
+        "drik_index": 33,
+        "key": "taitila",
+        "upto_display": "09:03 AM",
+        "ends_local": "2025-02-14T09:03"
+      },
+      {
+        "drik_name": "Garaja",
+        "drik_index": 34,
+        "key": "gara",
+        "upto_display": "09:52 PM",
+        "ends_local": "2025-02-14T21:52"
+      },
+      {
+        "drik_name": "Vanija",
+        "drik_index": 35,
+        "key": "vanija",
+        "upto_display": null,
+        "ends_local": null
+      }
+    ]
+  }
+}

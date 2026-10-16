@@ -1,0 +1,95 @@
+{
+  "source": "Drik Panchang (drikpanchang.com), day panchang page",
+  "url": "https://www.drikpanchang.com/panchang/day-panchang.html?geoname-id=1261481&date=25/12/2025",
+  "retrieved": "2026-10-16",
+  "date": "2025-12-25",
+  "why": "winter",
+  "chandramasa": {
+    "purnimanta": "Pausha",
+    "amanta": "Pausha"
+  },
+  "location": {
+    "name": "New Delhi, India",
+    "lat": 28.635556,
+    "lon": 77.224444,
+    "elevation_m": 212,
+    "tz": "Asia/Kolkata"
+  },
+  "sunrise_local": "2025-12-25T07:12",
+  "sunset_local": "2025-12-25T17:31",
+  "moonrise_local": "2025-12-25T10:53",
+  "moonset_local": "2025-12-25T22:21",
+  "elements": {
+    "tithi": [
+      {
+        "drik_name": "Panchami",
+        "drik_index": 5,
+        "key": "shukla_panchami",
+        "upto_display": "01:42 PM",
+        "ends_local": "2025-12-25T13:42"
+      },
+      {
+        "drik_name": "Shashthi",
+        "drik_index": 6,
+        "key": "shukla_shashthi",
+        "upto_display": null,
+        "ends_local": null
+      }
+    ],
+    "nakshatra": [
+      {
+        "drik_name": "Dhanishtha",
+        "drik_index": 23,
+        "key": "dhanishta",
+        "upto_display": "08:18 AM",
+        "ends_local": "2025-12-25T08:18"
+      },
+      {
+        "drik_name": "Shatabhisha",
+        "drik_index": 24,
+        "key": "shatabhisha",
+        "upto_display": null,
+        "ends_local": null
+      }
+    ],
+    "yoga": [
+      {
+        "drik_name": "Vajra",
+        "drik_index": 15,
+        "key": "vajra",
+        "upto_display": "03:14 PM",
+        "ends_local": "2025-12-25T15:14"
+      },
+      {
+        "drik_name": "Siddhi",
+        "drik_index": 16,
+        "key": "siddhi",
+        "upto_display": null,
+        "ends_local": null
+      }
+    ],
+    "karana": [
+      {
+        "drik_name": "Balava",
+        "drik_index": 10,
+        "key": "balava",
+        "upto_display": "01:42 PM",
+        "ends_local": "2025-12-25T13:42"
+      },
+      {
+        "drik_name": "Kaulava",
+        "drik_index": 11,
+        "key": "kaulava",
+        "upto_display": "01:47 AM, Dec 26",
+        "ends_local": "2025-12-26T01:47"
+      },
+      {
+        "drik_name": "Taitila",
+        "drik_index": 12,
+        "key": "taitila",
+        "upto_display": null,
+        "ends_local": null
+      }
+    ]
+  }
+}

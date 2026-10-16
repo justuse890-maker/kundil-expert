@@ -1,0 +1,88 @@
+{
+  "source": "Drik Panchang (drikpanchang.com), day panchang page",
+  "url": "https://www.drikpanchang.com/panchang/day-panchang.html?geoname-id=1261481&date=21/10/2025",
+  "retrieved": "2026-10-16",
+  "date": "2025-10-21",
+  "why": "autumn",
+  "chandramasa": {
+    "purnimanta": "Kartika",
+    "amanta": "Ashwina"
+  },
+  "location": {
+    "name": "New Delhi, India",
+    "lat": 28.635556,
+    "lon": 77.224444,
+    "elevation_m": 212,
+    "tz": "Asia/Kolkata"
+  },
+  "sunrise_local": "2025-10-21T06:26",
+  "sunset_local": "2025-10-21T17:45",
+  "moonrise_local": null,
+  "moonset_local": "2025-10-21T17:25",
+  "elements": {
+    "tithi": [
+      {
+        "drik_name": "Amavasya",
+        "drik_index": 30,
+        "key": "amavasya",
+        "upto_display": "05:54 PM",
+        "ends_local": "2025-10-21T17:54"
+      },
+      {
+        "drik_name": "Pratipada",
+        "drik_index": 1,
+        "key": "shukla_pratipada",
+        "upto_display": null,
+        "ends_local": null
+      }
+    ],
+    "nakshatra": [
+      {
+        "drik_name": "Chitra",
+        "drik_index": 14,
+        "key": "chitra",
+        "upto_display": "10:59 PM",
+        "ends_local": "2025-10-21T22:59"
+      },
+      {
+        "drik_name": "Swati",
+        "drik_index": 15,
+        "key": "swati",
+        "upto_display": null,
+        "ends_local": null
+      }
+    ],
+    "yoga": [
+      {
+        "drik_name": "Vishkambha",
+        "drik_index": 1,
+        "key": "vishkambha",
+        "upto_display": "03:17 AM, Oct 22",
+        "ends_local": "2025-10-22T03:17"
+      },
+      {
+        "drik_name": "Priti",
+        "drik_index": 2,
+        "key": "priti",
+        "upto_display": null,
+        "ends_local": null
+      }
+    ],
+    "karana": [
+      {
+        "drik_name": "Nagava",
+        "drik_index": 60,
+        "key": "naga",
+        "upto_display": "05:54 PM",
+        "ends_local": "2025-10-21T17:54"
+      },
+      {
+        "drik_name": "Kinstughna",
+        "drik_index": 1,
+        "key": "kimstughna",
+        "upto_display": "Full Night",
+        "ends_local": null
+      }
+    ]
+  }
+}

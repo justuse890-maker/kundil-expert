@@ -34,6 +34,12 @@ _LOCK = threading.Lock()
 JD_MIN: float = float(swe.julday(1800, 1, 1, 6.0, swe.GREG_CAL))
 JD_MAX: float = float(swe.julday(2399, 12, 31, 24.0, swe.GREG_CAL))
 
+# Instants derived from an in-range moment (element end times, rise/set events of the last
+# supported day) may fall shortly after JD_MAX. The .se1 files run several days beyond it and
+# every ``calc_ut`` result is still checked for FLG_SWIEPH, so such instants are computed from
+# the shipped files; anything later still raises (Ruling R12: a valid date must not fail).
+DERIVED_MARGIN_DAYS: float = 2.0
+
 _SIDEREAL = swe.FLG_SWIEPH | swe.FLG_SIDEREAL | swe.FLG_SPEED
 _TROPICAL = swe.FLG_SWIEPH | swe.FLG_SPEED
 
@@ -64,8 +70,9 @@ def init(ephe_path: Path) -> None:
             _calc(probe, body, _TROPICAL)
 
 
-def check_range(jd: float) -> None:
-    if not JD_MIN <= jd <= JD_MAX:
+def check_range(jd: float, *, derived: bool = False) -> None:
+    """Reject instants outside the supported range; ``derived`` allows DERIVED_MARGIN_DAYS."""
+    if not JD_MIN <= jd <= JD_MAX + (DERIVED_MARGIN_DAYS if derived else 0.0):
         raise EphemerisRangeError(
             f"Julian day {jd} outside supported range 1800-01-01 06:00 UT .. 2399-12-31 24:00 UT "
             "(CE, Gregorian)"
@@ -135,9 +142,15 @@ def positions(jd_ut: float, settings: Settings) -> dict[Graha, GrahaPosition]:
     return out
 
 
-def body_longitude(jd_ut: float, graha: Graha, settings: Settings) -> float:
-    """Sidereal longitude of one graha (fast path for root finders)."""
-    check_range(jd_ut)
+def body_longitude(
+    jd_ut: float, graha: Graha, settings: Settings, *, derived: bool = False
+) -> float:
+    """Sidereal longitude of one graha (fast path for root finders).
+
+    ``derived=True`` is for instants searched forward from an in-range moment (end times): they
+    may lie up to DERIVED_MARGIN_DAYS past JD_MAX.
+    """
+    check_range(jd_ut, derived=derived)
     _check_settings(settings)
     with _LOCK:
         swe.set_sid_mode(swe.SIDM_LAHIRI)
@@ -172,6 +185,14 @@ _RISE_SET_BODY: dict[str, int] = {"sun": swe.SUN, "moon": swe.MOON}
 _RISE_SET_EVENT: dict[str, int] = {"rise": swe.CALC_RISE, "set": swe.CALC_SET}
 _CIRCUMPOLAR = -2
 
+# Atmosphere for refraction at rise/set: the ISA sea-level standard. Part of the sunrise
+# convention: against 59 Drik Panchang days for New Delhi (sunrise + sunset, minute display),
+# 15 degC / 1013.25 mbar balances the rise and set residuals (mean -3.0 s / -2.8 s), where
+# 10 degC leaves -7.8 s / +2.0 s and 0 degC -18.2 s / +12.4 s (too much refraction). An explicit
+# pressure keeps refraction independent of the observer's altitude, as Drik's "Edge" sunrise is.
+REFRACTION_PRESSURE_MBAR = 1013.25
+REFRACTION_TEMP_C = 15.0
+
 
 def rise_set(
     jd_start: float,
@@ -186,16 +207,25 @@ def rise_set(
 
     ``None`` means the body does not rise/set in that day: circumpolar or never above the
     horizon (polar day/night), or - for the Moon - the next event falls on the following day.
+
+    Only instants actually outside the supported range are rejected: ``jd_start`` must be in
+    range, but the window and the event may extend past ``JD_MAX`` (a derived instant, see
+    DERIVED_MARGIN_DAYS), so the last supported civil day works west of Greenwich too.
     """
     check_range(jd_start)
-    check_range(jd_start + 1.0)
     rsmi = _RISE_SET_EVENT[event]
     if settings.sunrise == "CENTER_NO_REFRACTION":
         rsmi |= swe.BIT_DISC_CENTER | swe.BIT_NO_REFRACTION
     with _LOCK:
         try:
             res, tret = swe.rise_trans(
-                jd_start, _RISE_SET_BODY[body], rsmi, (lon, lat, alt), 0.0, 0.0, swe.FLG_SWIEPH
+                jd_start,
+                _RISE_SET_BODY[body],
+                rsmi,
+                (lon, lat, alt),
+                REFRACTION_PRESSURE_MBAR,
+                REFRACTION_TEMP_C,
+                swe.FLG_SWIEPH,
             )
         except swe.Error as exc:
             raise EngineError(f"Swiss Ephemeris rise_trans error at JD {jd_start}: {exc}") from exc
