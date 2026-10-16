@@ -411,3 +411,63 @@ backend/fixtures/golden/{horizons/*.json, drik/*.json, ayanamsa_iae.json, charts
 - `reports/accuracy.md` is all PASS against JPL Horizons, IAE ayanamsa, Drik Panchang and the BPHS worked examples.
 - `docker run` serves `/api/v1/kundli` and `/docs`.
 - Jagannath Hora exports, when supplied, drop into `fixtures/golden/jhora/` and run through `test_charts.py` with no code change.
+
+---
+
+## Amendment 2026-10-17 — engine additions for the UI PRD (ruling R27)
+
+Execution order becomes **T12 → T15 → T16 → T13 → T14**. T13's request and response schemas include the T15 and T16 fields.
+
+### Task 15: House facts (bhava table), drishti, karakas, vargottama
+
+**Files:** Create `src/vedic_engine/bhava.py`, `src/vedic_engine/data/karakas.json`. Modify `kundli.py` (add `bhavas_detail: tuple[BhavaFact, ...]` and `vargottama: dict[Graha, bool]` to `Kundli`). Test: `tests/unit/test_bhava.py`.
+
+**Interfaces:**
+- Consumes: `RASHI_LORD`, `lagna.house_of`, `angles.sign_of`, `varga_sign`.
+- Produces:
+  - `drishti(graha: Graha, from_sign: int) -> tuple[int, ...]`: the signs aspected, using whole-sign Parashari graha drishti. Every graha aspects the 7th sign. Mars also aspects the 4th and 8th, Jupiter the 5th and 9th, Saturn the 3rd and 10th. Rahu and Ketu aspect nothing by default; `NODE_ASPECTS_SCHOOL = "none"` is a module constant, and the alternative "5-7-9" is behind a flag that is off by default.
+  - `@dataclass(frozen=True) BhavaFact(house: int, rashi: int, lord: Graha, lord_house: int, occupants: tuple[Graha, ...], aspected_by: tuple[Graha, ...], karakas: tuple[Graha, ...])`.
+  - `bhava_facts(lagna_lon: float, lons: Mapping[Graha, float]) -> tuple[BhavaFact, ...]` (12 entries).
+  - `vargottama(lons) -> dict[Graha, bool]`, true when the D1 sign equals the D9 sign.
+  - `karakas.json` holds the natural bhava-karaka table. Transcribe it from a cited source (BPHS Ch 32 or Phaladeepika, edition and page) under ruling R4, with no transcription from memory. Record any variant (e.g. the 10th-house karakas) in `_note`.
+
+- [ ] **Step 1: Write failing tests:**
+  - Mars in Mesha aspects (Karka, Tula, Vrishchika).
+  - Jupiter in Mesha aspects (Simha, Tula, Dhanu).
+  - Saturn in Mesha aspects (Mithuna, Tula, Makara).
+  - Sun in Mesha aspects only Tula.
+  - India 1947: house 1 = Vrishabha, lord Venus, lord_house 3, occupants (Rahu,). House 3's occupants are the 5 planets in Karka.
+  - Vargottama is true exactly when `varga_sign(lon, 1) == varga_sign(lon, 9)`, checked with a property test.
+  - Every house has ≥ 1 karaka, and the table matches the cited source literally.
+- [ ] **Step 2:** Run FAIL, implement, run PASS. Wire the result into `build_kundli` and extend the determinism test.
+- [ ] **Step 3: Commit** `feat(engine): house facts, graha drishti, karakas, vargottama`.
+
+### Task 16: Ayanamsa selector and Chandra kundli (unknown birth time)
+
+**Files:** Modify `models.py` (`Settings.ayanamsa: Literal["LAHIRI","RAMAN","KP","FAGAN_BRADLEY"]`, `BirthInput.time_known: bool = True`), `ephemeris.py` (map each to `swe.SIDM_LAHIRI`, `SIDM_RAMAN`, `SIDM_KRISHNAMURTI`, `SIDM_FAGAN_BRADLEY`, and re-assert the mode chosen by settings instead of hard-coded Lahiri), `kundli.py`. Tests: `tests/unit/test_ayanamsa_modes.py`, `tests/unit/test_chandra_kundli.py`.
+
+**Interfaces:**
+- `ephemeris.ayanamsa(jd, settings)`, `positions` and `ascendant` honour `settings.ayanamsa`. `ascendant` gains a `settings` parameter; update every caller.
+- With `time_known=False`, `build_kundli`:
+  - computes positions at **local noon** of the birth date;
+  - sets the lagna to the Moon's longitude (Chandra lagna, so bhavas are counted from the Moon's sign);
+  - omits time-dependent outputs (shadbala → `None`, sensitivity → `()`, panchang uses noon);
+  - adds `EngineWarning("time_unknown", …)` and `EngineWarning("moon_nakshatra_uncertain", …)`. The second lists every nakshatra-pada the Moon occupies between local 00:00 and 23:59, and is added whenever that set has more than one entry;
+  - still computes Vimshottari from the noon Moon and flags it as approximate in the warning text.
+- `Kundli.meta["time_known"]` and `Kundli.meta["lagna_basis"]` (`"ascendant"` or `"moon"`).
+
+- [ ] **Step 1: Write failing tests:**
+  - Lahiri unchanged: all existing golden tests still pass.
+  - At J2000: `ayanamsa(KP) − ayanamsa(LAHIRI)` is within the range implied by Swiss Ephemeris' documented constants. Compute the expected value in the test from those t0/ayan_t0 constants with linear precession, and record the source.
+  - `RAMAN` and `FAGAN_BRADLEY` likewise.
+  - Changing the ayanamsa changes sidereal longitudes by exactly the ayanamsa difference (within 1e-6°).
+  - Chandra kundli for 1947-08-15 with time unknown: lagna sign = Karka (the Moon's sign), `meta.lagna_basis == "moon"`, shadbala is `None`, and the `time_unknown` warning is present.
+  - A date when the Moon changes nakshatra during the day carries `moon_nakshatra_uncertain` listing both nakshatras.
+- [ ] **Step 2:** Run FAIL, implement, run PASS. Run the full suite to confirm the Lahiri results are unchanged.
+- [ ] **Step 3: Commit** `feat(engine): ayanamsa selector and Chandra kundli for unknown birth time`.
+
+### T13 amendments
+
+- `KundliRequest` gains `time_known: bool = true` (when false, `time` may be omitted) and `settings.ayanamsa` taking one of the four values.
+- The response includes `bhavas_detail`, `vargottama` and `meta.lagna_basis`.
+- Add API tests `test_kundli_time_unknown` and `test_kundli_ayanamsa_kp`.
