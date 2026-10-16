@@ -1,10 +1,11 @@
+import math
 from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
 import swisseph as swe
 
-from tolerances import PLANET_ARCSEC
+from tolerances import LAGNA_ARCMIN, PLANET_ARCSEC
 from vedic_engine import ephemeris
 from vedic_engine.angles import arc, norm
 from vedic_engine.constants import Graha
@@ -234,3 +235,43 @@ def test_rise_set_from_range_start() -> None:
     assert rise is not None and rise >= ephemeris.JD_MIN
     with pytest.raises(EphemerisRangeError):
         ephemeris.rise_set(ephemeris.JD_MIN - 0.01, *DELHI, 0.0, "sun", "rise", DEFAULT)
+
+
+def _meeus_mc(jd_ut: float, lon_east: float) -> float:
+    """Tropical MC from GMST (Meeus 12.4) and mean obliquity (Meeus 22.2), no nutation."""
+    t = (jd_ut - 2451545.0) / 36525.0
+    gmst = 280.46061837 + 360.98564736629 * (jd_ut - 2451545.0) + 0.000387933 * t * t
+    ramc = math.radians(norm(gmst + lon_east))
+    eps = math.radians(23.439291111 - 0.0130041667 * t)
+    return norm(math.degrees(math.atan2(math.sin(ramc), math.cos(ramc) * math.cos(eps))))
+
+
+@pytest.mark.parametrize(
+    "dt",
+    [datetime(2024, 1, 10, 6, tzinfo=UTC), datetime(1918, 10, 16, 8, 50, tzinfo=UTC),
+     datetime(2350, 7, 1, 18, tzinfo=UTC)],
+)  # fmt: skip
+def test_midheaven_is_sidereal_mc(dt: datetime) -> None:
+    """Independent check: Meeus MC minus Lahiri ayanamsa; nutation (< 20") is left out."""
+    jd = jd_from_utc(dt)
+    expected = norm(_meeus_mc(jd, 77.58) - ephemeris.ayanamsa(jd, DEFAULT))
+    got = ephemeris.midheaven(jd, 13.0, 77.58)
+    assert abs(_signed_diff(got, expected)) * 60.0 < LAGNA_ARCMIN
+    assert ephemeris.midheaven(jd, 60.0, 77.58) == pytest.approx(got)  # MC ignores latitude
+
+
+def test_midheaven_and_equation_of_time_reject_out_of_range() -> None:
+    for jd in (ephemeris.JD_MIN - 0.01, ephemeris.JD_MAX + 0.01):
+        with pytest.raises(EphemerisRangeError):
+            ephemeris.midheaven(jd, *DELHI)
+        with pytest.raises(EphemerisRangeError):
+            ephemeris.equation_of_time(jd)
+
+
+@pytest.mark.parametrize(
+    ("dt", "minutes"),
+    [(datetime(2024, 11, 3, 12, tzinfo=UTC), 16.4), (datetime(2024, 2, 11, 12, tzinfo=UTC), -14.2)],
+)
+def test_equation_of_time_extremes(dt: datetime, minutes: float) -> None:
+    """Apparent minus mean solar time; the annual extremes are about +16.4 and -14.2 min."""
+    assert ephemeris.equation_of_time(jd_from_utc(dt)) * 1440.0 == pytest.approx(minutes, abs=0.2)

@@ -169,8 +169,8 @@ def tropical_longitude(jd_ut: float, graha: Graha) -> float:
     return norm(lon + 180.0) if graha is Graha.KETU else norm(lon)
 
 
-def ascendant(jd_ut: float, lat: float, lon: float) -> float:
-    """Sidereal (Lahiri) ascendant longitude for geographic ``lat``/``lon`` (east positive)."""
+def _ascmc(jd_ut: float, lat: float, lon: float) -> tuple[float, ...]:
+    """Sidereal (Lahiri) ``ascmc`` of ``swe.houses_ex`` for geographic ``lat``/``lon``."""
     check_range(jd_ut)
     with _LOCK:
         swe.set_sid_mode(swe.SIDM_LAHIRI)
@@ -178,7 +178,36 @@ def ascendant(jd_ut: float, lat: float, lon: float) -> float:
             _cusps, ascmc = swe.houses_ex(jd_ut, lat, lon, b"W", swe.FLG_SIDEREAL)
         except swe.Error as exc:
             raise EngineError(f"Swiss Ephemeris houses error at JD {jd_ut}: {exc}") from exc
-    return norm(float(ascmc[0]))
+    return tuple(ascmc)
+
+
+def ascendant(jd_ut: float, lat: float, lon: float) -> float:
+    """Sidereal (Lahiri) ascendant longitude for geographic ``lat``/``lon`` (east positive)."""
+    return norm(float(_ascmc(jd_ut, lat, lon)[0]))
+
+
+def midheaven(jd_ut: float, lat: float, lon: float) -> float:
+    """Sidereal (Lahiri) midheaven (MC, the meridian's ecliptic degree), ``lon`` east positive.
+
+    Shadbala needs it: the Dig bala of the Sun, Mars, Moon and Venus is measured from the
+    meridian (BPHS 27.7-13; Raman's "Madhya Lagna").
+    """
+    return norm(float(_ascmc(jd_ut, lat, lon)[1]))
+
+
+def equation_of_time(jd_ut: float) -> float:
+    """Equation of time in days: local apparent time minus local mean time.
+
+    Shadbala needs it: Natonnata bala is reckoned from apparent (true solar) midnight, BPHS
+    27.8-9 (Raman Art. 47-51 adds it to local mean time).
+    """
+    check_range(jd_ut)
+    with _LOCK:
+        swe.set_sid_mode(swe.SIDM_LAHIRI)
+        try:
+            return float(swe.time_equ(jd_ut))
+        except swe.Error as exc:
+            raise EngineError(f"Swiss Ephemeris time_equ error at JD {jd_ut}: {exc}") from exc
 
 
 _RISE_SET_BODY: dict[str, int] = {"sun": swe.SUN, "moon": swe.MOON}
