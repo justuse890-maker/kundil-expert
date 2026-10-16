@@ -41,11 +41,11 @@ PRINTED_DISPUTED = {
     Graha.MERCURY: (10, [5, 4, 3, 5, 5, 5, 2, 6, 3, 6, 7, 5]),  # p. 889, sums to 56 (BPHS: 54)
 }
 # Engine minus printed, by rashi 0..11, for the disputed rows.
-# Moon and Mercury: the printed rows sum to 51 and 56, contradicting the 49 and 54 that the
-# book's own tables and rekha charts (pp. 856, 859) give.
+# Moon and Mercury: the printed rows sum to 51 and 56, but the per-house rekha-count columns of
+# the book's own Moon and Mercury charts (pp. 856, 859) sum to 49 and 54, the BPHS totals.
 # (Ruling R23 uses Venus-from-Mars 3,5,6,9,11,12, which reproduces the printed Venus row exactly.)
 KNOWN_DEVIATION = {
-    Graha.MOON: (0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1),
+    Graha.MOON: (0, -1, 0, 0, 0, 0, 0, 0, 0, 1, -1, -1),
     Graha.MERCURY: (0, 0, 0, 0, 0, 0, -1, 0, 0, -1, 0, 0),
 }
 
@@ -64,8 +64,8 @@ GOLDEN = {
     },
     "moon": {
         "sun": [3, 6, 7, 8, 10, 11],
-        "moon": [1, 3, 6, 7, 9, 10, 11],
-        "mars": [2, 3, 5, 6, 10, 11],
+        "moon": [1, 3, 6, 7, 10, 11],
+        "mars": [2, 3, 5, 6, 9, 10, 11],
         "mercury": [1, 3, 4, 5, 7, 8, 10, 11],
         "jupiter": [1, 4, 7, 8, 10, 11, 12],
         "venus": [3, 4, 5, 7, 9, 10, 11],
@@ -153,8 +153,8 @@ def test_golden_house_lists() -> None:
     raw = json.loads(
         resources.files("vedic_engine").joinpath("data/ashtakavarga_bphs.json").read_text("utf-8")
     )
-    actual = {t: {c: raw[t][c] for c in GOLDEN[t]} for t in GOLDEN}
-    assert actual == GOLDEN
+    actual = {t: v for t, v in raw.items() if not t.startswith("_")}
+    assert actual == GOLDEN  # exact equality: no extra targets or contributors
 
 
 def test_bav_totals() -> None:
@@ -190,7 +190,7 @@ def test_golden_contributor_counts() -> None:
     order = ["sun", "moon", "mars", "mercury", "jupiter", "venus", "saturn", "lagna"]
     expected = {
         "sun": [8, 4, 8, 7, 4, 3, 8, 6],
-        "moon": [6, 7, 6, 8, 7, 7, 4, 4],
+        "moon": [6, 6, 7, 8, 7, 7, 4, 4],
         "mars": [5, 3, 7, 4, 4, 4, 7, 5],
         "mercury": [5, 6, 8, 8, 4, 8, 8, 7],
         "jupiter": [9, 5, 7, 8, 8, 6, 4, 9],
