@@ -1,0 +1,466 @@
+{
+  "mesha": {
+    "en": "Mesha (Aries)",
+    "hi": "मेष"
+  },
+  "vrishabha": {
+    "en": "Vrishabha (Taurus)",
+    "hi": "वृषभ"
+  },
+  "mithuna": {
+    "en": "Mithuna (Gemini)",
+    "hi": "मिथुन"
+  },
+  "karka": {
+    "en": "Karka (Cancer)",
+    "hi": "कर्क"
+  },
+  "simha": {
+    "en": "Simha (Leo)",
+    "hi": "सिंह"
+  },
+  "kanya": {
+    "en": "Kanya (Virgo)",
+    "hi": "कन्या"
+  },
+  "tula": {
+    "en": "Tula (Libra)",
+    "hi": "तुला"
+  },
+  "vrishchika": {
+    "en": "Vrishchika (Scorpio)",
+    "hi": "वृश्चिक"
+  },
+  "dhanu": {
+    "en": "Dhanu (Sagittarius)",
+    "hi": "धनु"
+  },
+  "makara": {
+    "en": "Makara (Capricorn)",
+    "hi": "मकर"
+  },
+  "kumbha": {
+    "en": "Kumbha (Aquarius)",
+    "hi": "कुम्भ"
+  },
+  "meena": {
+    "en": "Meena (Pisces)",
+    "hi": "मीन"
+  },
+  "ashwini": {
+    "en": "Ashwini",
+    "hi": "अश्विनी"
+  },
+  "bharani": {
+    "en": "Bharani",
+    "hi": "भरणी"
+  },
+  "krittika": {
+    "en": "Krittika",
+    "hi": "कृत्तिका"
+  },
+  "rohini": {
+    "en": "Rohini",
+    "hi": "रोहिणी"
+  },
+  "mrigashira": {
+    "en": "Mrigashira",
+    "hi": "मृगशिरा"
+  },
+  "ardra": {
+    "en": "Ardra",
+    "hi": "आर्द्रा"
+  },
+  "punarvasu": {
+    "en": "Punarvasu",
+    "hi": "पुनर्वसु"
+  },
+  "pushya": {
+    "en": "Pushya",
+    "hi": "पुष्य"
+  },
+  "ashlesha": {
+    "en": "Ashlesha",
+    "hi": "आश्लेषा"
+  },
+  "magha": {
+    "en": "Magha",
+    "hi": "मघा"
+  },
+  "purva_phalguni": {
+    "en": "Purva Phalguni",
+    "hi": "पूर्वा फाल्गुनी"
+  },
+  "uttara_phalguni": {
+    "en": "Uttara Phalguni",
+    "hi": "उत्तरा फाल्गुनी"
+  },
+  "hasta": {
+    "en": "Hasta",
+    "hi": "हस्त"
+  },
+  "chitra": {
+    "en": "Chitra",
+    "hi": "चित्रा"
+  },
+  "swati": {
+    "en": "Swati",
+    "hi": "स्वाति"
+  },
+  "vishakha": {
+    "en": "Vishakha",
+    "hi": "विशाखा"
+  },
+  "anuradha": {
+    "en": "Anuradha",
+    "hi": "अनुराधा"
+  },
+  "jyeshtha": {
+    "en": "Jyeshtha",
+    "hi": "ज्येष्ठा"
+  },
+  "mula": {
+    "en": "Mula",
+    "hi": "मूल"
+  },
+  "purva_ashadha": {
+    "en": "Purva Ashadha",
+    "hi": "पूर्वाषाढ़ा"
+  },
+  "uttara_ashadha": {
+    "en": "Uttara Ashadha",
+    "hi": "उत्तराषाढ़ा"
+  },
+  "shravana": {
+    "en": "Shravana",
+    "hi": "श्रवण"
+  },
+  "dhanishta": {
+    "en": "Dhanishta",
+    "hi": "धनिष्ठा"
+  },
+  "shatabhisha": {
+    "en": "Shatabhisha",
+    "hi": "शतभिषा"
+  },
+  "purva_bhadrapada": {
+    "en": "Purva Bhadrapada",
+    "hi": "पूर्वभाद्रपद"
+  },
+  "uttara_bhadrapada": {
+    "en": "Uttara Bhadrapada",
+    "hi": "उत्तरभाद्रपद"
+  },
+  "revati": {
+    "en": "Revati",
+    "hi": "रेवती"
+  },
+  "sun": {
+    "en": "Sun",
+    "hi": "सूर्य"
+  },
+  "moon": {
+    "en": "Moon",
+    "hi": "चंद्र"
+  },
+  "mars": {
+    "en": "Mars",
+    "hi": "मंगल"
+  },
+  "mercury": {
+    "en": "Mercury",
+    "hi": "बुध"
+  },
+  "jupiter": {
+    "en": "Jupiter",
+    "hi": "गुरु"
+  },
+  "venus": {
+    "en": "Venus",
+    "hi": "शुक्र"
+  },
+  "saturn": {
+    "en": "Saturn",
+    "hi": "शनि"
+  },
+  "rahu": {
+    "en": "Rahu",
+    "hi": "राहु"
+  },
+  "ketu": {
+    "en": "Ketu",
+    "hi": "केतु"
+  },
+  "shukla_pratipada": {
+    "en": "Shukla Pratipada",
+    "hi": "शुक्ल प्रतिपदा"
+  },
+  "shukla_dwitiya": {
+    "en": "Shukla Dwitiya",
+    "hi": "शुक्ल द्वितीया"
+  },
+  "shukla_tritiya": {
+    "en": "Shukla Tritiya",
+    "hi": "शुक्ल तृतीया"
+  },
+  "shukla_chaturthi": {
+    "en": "Shukla Chaturthi",
+    "hi": "शुक्ल चतुर्थी"
+  },
+  "shukla_panchami": {
+    "en": "Shukla Panchami",
+    "hi": "शुक्ल पंचमी"
+  },
+  "shukla_shashthi": {
+    "en": "Shukla Shashthi",
+    "hi": "शुक्ल षष्ठी"
+  },
+  "shukla_saptami": {
+    "en": "Shukla Saptami",
+    "hi": "शुक्ल सप्तमी"
+  },
+  "shukla_ashtami": {
+    "en": "Shukla Ashtami",
+    "hi": "शुक्ल अष्टमी"
+  },
+  "shukla_navami": {
+    "en": "Shukla Navami",
+    "hi": "शुक्ल नवमी"
+  },
+  "shukla_dashami": {
+    "en": "Shukla Dashami",
+    "hi": "शुक्ल दशमी"
+  },
+  "shukla_ekadashi": {
+    "en": "Shukla Ekadashi",
+    "hi": "शुक्ल एकादशी"
+  },
+  "shukla_dwadashi": {
+    "en": "Shukla Dwadashi",
+    "hi": "शुक्ल द्वादशी"
+  },
+  "shukla_trayodashi": {
+    "en": "Shukla Trayodashi",
+    "hi": "शुक्ल त्रयोदशी"
+  },
+  "shukla_chaturdashi": {
+    "en": "Shukla Chaturdashi",
+    "hi": "शुक्ल चतुर्दशी"
+  },
+  "purnima": {
+    "en": "Purnima",
+    "hi": "पूर्णिमा"
+  },
+  "krishna_pratipada": {
+    "en": "Krishna Pratipada",
+    "hi": "कृष्ण प्रतिपदा"
+  },
+  "krishna_dwitiya": {
+    "en": "Krishna Dwitiya",
+    "hi": "कृष्ण द्वितीया"
+  },
+  "krishna_tritiya": {
+    "en": "Krishna Tritiya",
+    "hi": "कृष्ण तृतीया"
+  },
+  "krishna_chaturthi": {
+    "en": "Krishna Chaturthi",
+    "hi": "कृष्ण चतुर्थी"
+  },
+  "krishna_panchami": {
+    "en": "Krishna Panchami",
+    "hi": "कृष्ण पंचमी"
+  },
+  "krishna_shashthi": {
+    "en": "Krishna Shashthi",
+    "hi": "कृष्ण षष्ठी"
+  },
+  "krishna_saptami": {
+    "en": "Krishna Saptami",
+    "hi": "कृष्ण सप्तमी"
+  },
+  "krishna_ashtami": {
+    "en": "Krishna Ashtami",
+    "hi": "कृष्ण अष्टमी"
+  },
+  "krishna_navami": {
+    "en": "Krishna Navami",
+    "hi": "कृष्ण नवमी"
+  },
+  "krishna_dashami": {
+    "en": "Krishna Dashami",
+    "hi": "कृष्ण दशमी"
+  },
+  "krishna_ekadashi": {
+    "en": "Krishna Ekadashi",
+    "hi": "कृष्ण एकादशी"
+  },
+  "krishna_dwadashi": {
+    "en": "Krishna Dwadashi",
+    "hi": "कृष्ण द्वादशी"
+  },
+  "krishna_trayodashi": {
+    "en": "Krishna Trayodashi",
+    "hi": "कृष्ण त्रयोदशी"
+  },
+  "krishna_chaturdashi": {
+    "en": "Krishna Chaturdashi",
+    "hi": "कृष्ण चतुर्दशी"
+  },
+  "amavasya": {
+    "en": "Amavasya",
+    "hi": "अमावस्या"
+  },
+  "vishkambha": {
+    "en": "Vishkambha",
+    "hi": "विष्कम्भ"
+  },
+  "priti": {
+    "en": "Priti",
+    "hi": "प्रीति"
+  },
+  "ayushman": {
+    "en": "Ayushman",
+    "hi": "आयुष्मान"
+  },
+  "saubhagya": {
+    "en": "Saubhagya",
+    "hi": "सौभाग्य"
+  },
+  "shobhana": {
+    "en": "Shobhana",
+    "hi": "शोभन"
+  },
+  "atiganda": {
+    "en": "Atiganda",
+    "hi": "अतिगण्ड"
+  },
+  "sukarma": {
+    "en": "Sukarma",
+    "hi": "सुकर्मा"
+  },
+  "dhriti": {
+    "en": "Dhriti",
+    "hi": "धृति"
+  },
+  "shula": {
+    "en": "Shula",
+    "hi": "शूल"
+  },
+  "ganda": {
+    "en": "Ganda",
+    "hi": "गण्ड"
+  },
+  "vriddhi": {
+    "en": "Vriddhi",
+    "hi": "वृद्धि"
+  },
+  "dhruva": {
+    "en": "Dhruva",
+    "hi": "ध्रुव"
+  },
+  "vyaghata": {
+    "en": "Vyaghata",
+    "hi": "व्याघात"
+  },
+  "harshana": {
+    "en": "Harshana",
+    "hi": "हर्षण"
+  },
+  "vajra": {
+    "en": "Vajra",
+    "hi": "वज्र"
+  },
+  "siddhi": {
+    "en": "Siddhi",
+    "hi": "सिद्धि"
+  },
+  "vyatipata": {
+    "en": "Vyatipata",
+    "hi": "व्यतीपात"
+  },
+  "variyan": {
+    "en": "Variyan",
+    "hi": "वरीयान"
+  },
+  "parigha": {
+    "en": "Parigha",
+    "hi": "परिघ"
+  },
+  "shiva": {
+    "en": "Shiva",
+    "hi": "शिव"
+  },
+  "siddha": {
+    "en": "Siddha",
+    "hi": "सिद्ध"
+  },
+  "sadhya": {
+    "en": "Sadhya",
+    "hi": "साध्य"
+  },
+  "shubha": {
+    "en": "Shubha",
+    "hi": "शुभ"
+  },
+  "shukla": {
+    "en": "Shukla",
+    "hi": "शुक्ल"
+  },
+  "brahma": {
+    "en": "Brahma",
+    "hi": "ब्रह्म"
+  },
+  "indra": {
+    "en": "Indra",
+    "hi": "इन्द्र"
+  },
+  "vaidhriti": {
+    "en": "Vaidhriti",
+    "hi": "वैधृति"
+  },
+  "bava": {
+    "en": "Bava",
+    "hi": "बव"
+  },
+  "balava": {
+    "en": "Balava",
+    "hi": "बालव"
+  },
+  "kaulava": {
+    "en": "Kaulava",
+    "hi": "कौलव"
+  },
+  "taitila": {
+    "en": "Taitila",
+    "hi": "तैतिल"
+  },
+  "gara": {
+    "en": "Gara",
+    "hi": "गर"
+  },
+  "vanija": {
+    "en": "Vanija",
+    "hi": "वणिज"
+  },
+  "vishti": {
+    "en": "Vishti",
+    "hi": "विष्टि"
+  },
+  "kimstughna": {
+    "en": "Kimstughna",
+    "hi": "किंस्तुघ्न"
+  },
+  "shakuni": {
+    "en": "Shakuni",
+    "hi": "शकुनि"
+  },
+  "chatushpada": {
+    "en": "Chatushpada",
+    "hi": "चतुष्पद"
+  },
+  "naga": {
+    "en": "Naga",
+    "hi": "नाग"
+  }
+}
