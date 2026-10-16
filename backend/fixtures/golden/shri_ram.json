@@ -1,0 +1,28 @@
+{
+  "id": "shri_ram",
+  "description": "Fixed-placement fixture for Shri Ram's chart. There is no date or time, so it tests dignity, varga and dasha-lord logic only, never ephemeris accuracy (spec section 1, corrections 1-4).",
+  "source": "Valmiki Ramayana, Bala Kanda 18.8-9: Karka lagna, Moon in Punarvasu with Jupiter in Karka, five exalted planets (Sun, Mars, Jupiter, Venus, Saturn). Degrees as fixed in the spec section 1 corrections and the Task 12 brief: exalted planets at their exaltation points, Moon at Karka 1 deg (Punarvasu pada 4).",
+  "verified_by": "tests/golden/test_shri_ram.py",
+  "placements": {
+    "lagna": {"rashi": "karka", "deg": 10.0},
+    "moon": {"rashi": "karka", "deg": 1.0},
+    "jupiter": {"rashi": "karka", "deg": 5.0},
+    "sun": {"rashi": "mesha", "deg": 10.0},
+    "mars": {"rashi": "makara", "deg": 28.0},
+    "venus": {"rashi": "meena", "deg": 27.0},
+    "saturn": {"rashi": "tula", "deg": 20.0},
+    "mercury": {"rashi": "vrishabha", "deg": 15.0}
+  },
+  "not_asserted": {
+    "mercury": "commonly cited placement, not stated in the source verses"
+  },
+  "expected": {
+    "exalted": ["sun", "mars", "jupiter", "venus", "saturn"],
+    "moon_dignity": "own",
+    "moon_nakshatra": "punarvasu",
+    "moon_pada": 4,
+    "first_maha_lord": "jupiter",
+    "balance_years_range": "(0, 4]",
+    "syllable_latin": "Hi"
+  }
+}

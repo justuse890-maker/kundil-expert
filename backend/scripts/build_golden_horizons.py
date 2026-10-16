@@ -69,7 +69,8 @@ def epochs() -> list[float]:
     return [*FIXED_EPOCHS, *spread]
 
 
-def _query(command: str, jds: list[float]) -> str:
+def _query(command: str, jds: list[float], decimals: int = 5) -> str:
+    """Raw Horizons result for ``command`` at UT Julian days ``jds`` (``decimals`` places)."""
     params = {
         "format": "json",
         "COMMAND": f"'{command}'",
@@ -83,7 +84,7 @@ def _query(command: str, jds: list[float]) -> str:
         "CAL_FORMAT": "'JD'",
         "CSV_FORMAT": "'YES'",
         "TLIST_TYPE": "'JD'",
-        "TLIST": "'" + " ".join(f"{jd:.5f}" for jd in jds) + "'",
+        "TLIST": "'" + " ".join(f"{jd:.{decimals}f}" for jd in jds) + "'",
     }
     url = API + "?" + urllib.parse.urlencode(params)
     with urllib.request.urlopen(url, timeout=120) as resp:
@@ -94,8 +95,8 @@ def _query(command: str, jds: list[float]) -> str:
     return result
 
 
-def _parse(result: str) -> dict[float, float]:
-    """Map JD (UT) -> ecliptic longitude from a CSV quantity-31 table."""
+def _parse(result: str, decimals: int = 5) -> dict[float, float]:
+    """Map JD (UT, rounded to ``decimals``) -> ecliptic longitude from a quantity-31 table."""
     if "IAU76/80 ecliptic-of-date" not in result or "apparent position" not in result:
         raise RuntimeError("unexpected Horizons column definition for quantity 31")
     body = result.split("$$SOE", 1)[1].split("$$EOE", 1)[0]
@@ -104,7 +105,7 @@ def _parse(result: str) -> dict[float, float]:
         cols = [c.strip() for c in line.split(",")]
         # JDUT, (solar presence flag), (lunar presence flag), ObsEcLon, ObsEcLat, ''
         nums = [c for c in cols if c]
-        out[round(float(nums[0]), 5)] = float(nums[-2])
+        out[round(float(nums[0]), decimals)] = float(nums[-2])
     return out
 
 

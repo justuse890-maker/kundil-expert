@@ -1,0 +1,77 @@
+{
+  "birth": {
+    "alt": 0.0,
+    "fold": null,
+    "lat": -23.5505,
+    "local": "1995-12-10T02:40:00",
+    "lon": -46.6333,
+    "tz": "America/Sao_Paulo"
+  },
+  "coverage": [
+    "dst",
+    "pre_sunrise",
+    "southern_hemisphere",
+    "west_longitude"
+  ],
+  "expected": {
+    "d9_lagna": "karka",
+    "first_maha_lord": "jupiter",
+    "lagna_rashi": "kanya",
+    "moon_nakshatra": "punarvasu",
+    "moon_pada": 3,
+    "tithi": 18,
+    "tithi_key": "krishna_tritiya"
+  },
+  "id": "sao_paulo_1995_dst",
+  "margins": {
+    "d9_lagna_arcsec": 4901.515990992828,
+    "lagna_arcsec": 28901.5159909928,
+    "moon_nakshatra_arcsec": 19488.511771199483,
+    "moon_pada_arcsec": 4511.488228800519,
+    "tithi_elongation_arcsec": 6889.9546799999935
+  },
+  "note": "",
+  "reference": {
+    "ascendant_tropical": 195.77397565846204,
+    "ayanamsa_deg": 23.80217454484893,
+    "gast_deg": 148.44610938278493,
+    "gmst_deg": 148.44440462370403,
+    "precession_shift_arcsec": -0.012190256692946377,
+    "ramc_deg": 101.81280938279815,
+    "tropical_horizons": {
+      "jupiter": 264.5121528,
+      "mars": 277.3161576,
+      "mercury": 266.9942532,
+      "moon": 111.722029,
+      "saturn": 348.2957731,
+      "sun": 257.6359053,
+      "venus": 285.6795216
+    },
+    "true_obliquity_deg": 23.437295808005224
+  },
+  "retrieved": "2026-10-16",
+  "sidereal": {
+    "jupiter": 240.7099816413335,
+    "lagna": 171.9718011136131,
+    "mars": 253.5139864413335,
+    "mercury": 243.1920820413335,
+    "moon": 87.91985784133348,
+    "saturn": 324.4936019413335,
+    "sun": 233.83373414133348,
+    "venus": 261.8773504413335
+  },
+  "source": {
+    "ayanamsa": "engine Lahiri true ayanamsa (verified against the Indian Astronomical Ephemeris, tests/golden/test_horizons.py)",
+    "lagna": "Meeus GMST (12.4) + nutation (ch. 22) -> apparent sidereal time, true obliquity (22.2), ascendant (ch. 14), minus ayanamsa; no Swiss Ephemeris",
+    "planet_frame_shift": "IAU1976 -> IAU2006 equinox: minus p_A(1976) - p_A(2006) (Lieske et al. 1977; Capitaine et al. 2003)",
+    "planets": "JPL Horizons DE441, quantity 31 (apparent geocentric IAU76/80 ecliptic of date), CENTER 500@399, TIME_TYPE UT",
+    "timezone": "IANA tzdb via the pinned tzdata package"
+  },
+  "time": {
+    "dst": true,
+    "jd_ut": 2450061.694444444,
+    "utc": "1995-12-10T04:40:00+00:00",
+    "utc_offset_seconds": -7200
+  },
+  "verified_by": "scripts/build_golden_charts.py: categorical values derived from the reference longitudes with spec 5.1/5.4/5.6 formulas; every categorical margin checked above the spec 7 tolerance"
+}

@@ -1,0 +1,72 @@
+{
+  "birth": {
+    "alt": 0.0,
+    "fold": null,
+    "lat": 55.7558,
+    "local": "1961-04-12T09:07:00",
+    "lon": 37.6173,
+    "tz": "Europe/Moscow"
+  },
+  "coverage": [],
+  "expected": {
+    "d9_lagna": "kumbha",
+    "first_maha_lord": "rahu",
+    "lagna_rashi": "mithuna",
+    "moon_nakshatra": "shatabhisha",
+    "moon_pada": 4,
+    "tithi": 27,
+    "tithi_key": "krishna_dwadashi"
+  },
+  "id": "moscow_1961",
+  "margins": {
+    "d9_lagna_arcsec": 4539.151994959428,
+    "lagna_arcsec": 52539.15199495944,
+    "moon_nakshatra_arcsec": 1566.6425042822596,
+    "moon_pada_arcsec": 1566.6425042822596,
+    "tithi_elongation_arcsec": 11591.827559999798
+  },
+  "note": "",
+  "reference": {
+    "ascendant_tropical": 97.90812933413996,
+    "ayanamsa_deg": 23.31392044665122,
+    "gast_deg": 291.95620696246624,
+    "gmst_deg": 291.95835449453443,
+    "precession_shift_arcsec": -0.11546366207358005,
+    "ramc_deg": 329.57350696250796,
+    "tropical_horizons": {
+      "jupiter": 304.3056932,
+      "mars": 108.3658065,
+      "mercury": 3.0994122,
+      "moon": 342.8787099,
+      "saturn": 299.2474429,
+      "sun": 22.098662,
+      "venus": 20.0680869
+    },
+    "true_obliquity_deg": 23.44215718508304
+  },
+  "retrieved": "2026-10-16",
+  "sidereal": {
+    "jupiter": 280.9918048265883,
+    "lagna": 74.59420888748873,
+    "mars": 85.05191812658825,
+    "mercury": 339.78552382658825,
+    "moon": 319.5648215265883,
+    "saturn": 275.9335545265883,
+    "sun": 358.7847736265882,
+    "venus": 356.75419852658825
+  },
+  "source": {
+    "ayanamsa": "engine Lahiri true ayanamsa (verified against the Indian Astronomical Ephemeris, tests/golden/test_horizons.py)",
+    "lagna": "Meeus GMST (12.4) + nutation (ch. 22) -> apparent sidereal time, true obliquity (22.2), ascendant (ch. 14), minus ayanamsa; no Swiss Ephemeris",
+    "planet_frame_shift": "IAU1976 -> IAU2006 equinox: minus p_A(1976) - p_A(2006) (Lieske et al. 1977; Capitaine et al. 2003)",
+    "planets": "JPL Horizons DE441, quantity 31 (apparent geocentric IAU76/80 ecliptic of date), CENTER 500@399, TIME_TYPE UT",
+    "timezone": "IANA tzdb via the pinned tzdata package"
+  },
+  "time": {
+    "dst": false,
+    "jd_ut": 2437401.754861111,
+    "utc": "1961-04-12T06:07:00+00:00",
+    "utc_offset_seconds": 10800
+  },
+  "verified_by": "scripts/build_golden_charts.py: categorical values derived from the reference longitudes with spec 5.1/5.4/5.6 formulas; every categorical margin checked above the spec 7 tolerance"
+}

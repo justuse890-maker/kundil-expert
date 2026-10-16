@@ -1,0 +1,76 @@
+{
+  "birth": {
+    "alt": 0.0,
+    "fold": null,
+    "lat": -36.8485,
+    "local": "2010-02-14T03:15:00",
+    "lon": 174.7633,
+    "tz": "Pacific/Auckland"
+  },
+  "coverage": [
+    "dst",
+    "pre_sunrise",
+    "southern_hemisphere"
+  ],
+  "expected": {
+    "d9_lagna": "simha",
+    "first_maha_lord": "mars",
+    "lagna_rashi": "dhanu",
+    "moon_nakshatra": "dhanishta",
+    "moon_pada": 1,
+    "tithi": 30,
+    "tithi_key": "amavasya"
+  },
+  "id": "auckland_2010_dst",
+  "margins": {
+    "d9_lagna_arcsec": 3188.700355561907,
+    "lagna_arcsec": 51188.700355561865,
+    "moon_nakshatra_arcsec": 6308.415594384085,
+    "moon_pada_arcsec": 5691.584405615915,
+    "tithi_elongation_arcsec": 20439.8312400001
+  },
+  "note": "",
+  "reference": {
+    "ascendant_tropical": 279.78428250910486,
+    "ayanamsa_deg": 24.003365941205384,
+    "gast_deg": 357.26017535151914,
+    "gmst_deg": 357.25569259095937,
+    "precession_shift_arcsec": 0.03045727628102668,
+    "ramc_deg": 172.02347535151057,
+    "tropical_horizons": {
+      "jupiter": 336.1565667,
+      "mars": 124.3324388,
+      "mercury": 304.6161254,
+      "moon": 319.0890454,
+      "saturn": 183.8185026,
+      "sun": 324.7667763,
+      "venus": 332.6145432
+    },
+    "true_obliquity_deg": 23.438891001894927
+  },
+  "retrieved": "2026-10-16",
+  "sidereal": {
+    "jupiter": 312.15319229844005,
+    "lagna": 255.78091656789948,
+    "mars": 100.3290643984401,
+    "mercury": 280.61275099844005,
+    "moon": 295.08567099844004,
+    "saturn": 159.81512819844008,
+    "sun": 300.76340189844007,
+    "venus": 308.6111687984401
+  },
+  "source": {
+    "ayanamsa": "engine Lahiri true ayanamsa (verified against the Indian Astronomical Ephemeris, tests/golden/test_horizons.py)",
+    "lagna": "Meeus GMST (12.4) + nutation (ch. 22) -> apparent sidereal time, true obliquity (22.2), ascendant (ch. 14), minus ayanamsa; no Swiss Ephemeris",
+    "planet_frame_shift": "IAU1976 -> IAU2006 equinox: minus p_A(1976) - p_A(2006) (Lieske et al. 1977; Capitaine et al. 2003)",
+    "planets": "JPL Horizons DE441, quantity 31 (apparent geocentric IAU76/80 ecliptic of date), CENTER 500@399, TIME_TYPE UT",
+    "timezone": "IANA tzdb via the pinned tzdata package"
+  },
+  "time": {
+    "dst": true,
+    "jd_ut": 2455241.09375,
+    "utc": "2010-02-13T14:15:00+00:00",
+    "utc_offset_seconds": 46800
+  },
+  "verified_by": "scripts/build_golden_charts.py: categorical values derived from the reference longitudes with spec 5.1/5.4/5.6 formulas; every categorical margin checked above the spec 7 tolerance"
+}
