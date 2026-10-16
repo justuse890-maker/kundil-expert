@@ -1,4 +1,5 @@
-from datetime import UTC, datetime, timedelta
+import zoneinfo
+from datetime import UTC, datetime, timedelta, timezone
 
 import pytest
 
@@ -12,6 +13,8 @@ from vedic_engine.timeutil import (
     to_utc,
     utc_from_jd,
 )
+
+JD_ROUNDTRIP = timedelta(milliseconds=1)
 
 
 def test_ist() -> None:
@@ -71,10 +74,49 @@ def test_jd_roundtrip() -> None:
         datetime(1850, 3, 7, 23, 59, 59, 123000, tzinfo=UTC),
         datetime(2399, 12, 31, 0, 0, 1, tzinfo=UTC),
     ):
-        assert abs(utc_from_jd(jd_from_utc(dt)) - dt) <= timedelta(milliseconds=1)
+        assert abs(utc_from_jd(jd_from_utc(dt)) - dt) <= JD_ROUNDTRIP
     assert utc_from_jd(2451545.0).tzinfo is UTC
 
 
 def test_jd_requires_aware() -> None:
     with pytest.raises(InputError):
         jd_from_utc(datetime(2000, 1, 1))
+
+
+def test_tz_data_pinned_to_tzdata_package() -> None:
+    assert zoneinfo.TZPATH == ()
+    import tzdata  # noqa: F401  (must be importable: it is the only tz source)
+
+    assert to_utc(datetime(2000, 1, 1), "Asia/Kolkata").utcoffset() == timedelta(0)
+
+
+def test_out_of_range_maps_to_input_error() -> None:
+    with pytest.raises(InputError):
+        to_utc(datetime(9999, 12, 31, 23, 59), "Etc/GMT+12")
+    with pytest.raises(InputError):
+        jd_from_utc(datetime.max.replace(tzinfo=timezone(timedelta(hours=-12))))
+    with pytest.raises(InputError):
+        to_local(datetime.max.replace(tzinfo=UTC), "Asia/Kolkata")
+    with pytest.raises(InputError):
+        utc_from_jd(1e12)
+    with pytest.raises(InputError):
+        utc_from_jd(float("nan"))
+
+
+def test_dst_boundaries() -> None:
+    ny = "America/New_York"
+    with pytest.raises(NonexistentTimeError):
+        to_utc(datetime(2021, 3, 14, 2, 0), ny)
+    assert to_utc(datetime(2021, 3, 14, 3, 0), ny) == datetime(2021, 3, 14, 7, 0, tzinfo=UTC)
+    with pytest.raises(AmbiguousTimeError):
+        to_utc(datetime(2021, 11, 7, 1, 0), ny)
+
+
+def test_fold_ignored_when_unambiguous() -> None:
+    noon = datetime(2021, 7, 1, 12, 0)
+    assert to_utc(noon, "America/New_York", fold=1) == to_utc(noon, "America/New_York", fold=0)
+
+
+def test_to_local_rejects_naive() -> None:
+    with pytest.raises(InputError):
+        to_local(datetime(2000, 1, 1), "Asia/Kolkata")
