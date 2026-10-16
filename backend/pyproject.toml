@@ -10,6 +10,7 @@ dependencies = [
     "fastapi>=0.115",
     "uvicorn[standard]",
     "pydantic>=2.8",
+    "tzdata>=2026.5",
 ]
 
 [dependency-groups]
@@ -45,3 +46,7 @@ src = ["src", "tests"]
 
 [tool.mypy]
 python_version = "3.12"
+
+[[tool.mypy.overrides]]
+module = ["swisseph"]
+ignore_missing_imports = true
