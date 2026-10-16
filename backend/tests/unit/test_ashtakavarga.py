@@ -32,26 +32,21 @@ PRINTED = {  # graha: (start rashi index, 12 printed counts)
     Graha.SUN: (9, [5, 3, 2, 4, 3, 4, 6, 5, 2, 3, 6, 5]),  # p. 873, from Capricorn
     Graha.MARS: (1, [3, 4, 5, 3, 2, 1, 6, 5, 2, 3, 2, 3]),  # p. 888, from Taurus
     Graha.JUPITER: (10, [6, 7, 4, 4, 4, 5, 4, 2, 6, 6, 6, 2]),  # p. 891, from Aquarius
+    Graha.VENUS: (10, [4, 4, 5, 3, 6, 4, 3, 6, 6, 3, 5, 3]),  # p. 892, from Aquarius
     Graha.SATURN: (10, [3, 2, 5, 1, 1, 6, 2, 3, 3, 4, 4, 5]),  # p. 893, from Aquarius
 }
-# Venus is deliberately not here: see KNOWN_DEVIATION.
 # Printed rows that disagree with the book's own benefic-house tables (see test below).
 PRINTED_DISPUTED = {
     Graha.MOON: (2, [5, 3, 5, 4, 3, 6, 5, 2, 4, 5, 5, 4]),  # p. 886, sums to 51 (BPHS: 49)
     Graha.MERCURY: (10, [5, 4, 3, 5, 5, 5, 2, 6, 3, 6, 7, 5]),  # p. 889, sums to 56 (BPHS: 54)
-    Graha.VENUS: (10, [4, 4, 5, 3, 6, 4, 3, 6, 6, 3, 5, 3]),  # p. 892, sums to 52
 }
 # Engine minus printed, by rashi 0..11, for the disputed rows.
 # Moon and Mercury: the printed rows sum to 51 and 56, contradicting the 49 and 54 that the
 # book's own tables and rekha charts (pp. 856, 859) give.
-# Venus: the printed row has one bindu in Virgo where the engine has it in Leo. It is exactly
-# reproduced if Mars's benefic houses from Venus are 3,5,6,9,11,12 (the usual Parashari list),
-# but the scan's verse 56-58 (English and Sanskrit "jna-varjita"), its rekha chart (p. 861) and
-# its house table (p. 862) all give Mars in the 4th, so the engine follows the scan.
+# (Ruling R23 uses Venus-from-Mars 3,5,6,9,11,12, which reproduces the printed Venus row exactly.)
 KNOWN_DEVIATION = {
-    Graha.MOON: (0, -1, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0),
+    Graha.MOON: (0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1),
     Graha.MERCURY: (0, 0, 0, 0, 0, 0, -1, 0, 0, -1, 0, 0),
-    Graha.VENUS: (0, 0, 0, 0, 1, -1, 0, 0, 0, 0, 0, 0),
 }
 
 # Golden table: every benefic-house list, typed independently of the JSON.
@@ -72,7 +67,7 @@ GOLDEN = {
         "moon": [1, 3, 6, 7, 9, 10, 11],
         "mars": [2, 3, 5, 6, 10, 11],
         "mercury": [1, 3, 4, 5, 7, 8, 10, 11],
-        "jupiter": [1, 2, 4, 7, 8, 10, 11],
+        "jupiter": [1, 4, 7, 8, 10, 11, 12],
         "venus": [3, 4, 5, 7, 9, 10, 11],
         "saturn": [3, 5, 6, 11],
         "lagna": [3, 6, 10, 11],
@@ -110,7 +105,7 @@ GOLDEN = {
     "venus": {
         "sun": [8, 11, 12],
         "moon": [1, 2, 3, 4, 5, 8, 9, 11, 12],
-        "mars": [3, 4, 6, 9, 11, 12],
+        "mars": [3, 5, 6, 9, 11, 12],
         "mercury": [3, 5, 6, 9, 11],
         "jupiter": [5, 8, 9, 10, 11],
         "venus": [1, 2, 3, 4, 5, 8, 9, 10, 11],

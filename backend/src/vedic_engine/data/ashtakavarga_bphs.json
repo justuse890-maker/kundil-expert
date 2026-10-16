@@ -9,7 +9,7 @@
   "venus": "861",
   "saturn": "862-863"
  },
- "_note": "Values are the benefic houses (counted from the contributor, 1 = same sign). Jupiter-in-Jupiter houses 1 and 4 are omitted from the English text of verse 53 but are in the Sanskrit (jiva) and in the printed rekha count chart (p. 860: 5 in houses 1 and 4, total 56).",
+ "_note": "R23: where Santhanam is internally inconsistent the standard Parashari table (Jagannath Hora, B.V. Raman) is used. Variants: venus.mars is [3,5,6,9,11,12]; v.56-58 (p.861), the rekha chart (p.861) and the house table (p.862) give 4 not 5, the worked example p.892 agrees with 5. moon.jupiter is [1,4,7,8,10,11,12]; v.46-48 (p.856) puts Jupiter in house 2 and none in 12, the house table p.856 has 12. Values are the benefic houses (counted from the contributor, 1 = same sign). Jupiter-in-Jupiter houses 1 and 4 are omitted from the English text of verse 53 but are in the Sanskrit (jiva) and in the printed rekha count chart (p. 860: 5 in houses 1 and 4, total 56).",
  "sun": {
   "sun": [
    1,
@@ -114,12 +114,12 @@
   ],
   "jupiter": [
    1,
-   2,
    4,
    7,
    8,
    10,
-   11
+   11,
+   12
   ],
   "venus": [
    3,
@@ -365,7 +365,7 @@
   ],
   "mars": [
    3,
-   4,
+   5,
    6,
    9,
    11,
