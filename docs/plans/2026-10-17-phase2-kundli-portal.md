@@ -322,3 +322,19 @@ web/tests/unit/*.test.ts(x)   web/e2e/*.spec.ts   web/e2e/fixtures/ (golden requ
 - axe shows 0 serious violations, and Lighthouse mobile is ≥ 90 for performance and accessibility.
 - `docker compose up` serves the portal at :3000 backed by the engine at :8000.
 - The Phase 1 regression suite is still green in the same CI run.
+
+---
+
+## Amendment 2026-10-17 — UI PRD alignment (spec §10)
+
+Prerequisite now includes Phase 1 T15 and T16. Changes per task:
+
+- **Task 3:** use the tokens from spec §10.1 (maroon/gold/ivory/slate; Noto Serif plus Noto Serif Devanagari, Inter, IBM Plex Mono) and test them for AA contrast. The header gets the panchang ticker, recent kundlis and the HI/EN toggle. Add the mobile bottom nav (Kundli · Houses · Dasha · Yogas & Doshas · More). Vedic line icons go in `components/icons/` with a 1.5 px stroke.
+- **Task 4:** add a gender field (stored locally and never sent to the API); an optional seconds field; an ayanamsa select with Lahiri, Raman, KP and Fagan (sent as `settings.ayanamsa`); and a "Birth time unknown" checkbox that sends `time_known:false`. Tests: seconds are preserved in the query round trip; time unknown produces a request without `time` and with `time_known:false`.
+- **Task 6:** use the 3-panel desktop dashboard from spec §10.1, sticky left and right panels, and keys 1–12 / D. Chart tabs are D1, D9 and Moon (the Chandra chart is the D1 rotated to the Moon's sign, using the engine's Moon rashi; no computation). Strength meters show Shadbala total rupa against required rupa and SAV bindus. When `meta.lagna_basis == "moon"`, show a "Chandra kundli — birth time unknown" banner and hide the strength meters.
+- **New Task 7a, Houses screen (S-04):** `components/kundli/HousesTab.tsx` with a 12-house selector, swipe on mobile, and a bottom sheet. It shows the engine's `bhavas_detail` (rashi, lord, lord's house, occupants, aspected_by, karakas) and SAV for the house. Tests: India 1947 house 1 shows lord Venus in the 3rd and occupant Rahu; arrow keys and keys 1–12 navigate.
+- **Task 7:** Charts tab becomes the S-07 Varga explorer grid (16 cards with life-area labels from messages, vargottama badges).
+- **Task 8:** Doshas tab becomes S-06. Add an exalted-planet count card (counting `dignity == EXALTED` from the engine) and show the Shri Ram benchmark note when 5 or more are exalted.
+- **Task 9:** the landing hero (S-01) gets the animated diamond chart and engine credentials. Add a test asserting the landing page contains no numeric "Kundlis generated", rating or testimonial content.
+- **Task 11:** the PDF uses the maroon/gold style, with a citations footer (Swiss Ephemeris, BPHS). Add a share button using the Web Share API with a chart PNG and link, falling back to copying the link.
+- **Task 12:** the loading state becomes a rotating zodiac wheel with staged progress.

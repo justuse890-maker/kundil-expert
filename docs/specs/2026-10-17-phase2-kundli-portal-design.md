@@ -126,3 +126,35 @@ Original "night-sky" theme.
 ## 9. Open items (do not block)
 - Final brand name and logo (placeholder wordmark "Kundli" until provided).
 - Which 200 cities to pre-render: default = most populous Indian cities from GeoNames.
+
+## 10. Amendment 2026-10-17 — alignment with "UI PRD Screen-wise v2.4"
+
+The user's UI PRD (`Vedic-Ui-Prd-Screenwise.html`, sections DS, 00, S-01…S-09, CL, RA, HO) is the design reference. Where it conflicts with §4–§5 above, this section wins. The honesty rule in §1 is unchanged and still overrides the UI PRD.
+
+### 10.1 Design system (replaces §5)
+- **Palette:** Deep Maroon `#7B1F1F` (primary, lagna, CTAs), Gold `#D4AF37` (accents, dividers, auspicious), Ivory `#FFFEF7` (surface, paper), Slate `#1E293B` (text, chart lines). A dark theme is derived from the same hues (maroon-black surface, ivory text, gold accents). Both themes must pass AA; where pure gold on ivory fails contrast for text, gold is used only for non-text decoration.
+- **Type:** Noto Serif 600–700 at −0.02em for headings, with Devanagari via Noto Serif Devanagari; Inter 400–700 for body; IBM Plex Mono for degrees.
+- **Iconography:** Vedic line icons (Surya, Chandra, Graha, Disha, Nakshatra…) with a 1.5 px stroke and rounded caps. No cartoon astrology art.
+- **Layout tokens:** max width 1280 px; gutters 24 px desktop and 16 px mobile; radius 16 px for cards and 999 px for pills; shadow `0 8px 32px rgba(123,31,31,0.08)`. Optional ivory paper texture with gold ruling in "consultation mode".
+- **Header:** logo; panchang ticker (today's tithi, nakshatra and yoga for the user's city, from `/panchang`); 3 recent saved kundlis; HI/EN toggle.
+- **Mobile bottom nav:** Kundli · Houses · Dasha · Yogas & Doshas · More.
+- **Desktop kundli layout:** 3 panels. Left 36% holds the chart and panchang (sticky). Centre 40% holds the planet table. Right 24% holds strength meters and doshas (sticky). Keys 1–12 jump to houses and D opens the dasha.
+
+### 10.2 Screens (replaces §4 page list)
+| Screen | Phase 2 content (engine data only) | Deferred |
+|---|---|---|
+| S-01 Landing | Hero with animated diamond chart (respects reduced motion), CTA, today's panchang ticker, engine credentials (Swiss Ephemeris, Lahiri, accuracy report link) | Kundli counts, ratings and testimonials. **Not shown until real figures exist; no invented numbers.** |
+| S-02 Birth input | Name, gender, DOB, TOB with **optional** seconds, place autocomplete showing lat/long and timezone, language, advanced ayanamsa (Lahiri/Raman/KP/Fagan) and chart style, "Birth time unknown → Chandra kundli" | The PRD's "accuracy meter" percentages are replaced by the engine's real birth-time sensitivity (shown on S-03) |
+| S-03 Dashboard | D1/D9/Moon chart tabs with hover details; panchang strip; planet table (rashi, degree, nakshatra-pada, house, avastha, dignity, retro/combust); strength meters (Shadbala rupa vs required, SAV bindus); dosha badges; current dasha | "Quick prediction" cards (Phase 4) |
+| S-04 Houses | 12-house selector; per house: rashi, lord, lord's house, occupants, aspects received, karakas, SAV bindus (engine T15) | Psychology insight text, Vimshopak bala (Phase 4) |
+| S-05 Dasha | Balance at birth; 9-maha strip; drill-down to 5 levels; current period highlighted; Yogini | Per-antar prediction text (Phase 4) |
+| S-06 Yogas & Doshas | Manglik (per reference point), Kaal Sarpa, Sade Sati cycles plus Dhaiya, exalted-planet count with the Shri Ram benchmark note when 5 or more are exalted | Raja and Dhana yogas, effects, remedies (Phase 4) |
+| S-07 Vargas | Grid of 16 vargas with their life area; click to open that chart; vargottama badges | Reading rules text (Phase 4) |
+| S-08 Matchmaking | Not in Phase 2 | Ashtakoota engine + screen (later) |
+| S-09 PDF / Share | Facts report (§4.5) in the maroon/gold style with vector charts; footer citations (Swiss Ephemeris, BPHS); WhatsApp share of a chart image plus link | House deep dives and remedies pages (Phase 4) |
+| Daily Panchang | As in §4.3 | — |
+
+### 10.3 States (from UI PRD §12)
+- Loading uses a rotating zodiac wheel with progress (planets → panchang → dasha → strength), not a generic spinner.
+- An invalid TOB gives a field error plus an offer of the Chandra kundli.
+- The empty state shows an "Enter details" CTA.
