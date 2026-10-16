@@ -4,7 +4,7 @@
 ``warnings`` gathers every sub-module's warnings plus the orchestrator's own (spec 8), sorted
 by code then message:
 
-* ``birth_time_sensitive`` - sensitivity (spec 5.11);
+* ``birth_time_sensitive`` - sensitivity (spec 5.11, thresholds per Ruling R28);
 * ``polar_latitude`` - |latitude| > 66.5 deg, where houses are unreliable;
 * ``school_dependent`` - Rahu or Ketu exalted or debilitated, which depends on the
   NODE_DIGNITY_SCHOOL table (spec 5.5);

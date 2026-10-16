@@ -95,7 +95,7 @@ def test_composes_the_modules() -> None:
     assert set(k.ashtakavarga["bav"]) == set(SEVEN)
     assert k.name_syllable == syllable(*nak_of(moon))
     assert tuple(i.item for i in k.sensitivity) == (
-        "lagna", "moon_nakshatra_pada", "d9_lagna", "d10_lagna",
+        "lagna", "moon_nakshatra_pada", "tithi", "d9_lagna", "d10_lagna",
     )  # fmt: skip
 
 
