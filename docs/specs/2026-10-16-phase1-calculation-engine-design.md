@@ -177,8 +177,9 @@ Sthana (Uchcha, Saptavargaja, Ojhayugma, Kendradi, Drekkana), Dig, Kaala (Natonn
 ### 5.10 Ashtakavarga (BPHS Ch 66–72)
 Bhinnashtakavarga for Su–Sa from 8 contributors (7 planets + Lagna) using BPHS bindu tables; Sarvashtakavarga = sum. Invariants: per-planet BAV totals are Su 48, Mo 49, Ma 39, Me 54, Ju 56, Ve 52, Sa 39; SAV total = 337.
 
-### 5.11 Birth-time sensitivity
-For lagna, Moon nakshatra/pada, D9 lagna and D10 lagna: minutes until the value changes, backwards and forwards. A warning is emitted if any value changes within ±5 minutes.
+### 5.11 Birth-time sensitivity (amended by ruling R28, 2026-10-17)
+Items: lagna, Moon nakshatra/pada, tithi, D9 lagna, D10 lagna. For each item the engine reports the minutes until the value changes, backwards and forwards (search ±120 min), plus `edge_before`/`edge_after` flags when the search hit the supported range limit. No change in the window is reported as infinity in the engine and as null in the API.
+The `birth_time_sensitive` warning fires when lagna, Moon nakshatra/pada or tithi changes within ±5 min, or when D9 or D10 lagna changes within ±1 min (inclusive). D9 and D10 change about every 13 minutes, so a ±5 min rule for them would flag almost every chart. Consumers use the structured `sensitive_items`, not the message text.
 
 ### 5.12 Name syllables
 Standard 108-entry nakshatra-pada → syllable table (Devanagari + Latin).
