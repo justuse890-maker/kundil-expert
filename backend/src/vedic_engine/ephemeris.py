@@ -29,12 +29,10 @@ EPHE_FILES: tuple[str, ...] = ("sepl_18.se1", "semo_18.se1", "seas_18.se1")
 
 _LOCK = threading.Lock()
 
-# Supported range: 1800-01-01 00:00 UT .. 2399-12-31 24:00 UT (Gregorian).
-JD_MIN: float = float(swe.julday(1800, 1, 1, 0.0, swe.GREG_CAL))
+# Supported range: 1800-01-01 06:00 UT .. 2399-12-31 24:00 UT (Gregorian). sepl_18.se1 starts
+# at 1800-01-01 0h and light-time reaches up to ~0.1 day back, hence 06:00 (Ruling R9).
+JD_MIN: float = float(swe.julday(1800, 1, 1, 6.0, swe.GREG_CAL))
 JD_MAX: float = float(swe.julday(2399, 12, 31, 24.0, swe.GREG_CAL))
-
-# Window after JD_MIN in which a Moshier fallback is a range problem, not an engine fault.
-_EDGE_DAYS = 0.25
 
 _SIDEREAL = swe.FLG_SWIEPH | swe.FLG_SIDEREAL | swe.FLG_SPEED
 _TROPICAL = swe.FLG_SWIEPH | swe.FLG_SPEED
@@ -69,7 +67,8 @@ def init(ephe_path: Path) -> None:
 def check_range(jd: float) -> None:
     if not JD_MIN <= jd <= JD_MAX:
         raise EphemerisRangeError(
-            f"Julian day {jd} outside supported range 1800-01-01 .. 2399-12-31 (CE, Gregorian)"
+            f"Julian day {jd} outside supported range 1800-01-01 06:00 UT .. 2399-12-31 24:00 UT "
+            "(CE, Gregorian)"
         )
 
 
@@ -80,12 +79,6 @@ def _calc(jd_ut: float, body: int, flags: int) -> tuple[float, ...]:
     except swe.Error as exc:
         raise EngineError(f"Swiss Ephemeris error for body {body} at JD {jd_ut}: {exc}") from exc
     if not ret & swe.FLG_SWIEPH:
-        if jd_ut < JD_MIN + _EDGE_DAYS:
-            # sepl_18.se1 starts exactly at 1800-01-01 0h; light-time (up to ~1.5 h for Saturn)
-            # reaches back before it during the first hours of the range.
-            raise EphemerisRangeError(
-                f"Julian day {jd_ut} too close to the start of the ephemeris files (1800-01-01)"
-            )
         raise EngineError(
             f"Swiss Ephemeris files not used for body {body} at JD {jd_ut} (flags {ret}); "
             "refusing Moshier fallback"

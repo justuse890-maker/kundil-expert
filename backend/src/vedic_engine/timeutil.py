@@ -4,10 +4,9 @@ Wrong timezones are the most common cause of wrong charts, so nonexistent (DST g
 ambiguous (DST overlap) local times are rejected rather than guessed.
 """
 
+import math
 from datetime import UTC, datetime, timedelta
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError, reset_tzpath
-
-import swisseph as swe
 
 from vedic_engine.models import InputError
 
@@ -74,6 +73,20 @@ def to_local(dt_utc: datetime, tz: str) -> datetime:
         raise InputError(f"datetime {dt_utc} out of representable range in {tz}") from exc
 
 
+def _gregorian_jd(year: int, month: int, day: int) -> float:
+    """Julian day at 0h UT of a Gregorian date (Meeus, Astronomical Algorithms, ch. 7)."""
+    if month <= 2:
+        year -= 1
+        month += 12
+    a = year // 100
+    b = 2 - a + a // 4
+    return float(int(365.25 * (year + 4716)) + int(30.6001 * (month + 1)) + day + b) - 1524.5
+
+
+_MIDNIGHT_2000 = datetime(2000, 1, 1, tzinfo=UTC)
+_JD_2000_MIDNIGHT = 2451544.5
+
+
 def jd_from_utc(dt: datetime) -> float:
     """UT Julian day (Gregorian calendar) for an aware datetime."""
     if dt.tzinfo is None:
@@ -83,14 +96,15 @@ def jd_from_utc(dt: datetime) -> float:
     except (OverflowError, ValueError) as exc:
         raise InputError(f"datetime {dt} out of representable range") from exc
     hour = u.hour + u.minute / 60 + u.second / 3600 + u.microsecond / 3_600_000_000
-    return float(swe.julday(u.year, u.month, u.day, hour, swe.GREG_CAL))
+    return _gregorian_jd(u.year, u.month, u.day) + hour / 24.0
 
 
 def utc_from_jd(jd: float) -> datetime:
     """Aware UTC datetime for a UT Julian day (Gregorian calendar), microsecond resolution."""
     try:
-        year, month, day, hour = swe.revjul(jd, swe.GREG_CAL)
-        midnight = datetime(year, month, day, tzinfo=UTC)
-        return midnight + timedelta(microseconds=round(hour * 3_600_000_000))
+        days = jd - _JD_2000_MIDNIGHT
+        whole = math.floor(days)
+        midnight = _MIDNIGHT_2000 + timedelta(days=whole)
+        return midnight + timedelta(microseconds=round((days - whole) * 86_400_000_000))
     except (OverflowError, ValueError) as exc:
         raise InputError(f"Julian day {jd!r} out of representable range") from exc

@@ -1,8 +1,11 @@
 import zoneinfo
 from datetime import UTC, datetime, timedelta, timezone
+from pathlib import Path
 
 import pytest
+import swisseph as swe
 
+from vedic_engine import timeutil
 from vedic_engine.models import InputError
 from vedic_engine.timeutil import (
     AmbiguousTimeError,
@@ -120,3 +123,25 @@ def test_fold_ignored_when_unambiguous() -> None:
 def test_to_local_rejects_naive() -> None:
     with pytest.raises(InputError):
         to_local(datetime(2000, 1, 1), "Asia/Kolkata")
+
+
+@pytest.mark.parametrize(
+    "dt",
+    [
+        datetime(1800, 1, 1, 6, tzinfo=UTC),
+        datetime(1858, 11, 17, tzinfo=UTC),
+        datetime(1947, 8, 14, 18, 30, tzinfo=UTC),
+        datetime(2000, 2, 29, 23, 59, 59, 999999, tzinfo=UTC),
+        datetime(2399, 12, 31, 12, 34, 56, tzinfo=UTC),
+    ],
+)
+def test_jd_matches_swiss_ephemeris(dt: datetime) -> None:
+    hour = dt.hour + dt.minute / 60 + dt.second / 3600 + dt.microsecond / 3_600_000_000
+    expected = swe.julday(dt.year, dt.month, dt.day, hour, swe.GREG_CAL)
+    assert abs(jd_from_utc(dt) - expected) <= 1e-9
+    assert abs(utc_from_jd(expected) - dt) <= JD_ROUNDTRIP
+
+
+def test_timeutil_does_not_import_swisseph() -> None:
+    source = Path(timeutil.__file__).read_text()
+    assert "swisseph" not in source

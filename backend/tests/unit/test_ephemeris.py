@@ -2,7 +2,9 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
+import swisseph as swe
 
+from tolerances import PLANET_ARCSEC
 from vedic_engine import ephemeris
 from vedic_engine.angles import arc, norm
 from vedic_engine.constants import Graha
@@ -27,7 +29,8 @@ def _signed_diff(a: float, b: float) -> float:
 
 
 def test_range_constants() -> None:
-    assert ephemeris.JD_MIN == jd_from_utc(datetime(1800, 1, 1, tzinfo=UTC))
+    # Ruling R9: sepl_18.se1 starts at 1800-01-01 0h; light-time needs ~0.1 day before that.
+    assert ephemeris.JD_MIN == jd_from_utc(datetime(1800, 1, 1, 6, tzinfo=UTC))
     assert ephemeris.JD_MAX == jd_from_utc(datetime(2400, 1, 1, tzinfo=UTC))
 
 
@@ -64,6 +67,36 @@ def test_ketu_opposite_rahu() -> None:
         assert rahu.retro and ketu.retro
 
 
+def _meeus_apparent_mean_node(jd_ut: float) -> float:
+    """Meeus (Astronomical Algorithms, 2nd ed., eq. 47.7) mean node plus nutation in longitude."""
+    jd_tt = jd_ut + swe.deltat(jd_ut)
+    t = (jd_tt - 2451545.0) / 36525.0
+    omega = 125.0445479 - 1934.1362891 * t + 0.0020754 * t**2 + t**3 / 467441 - t**4 / 60616000
+    dpsi = swe.calc_ut(jd_ut, swe.ECL_NUT)[0][2]
+    return norm(omega + dpsi)
+
+
+def _tropical_rahu(jd_ut: float, settings: Settings) -> float:
+    sidereal = ephemeris.positions(jd_ut, settings)[Graha.RAHU].lon
+    return norm(sidereal + ephemeris.ayanamsa(jd_ut, settings))
+
+
+NODE_EPOCHS = (2415020.5, 2451545.0, 2488069.5)  # 1900-01-01, J2000.0, 2100-01-01
+
+
+@pytest.mark.parametrize("jd", NODE_EPOCHS)
+def test_default_node_is_mean(jd: float) -> None:
+    err = abs(_signed_diff(_tropical_rahu(jd, DEFAULT), _meeus_apparent_mean_node(jd))) * 3600
+    assert err <= PLANET_ARCSEC
+
+
+@pytest.mark.parametrize("jd", NODE_EPOCHS)
+def test_true_node_setting_is_not_mean(jd: float) -> None:
+    # At these epochs the true node is > 1 deg from the mean node.
+    diff = abs(_signed_diff(_tropical_rahu(jd, TRUE_NODE), _meeus_apparent_mean_node(jd)))
+    assert diff > 0.5
+
+
 def test_true_vs_mean_node_differ() -> None:
     mean = ephemeris.positions(JD_2024, DEFAULT)[Graha.RAHU].lon
     true = ephemeris.positions(JD_2024, TRUE_NODE)[Graha.RAHU].lon
@@ -80,11 +113,16 @@ def test_retro_flag_from_speed() -> None:
 
 
 @pytest.mark.parametrize(
-    "dt", [datetime(1799, 12, 31, tzinfo=UTC), datetime(2400, 1, 2, tzinfo=UTC)]
+    "dt",
+    [
+        datetime(1799, 12, 31, tzinfo=UTC),
+        datetime(1800, 1, 1, 5, 59, tzinfo=UTC),
+        datetime(2400, 1, 2, tzinfo=UTC),
+    ],
 )
 def test_out_of_range_raises(dt: datetime) -> None:
     jd = jd_from_utc(dt)
-    with pytest.raises(EphemerisRangeError):
+    with pytest.raises(EphemerisRangeError, match="06:00 UT"):
         ephemeris.check_range(jd)
     with pytest.raises(EphemerisRangeError):
         ephemeris.positions(jd, DEFAULT)
@@ -93,15 +131,10 @@ def test_out_of_range_raises(dt: datetime) -> None:
 
 
 def test_range_edges_use_swiss_ephemeris_files() -> None:
-    for jd in (ephemeris.JD_MIN + 0.25, ephemeris.JD_MAX):
+    start = jd_from_utc(datetime(1800, 1, 1, 6, tzinfo=UTC))
+    for jd in (start, ephemeris.JD_MAX):
         assert len(ephemeris.positions(jd, DEFAULT)) == 9
         ephemeris.tropical_longitude(jd, Graha.SATURN)
-
-
-def test_first_hours_of_range_raise_range_error_not_moshier() -> None:
-    # sepl_18.se1 starts at 1800-01-01 0h; light-time needs data from before that instant.
-    with pytest.raises(EphemerisRangeError):
-        ephemeris.positions(ephemeris.JD_MIN, DEFAULT)
 
 
 def test_missing_ephe_fails_fast(tmp_path: Path) -> None:
