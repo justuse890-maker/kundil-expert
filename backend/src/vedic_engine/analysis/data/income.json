@@ -1,5 +1,5 @@
 {
-  "_source": "Contributors: the 10th, 11th and 2nd lords (BPHS tr. R. Santhanam, Vol. 1, Ch 24: 2nd lord vv. 13-24, 10th lord vv. 109-120, 11th lord vv. 121-132, verse = 12*(H-1)+n) and the planets in the 2nd and 11th. A lord's source type follows the house it occupies; that house-to-type table is an interpretive mapping from the house significations (BPHS Ch 11 vv. 2-13; see houses.json) and the Ch 24 results, not a classical table. A planet's type follows its significations (Phaladeepika tr. V. Subrahmanya Sastri, Ch 2 vv. 1-7 and 17-20); Rahu and Ketu: popular tradition. Earning away from the native place: Phaladeepika Ch 5 v. 9. Sources are ranked by the contributing planets' planet_strength score (highest first), ties broken by Graha order, then type key.",
+  "_source": "Contributors: the 10th, 11th and 2nd lords (BPHS tr. R. Santhanam, Vol. 1, Ch 24: 2nd lord vv. 13-24, 10th lord vv. 109-120, 11th lord vv. 121-132, verse = 12*(H-1)+n) and the planets in the 2nd and 11th. A lord's source type follows the house it occupies; that house-to-type table is an interpretive mapping from the house significations (BPHS Ch 11 vv. 2-13; see houses.json) and the Ch 24 results, not a classical table. A planet's type follows its significations (Phaladeepika tr. V. Subrahmanya Sastri, Ch 2 vv. 1-7 and 17-20); that planet-to-type table is also an interpretive mapping, and every planet_type ref says so. Rahu and Ketu: popular tradition. Earning away from the native place: Phaladeepika Ch 5 v. 9. One source per planet: its type comes from its highest-priority role (10th lord, 11th lord, 2nd lord, occupant, foreign indicator) and the other roles go into why. Sources are ranked by planet_strength (highest first), ties broken by role priority, then Graha order.",
   "types": {
     "service": {"en": "service (employment)", "hi": "सेवा (नौकरी)"},
     "business_partnership": {"en": "business and partnership", "hi": "व्यापार और साझेदारी"},
@@ -30,15 +30,15 @@
     "12": "foreign"
   },
   "planet_type": {
-    "sun": {"type": "authority", "ref": "Phaladeepika Ch 2 vv. 1, 17"},
-    "moon": {"type": "trade", "ref": "Phaladeepika Ch 2 vv. 2, 17"},
-    "mars": {"type": "property", "ref": "Phaladeepika Ch 2 vv. 3, 18"},
-    "mercury": {"type": "trade", "ref": "Phaladeepika Ch 2 vv. 4, 18"},
-    "jupiter": {"type": "advisory", "ref": "Phaladeepika Ch 2 vv. 5, 19"},
-    "venus": {"type": "creative", "ref": "Phaladeepika Ch 2 vv. 6, 19"},
-    "saturn": {"type": "service", "ref": "Phaladeepika Ch 2 vv. 7, 20"},
-    "rahu": {"type": "foreign", "ref": "popular tradition"},
-    "ketu": {"type": "research", "ref": "popular tradition"}
+    "sun": {"type": "authority", "ref": "Phaladeepika Ch 2 vv. 1, 17; planet-to-type mapping: interpretive"},
+    "moon": {"type": "trade", "ref": "Phaladeepika Ch 2 vv. 2, 17; planet-to-type mapping: interpretive"},
+    "mars": {"type": "property", "ref": "Phaladeepika Ch 2 vv. 3, 18; planet-to-type mapping: interpretive"},
+    "mercury": {"type": "trade", "ref": "Phaladeepika Ch 2 vv. 4, 18; planet-to-type mapping: interpretive"},
+    "jupiter": {"type": "advisory", "ref": "Phaladeepika Ch 2 vv. 5, 19; planet-to-type mapping: interpretive"},
+    "venus": {"type": "creative", "ref": "Phaladeepika Ch 2 vv. 6, 19; planet-to-type mapping: interpretive"},
+    "saturn": {"type": "service", "ref": "Phaladeepika Ch 2 vv. 7, 20; planet-to-type mapping: interpretive"},
+    "rahu": {"type": "foreign", "ref": "popular tradition; planet-to-type mapping: interpretive"},
+    "ketu": {"type": "research", "ref": "popular tradition; planet-to-type mapping: interpretive"}
   },
   "roles": {
     "10th lord": {"en": "10th lord", "hi": "दशमेश"},

@@ -6,13 +6,14 @@ are in ``data/grahas.json`` under ``strength_factors``):
 * ``dignity`` (rashi chart): exalted +25, moolatrikona +20, own +15, great friend +10,
   friend +5, neutral 0, enemy -5, great enemy -10, debilitated -20.
 * ``shadbala``: ratio (rupa / required rupa) >= 1: +15, otherwise -10. Rahu and Ketu have no
-  Shadbala, so they get no factor.
+  Shadbala, so they get no factor. When the birth time is unknown (``k.shadbala is None``,
+  Chandra kundli) the seven grahas get a zero-delta ``shadbala`` factor saying so.
 * ``combust``: -15.
 * ``house``: kendra or trikona (1, 4, 5, 7, 9, 10) +10; 6th, 8th or 12th -10.
 * ``vargottama``: +10.
 * ``d9_dignity``: exalted or own sign in the navamsa +10, debilitated -10 (``d9_dignity``).
 
-Only factors with a non-zero delta are listed. The score counts agreeing indicators; it is not a
+Only factors with a non-zero delta are listed, except that zero-delta note. The score counts agreeing indicators; it is not a
 probability.
 """
 
@@ -71,7 +72,7 @@ class ChartFacts(Protocol):
     @property
     def combust(self) -> Mapping[Graha, bool]: ...
     @property
-    def shadbala(self) -> Mapping[Graha, _HasRatio]: ...
+    def shadbala(self) -> Mapping[Graha, _HasRatio] | None: ...
     @property
     def vargottama(self) -> Mapping[Graha, bool]: ...
     @property
@@ -126,7 +127,11 @@ def planet_strength(k: ChartFacts, g: Graha) -> Strength:
     dig = k.dignity[g]
     raw.append(("dignity", DIGNITY_DELTA[dig], f"{name} is {dig.value.replace('_', ' ')} in D1"))
 
-    bala = k.shadbala.get(g)
+    keep_zero: set[str] = set()
+    bala = None if k.shadbala is None else k.shadbala.get(g)
+    if k.shadbala is None and g not in (Graha.RAHU, Graha.KETU):
+        raw.append(("shadbala", 0, "Shadbala unavailable: birth time unknown"))
+        keep_zero.add("shadbala")
     if bala is not None:
         strong = bala.ratio >= 1.0
         raw.append(
@@ -158,6 +163,10 @@ def planet_strength(k: ChartFacts, g: Graha) -> Strength:
         elif d9 is Dignity.DEBILITATED:
             raw.append(("d9_dignity", D9_BAD, f"{why} ({d9.value})"))
 
-    factors = tuple(Factor(name=n, delta=d, why=w, ref=refs[n]["ref"]) for n, d, w in raw if d != 0)
+    factors = tuple(
+        Factor(name=n, delta=d, why=w, ref=refs[n]["ref"])
+        for n, d, w in raw
+        if d != 0 or n in keep_zero
+    )
     score = BASE + sum(f.delta for f in factors)
     return Strength(score=max(0, min(100, score)), factors=factors)

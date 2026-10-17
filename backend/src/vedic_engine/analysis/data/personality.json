@@ -44,13 +44,17 @@
     "3": {"en": "lion-like courage and honour, with the self expressed through initiative and effort", "hi": "सिंह जैसा साहस और सम्मान, पहल और पराक्रम से आत्म-अभिव्यक्ति"},
     "4": {"en": "happiness from both parents, charm and virtue, and prosperity through one's own efforts", "hi": "माता-पिता दोनों से सुख, आकर्षण और सद्गुण, अपने प्रयासों से समृद्धि"},
     "5": {"en": "honour and favour from those in authority, a quick temper, and children's matters that need attention", "hi": "अधिकारियों से सम्मान और कृपा, जल्दी क्रोध, और संतान के विषयों पर ध्यान की आवश्यकता"},
-    "6": {"en": "when joined by malefics without benefic aspect, health and opponents test the native; competition shapes the self", "hi": "पाप ग्रहों के साथ और शुभ दृष्टि के बिना होने पर स्वास्थ्य और विरोधी परीक्षा लेते हैं; प्रतिस्पर्धा व्यक्तित्व को गढ़ती है"},
-    "7": {"en": "life revolves around partners and the public; a strong lagna lord here can raise status, a weak one brings wandering and strain", "hi": "जीवन साझेदारों और जनसमूह के इर्द-गिर्द घूमता है; बलवान लग्नेश यहाँ प्रतिष्ठा बढ़ा सकता है, निर्बल हो तो भटकाव और तनाव देता है"},
+    "6": {"en": "health, service and competition are prominent themes, and the native tends to meet opponents directly", "hi": "स्वास्थ्य, सेवा और प्रतिस्पर्धा प्रमुख विषय रहते हैं, और जातक विरोधियों का सीधे सामना करने की प्रवृत्ति रखता है"},
+    "6_afflicted": {"en": "with malefic contact and no benefic aspect, health and opponents tend to test the native; competition shapes the self", "hi": "पाप ग्रहों के संपर्क और शुभ दृष्टि के अभाव में स्वास्थ्य और विरोधी परीक्षा लेते हैं; प्रतिस्पर्धा व्यक्तित्व को गढ़ती है"},
+    "7": {"en": "life revolves around partners and the public, and identity is shaped through relationships", "hi": "जीवन साझेदारों और जनसमूह के इर्द-गिर्द घूमता है, और पहचान संबंधों से आकार लेती है"},
+    "7_strong": {"en": "life revolves around partners and the public, and this strong lagna lord can raise one's status", "hi": "जीवन साझेदारों और जनसमूह के इर्द-गिर्द घूमता है, और यह बलवान लग्नेश प्रतिष्ठा बढ़ा सकता है"},
+    "7_weak": {"en": "life revolves around partners and the public; with a weak lagna lord here, wandering and strain tend to arise", "hi": "जीवन साझेदारों और जनसमूह के इर्द-गिर्द घूमता है; यहाँ निर्बल लग्नेश होने से भटकाव और तनाव की प्रवृत्ति रहती है"},
     "8": {"en": "scholarly accomplishment alongside health concerns, with a pull towards hidden matters and risk", "hi": "विद्वत्ता के साथ स्वास्थ्य की चिंताएँ, और गुप्त विषयों तथा जोखिम की ओर झुकाव"},
     "9": {"en": "fortunate, eloquent and skilful, devoted to dharma, and blessed with spouse, children and wealth", "hi": "भाग्यशाली, वाक्पटु और कुशल, धर्मनिष्ठ, जीवनसाथी, संतान और धन से संपन्न"},
     "10": {"en": "self-identity through work: support from the father, honour from authority and self-earned wealth", "hi": "कर्म से पहचान: पिता का सहयोग, अधिकारियों से सम्मान और स्व-अर्जित धन"},
     "11": {"en": "gains, good qualities and reputation shape the self", "hi": "लाभ, सद्गुण और यश व्यक्तित्व को आकार देते हैं"},
-    "12": {"en": "without benefic support, a tendency to spend fruitlessly and to have little physical comfort; inner and distant matters draw the self", "hi": "शुभ सहयोग के बिना व्यर्थ खर्च और शारीरिक सुख की कमी की प्रवृत्ति; आंतरिक और दूर देश के विषय आकर्षित करते हैं"}
+    "12": {"en": "inner life, distant places and expenses draw the self, and benefic support softens the spending", "hi": "आंतरिक जीवन, दूर स्थान और व्यय व्यक्ति को आकर्षित करते हैं, और शुभ सहयोग खर्च को संतुलित करता है"},
+    "12_unsupported": {"en": "without benefic support, a tendency to spend fruitlessly and to have little physical comfort; inner and distant matters draw the self", "hi": "शुभ सहयोग के बिना व्यर्थ खर्च और शारीरिक सुख की कमी की प्रवृत्ति; आंतरिक और दूर देश के विषय आकर्षित करते हैं"}
   },
   "templates": {
     "lagna": {
@@ -66,7 +70,7 @@
       "hi": "चंद्रमा {sign} राशि और {nakshatra} नक्षत्र (स्वामी {nak_lord}) में: मन का झुकाव इस ओर है: {traits}; नक्षत्र स्वामी इसमें {nature} जोड़ता है।"
     },
     "sun": {
-      "en": "Sun in {sign} in the {n} house: the self, prowess and courage (the Sun's significations) express through a {element}, {modality} sign, favouring {element_trait} with {modality_trait}.",
+      "en": "Sun in {sign} in the {n} house: the self, prowess and courage (the Sun's significations) express through a sign of the {element} element and {modality} nature, favouring {element_trait} with {modality_trait}.",
       "hi": "सूर्य {sign} राशि में {n} भाव में: आत्मा, पराक्रम और साहस (सूर्य के कारकत्व) {element} तत्व और {modality} स्वभाव की राशि से प्रकट होते हैं, जो {modality_trait} के साथ {element_trait} को बढ़ावा देती है।"
     }
   },

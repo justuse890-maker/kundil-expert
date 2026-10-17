@@ -13,14 +13,16 @@ lord and its karaka are strong): the mean ``planet_strength`` of the area's key 
 * health: lagna lord, Moon; wealth: 2nd, 5th, 9th and 11th lords;
 * children: 5th lord, Jupiter; education: 4th and 5th lords, Mercury.
 
-Each planet counts once. ``summary_key`` is ``"<area>.<level>"``: strong (score >= 60), weak
+Each planet counts once; the mean is rounded half up. ``summary_key`` is ``"<area>.<level>"``: strong (score >= 60), weak
 (< 40), otherwise moderate; the text is ``areas.json`` ``summaries[level]``.
 
-``income_sources`` ranks the major income sources: contributions from the 10th, 11th and 2nd
-lords (type from the house each occupies), the planets in the 2nd and 11th (type from the
-planet), and earning away from the native place (Phaladeepika Ch 5 v. 9). Contributions of the
-same type merge; a source's score is its strongest contributor's ``planet_strength``. Rank:
-score descending, then the strongest contributor's ``Graha`` order, then the type key.
+``income_sources`` ranks the major income sources, one entry per planet. A planet contributes
+through roles, in priority order ``ROLE_PRIORITY``: 10th lord, 11th lord, 2nd lord (type from
+the house the lord occupies), occupant of the 2nd or 11th (type from the planet), and the
+indicator for earning away from the native place (Phaladeepika Ch 5 v. 9; always the 10th lord).
+The source's type comes from its highest-priority role; every role's facts go into ``why``. Its
+score is the planet's ``planet_strength``. Rank: score descending, then the primary role's
+priority, then ``Graha`` order.
 
 Chandra kundli (``meta["lagna_basis"] == "moon"``): the lagna is the Moon, so houses are counted
 from the Moon; every reading starts with a note saying so, and readings from divisional lagnas
@@ -30,14 +32,21 @@ Traditional Jyotish interpretation: guidance, not certainty.
 """
 
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from itertools import combinations
+from math import floor
 from statistics import fmean
 from typing import Any, Literal, Protocol, cast
 
 from vedic_engine.analysis.dasha_judgement import moon_waxing
 from vedic_engine.analysis.functional import houses_ruled, load_data
-from vedic_engine.analysis.strength import ChartFacts, Strength, d9_dignity, planet_strength
+from vedic_engine.analysis.strength import (
+    DUSTHANAS,
+    ChartFacts,
+    Strength,
+    d9_dignity,
+    planet_strength,
+)
 from vedic_engine.angles import nak_of, sign_of
 from vedic_engine.bhava import BhavaFact, drishti
 from vedic_engine.constants import NAKSHATRAS, RASHI_LORD, RASHIS, VIMSHOTTARI_ORDER, Graha
@@ -67,7 +76,7 @@ LUCKY_KINDS: tuple[str, ...] = (
 )
 STRONG_FROM = 60
 WEAK_BELOW = 40
-DUSTHANAS: tuple[int, ...] = (6, 8, 12)
+ROLE_PRIORITY: tuple[str, ...] = ("10th lord", "11th lord", "2nd lord", "occupant", "foreign")
 DHANA_HOUSES: tuple[int, ...] = (1, 2, 5, 9, 11)
 # Phaladeepika Ch 2 v. 27 (the waning Moon is added at call time; Mercury's association is not
 # evaluated, as in functional.py).
@@ -106,14 +115,15 @@ class AreaReading:
 
 @dataclass(frozen=True, slots=True)
 class IncomeSource:
-    """One ranked income source; ``planets`` strongest first, ``roles`` e.g. ("10th lord",)."""
+    """One ranked income source per planet; ``roles`` in ``ROLE_PRIORITY`` order, the first one
+    decides ``type``."""
 
     rank: int
     type: str
     label_en: str
     label_hi: str
     score: int
-    planets: tuple[Graha, ...]
+    planet: Graha
     roles: tuple[str, ...]
     why: tuple[str, ...]
     ref: str
@@ -126,6 +136,7 @@ class LuckyItem:
     value_hi: str
     source: str
     label: str = "traditional association"
+    label_hi: str = "पारंपरिक संबंध"
 
 
 @dataclass(frozen=True, slots=True)
@@ -259,11 +270,32 @@ class _Chart:
 
     def strength_fact(self, g: Graha) -> str:
         s = self.strength(g)
-        factors = ", ".join(f"{f.name} {f.delta:+d}" for f in s.factors) or "no factors"
+        factors = (
+            ", ".join(f"{f.name} {f.delta:+d}" if f.delta else f"{f.name} n/a" for f in s.factors)
+            or "no factors"
+        )
         return f"{_name(g)} strength {s.score}/100 ({factors})"
 
     def occupants(self, h: int) -> tuple[Graha, ...]:
         return tuple(self.bhava(h).occupants)
+
+    def is_malefic(self, g: Graha) -> bool:
+        return g in _NATURAL_MALEFICS or (g is Graha.MOON and not moon_waxing(self.k))
+
+    def contacts(self, g: Graha) -> tuple[tuple[Graha, ...], tuple[Graha, ...]]:
+        """(malefics, benefics) conjoined with or aspecting ``g``, in Graha order."""
+        sign = self.sign(g)
+        touching = [
+            o
+            for o in Graha
+            if o is not g
+            and o in self.k.grahas
+            and (self.sign(o) == sign or sign in drishti(o, self.sign(o)))
+        ]
+        return (
+            tuple(o for o in touching if self.is_malefic(o)),
+            tuple(o for o in touching if not self.is_malefic(o)),
+        )
 
 
 def _lord_in_house(c: _Chart, h: int) -> Statement:
@@ -325,17 +357,18 @@ def _personality(c: _Chart) -> list[Statement]:
 
     lord = c.lord(1)
     n = c.house(lord)
+    key, condition = _lagna_lord_key(c, lord, n)
     out.append(
         _say(
             tpl["lagna_lord"],
-            [f"Lagna lord {c.placement(lord)}", c.strength_fact(lord)],
+            [f"Lagna lord {c.placement(lord)}", c.strength_fact(lord), *condition],
             _ch24_ref(1, n),
             planet=_g(lord),
             n=_ord(n),
             sign=_sign(c.sign(lord)),
             score=c.score(lord),
             band=_band(c.score(lord)),
-            text=_text(d["lagna_lord_in_house"][str(n)]),
+            text=_text(d["lagna_lord_in_house"][key]),
         )
     )
 
@@ -378,6 +411,30 @@ def _personality(c: _Chart) -> list[Statement]:
         )
     )
     return out
+
+
+def _lagna_lord_key(c: _Chart, lord: Graha, n: int) -> tuple[str, list[str]]:
+    """Text key for the lagna lord in house ``n``, plus the checked facts for ``why``.
+
+    BPHS Ch 24 qualifies three houses: the 6th (v. 6: related to a malefic and without benefic
+    aspect), the 7th (v. 7: a strong lord can raise status; otherwise wandering and strain) and
+    the 12th (v. 12: without benefic aspect or conjunction). Without those conditions the neutral
+    wording is used.
+    """
+    if n not in (6, 7, 12):
+        return str(n), []
+    if n == 7:
+        score = c.score(lord)
+        return ("7_strong" if score >= STRONG_FROM else "7_weak" if score < WEAK_BELOW else "7"), []
+    malefics, benefics = c.contacts(lord)
+    fact = f"malefic contact: {', '.join(_name(g) for g in malefics) or 'none'}; " + (
+        f"benefic contact: {', '.join(_name(g) for g in benefics)}"
+        if benefics
+        else "no benefic contact"
+    )
+    if n == 6:
+        return ("6_afflicted" if malefics and not benefics else "6"), [fact]
+    return ("12_unsupported" if not benefics else "12"), [fact]
 
 
 def _career(c: _Chart) -> list[Statement]:
@@ -574,37 +631,37 @@ def income_sources(k: AreaFacts) -> tuple[IncomeSource, ...]:
 
 
 def _ranked_sources(c: _Chart) -> list[tuple[IncomeSource, tuple[Text, ...]]]:
-    """Ranked sources, each with its contributors' phrases for the statement text."""
+    """Ranked sources (one per planet), each with its roles' phrases for the statement text."""
     types = load_data("income")["types"]
-    by_type: dict[str, list[_Contribution]] = {}
+    by_planet: dict[Graha, list[_Contribution]] = {}
     for contrib in _contributions(c):
-        by_type.setdefault(contrib.type, []).append(contrib)
+        by_planet.setdefault(contrib.planet, []).append(contrib)
 
-    merged: list[tuple[tuple[int, int, str], str, list[_Contribution]]] = []
-    for t, contribs in by_type.items():
-        contribs.sort(key=lambda x: (-x.score, _GRAHA_ORDER[x.planet], x.role))
-        top = contribs[0]
-        merged.append(((-top.score, _GRAHA_ORDER[top.planet], t), t, contribs))
-    merged.sort(key=lambda m: m[0])
+    def priority(x: _Contribution) -> int:
+        return ROLE_PRIORITY.index(x.role)
+
+    for contribs in by_planet.values():
+        contribs.sort(key=priority)
+    ranked = sorted(
+        by_planet.items(),
+        key=lambda kv: (-kv[1][0].score, priority(kv[1][0]), _GRAHA_ORDER[kv[0]]),
+    )
 
     out: list[tuple[IncomeSource, tuple[Text, ...]]] = []
-    for rank, (_key, t, contribs) in enumerate(merged, start=1):
-        planets = tuple(dict.fromkeys(x.planet for x in contribs))
-        roles = tuple(dict.fromkeys(x.role for x in contribs))
-        why = tuple(dict.fromkeys(w for x in contribs for w in x.why))
-        ref = "; ".join(dict.fromkeys(part for x in contribs for part in x.ref.split("; ")))
+    for rank, (planet, contribs) in enumerate(ranked, start=1):
+        t = contribs[0].type
         src = IncomeSource(
             rank=rank,
             type=t,
             label_en=types[t]["en"],
             label_hi=types[t]["hi"],
             score=contribs[0].score,
-            planets=planets,
-            roles=roles,
-            why=why,
-            ref=ref,
+            planet=planet,
+            roles=tuple(dict.fromkeys(x.role for x in contribs)),
+            why=tuple(dict.fromkeys(w for x in contribs for w in x.why)),
+            ref="; ".join(dict.fromkeys(part for x in contribs for part in x.ref.split("; "))),
         )
-        out.append((src, tuple(x.phrase for x in contribs)))
+        out.append((src, tuple(dict.fromkeys(x.phrase for x in contribs))))
     return out
 
 
@@ -701,6 +758,7 @@ def _marriage(c: _Chart, gender: Gender | None) -> list[Statement]:
         )
 
     m = c.k.manglik
+    texts = d["manglik_moon"] if m.from_lagna is None else d["manglik"]
     hits = [
         name
         for name, hit in (("lagna", m.from_lagna), ("Moon", m.from_moon), ("Venus", m.from_venus))
@@ -709,8 +767,8 @@ def _marriage(c: _Chart, gender: Gender | None) -> list[Statement]:
     mars = c.placement(Graha.MARS)
     out.append(
         Statement(
-            text_en=d["manglik"][m.level]["en"],
-            text_hi=d["manglik"][m.level]["hi"],
+            text_en=texts[m.level]["en"],
+            text_hi=texts[m.level]["hi"],
             why=(f"Manglik level {m.level}" + (f" (from {', '.join(hits)})" if hits else ""), mars),
             ref=d["manglik"]["ref"],
         )
@@ -720,18 +778,17 @@ def _marriage(c: _Chart, gender: Gender | None) -> list[Statement]:
 
 def _health(c: _Chart) -> list[Statement]:
     d = load_data("areas")["health"]
-    out = [
-        _planet_in_house(c, d["lagna_lord"], c.lord(1), d["refs"]["lagna_lord"]),
-        _planet_in_house(c, d["moon"], Graha.MOON, d["refs"]["moon"]),
-        _lord_in_house(c, 6),
-        _lord_in_house(c, 8),
-    ]
-    waxing = moon_waxing(c.k)
+    moon = _planet_in_house(c, d["moon"], Graha.MOON, d["refs"]["moon"])
+    if c.lord(1) is Graha.MOON:  # Karka lagna: one statement, not two about the Moon
+        out = [replace(moon, why=(*moon.why, "Moon is also the lagna lord"))]
+    else:
+        out = [_planet_in_house(c, d["lagna_lord"], c.lord(1), d["refs"]["lagna_lord"]), moon]
+    out += [_lord_in_house(c, 6), _lord_in_house(c, 8)]
     found = False
-    for h in DUSTHANAS:
+    for h in sorted(DUSTHANAS):
         for g in c.occupants(h):
             found = True
-            malefic = g in _NATURAL_MALEFICS or (g is Graha.MOON and not waxing)
+            malefic = c.is_malefic(g)
             key = "dusthana_malefic" if malefic else "dusthana_benefic"
             nature = "natural malefic" if malefic else "natural benefic"
             out.append(
@@ -876,7 +933,7 @@ def life_areas(k: AreaFacts, gender: str | None = None) -> dict[str, AreaReading
         )
     out: dict[str, AreaReading] = {}
     for area in AREAS:
-        score = round(fmean(c.score(p) for p in _key_planets(c, area, g)))
+        score = floor(fmean(c.score(p) for p in _key_planets(c, area, g)) + 0.5)  # half up
         out[area] = AreaReading(
             score=score,
             summary_key=f"{area}.{_band_key(score)}",
@@ -896,7 +953,7 @@ def lucky_elements(k: AreaFacts) -> tuple[LuckySet, ...]:
     bases: dict[Graha, list[str]] = {}
     bases.setdefault(lagna_lord, []).append("lagna_lord")
     bases.setdefault(moon_lord, []).append("moon_sign_lord")
-    label = data["label"]["en"]
+    label, label_hi = data["label"]["en"], data["label"]["hi"]
     sets: list[LuckySet] = []
     for g, why in bases.items():
         entry = data["planets"][g.value]
@@ -907,6 +964,7 @@ def lucky_elements(k: AreaFacts) -> tuple[LuckySet, ...]:
                 value_hi=entry[kind]["hi"],
                 source=entry[kind]["source"],
                 label=label,
+                label_hi=label_hi,
             )
             for kind in LUCKY_KINDS
         )

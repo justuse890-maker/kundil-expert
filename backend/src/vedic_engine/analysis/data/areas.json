@@ -156,6 +156,11 @@
       "high": {"en": "Manglik (Kuja dosha) indication is high: Mars is in a Manglik house from all three of the lagna, the Moon and Venus.", "hi": "मांगलिक (कुज दोष) संकेत अधिक है: मंगल लग्न, चंद्रमा और शुक्र तीनों से मांगलिक भाव में है।"},
       "ref": "Kuja dosha: later tradition, not in BPHS; engine rule: Mars in houses 1, 2, 4, 7, 8, 12 counted from the lagna, the Moon and Venus, without cancellations"
     },
+    "manglik_moon": {
+      "none": {"en": "Mars is not in the 1st, 2nd, 4th, 7th, 8th or 12th from the Moon or Venus: no Manglik indication.", "hi": "मंगल चंद्रमा या शुक्र से पहले, दूसरे, चौथे, सातवें, आठवें या बारहवें भाव में नहीं है: मांगलिक संकेत नहीं है।"},
+      "low": {"en": "Manglik (Kuja dosha) indication is low: Mars is in a Manglik house from one of the Moon and Venus.", "hi": "मांगलिक (कुज दोष) संकेत कम है: मंगल चंद्रमा और शुक्र में से एक से मांगलिक भाव में है।"},
+      "medium": {"en": "Manglik (Kuja dosha) indication is medium: Mars is in a Manglik house from both the Moon and Venus.", "hi": "मांगलिक (कुज दोष) संकेत मध्यम है: मंगल चंद्रमा और शुक्र दोनों से मांगलिक भाव में है।"}
+    },
     "refs": {
       "karaka_male": "Phaladeepika Ch 2 v. 6; BPHS Ch 32 vv. 31-34",
       "karaka_female": "Phaladeepika Ch 2 v. 5",

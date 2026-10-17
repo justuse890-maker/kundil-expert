@@ -16,8 +16,9 @@ from vedic_engine.analysis import (
     IncomeSource,
     life_areas,
     lucky_elements,
+    planet_strength,
 )
-from vedic_engine.analysis.areas import AREAS, DATA_FILES, income_sources
+from vedic_engine.analysis.areas import AREAS, DATA_FILES, ROLE_PRIORITY, income_sources
 from vedic_engine.analysis.functional import load_data
 from vedic_engine.bhava import BhavaFact, bhava_facts, vargottama
 from vedic_engine.constants import RASHI_LORD, RASHIS, Graha
@@ -193,6 +194,7 @@ def test_lucky_elements_traditional_and_cited() -> None:
     for s in sets:
         for item in s.items:
             assert item.label == "traditional association"
+            assert item.label_hi == "पारंपरिक संबंध"
             assert item.source
             assert item.value_en and item.value_hi
     number = next(i for i in sets[0].items if i.kind == "number")
@@ -217,22 +219,22 @@ def test_income_ranks_are_deterministic() -> None:
     assert first == income_sources(k)
     assert [s.rank for s in first] == list(range(1, len(first) + 1))
     order = list(Graha)
-    keys = [(-s.score, order.index(s.planets[0]), s.type) for s in first]
+    keys = [(-s.score, ROLE_PRIORITY.index(s.roles[0]), order.index(s.planet)) for s in first]
     assert keys == sorted(keys)
-    assert len({s.type for s in first}) == len(first)  # one entry per source type
+    assert len({s.planet for s in first}) == len(first)  # one entry per planet
     for s in first:
         assert isinstance(s, IncomeSource)
         assert s.why and s.ref
 
 
-def test_income_tie_broken_by_graha_order() -> None:
+def test_income_tie_broken_by_role_then_graha_order() -> None:
     # Mesha lagna. Every contributor gets exactly the base strength 50: neutral dignity, no
     # shadbala, not combust, not vargottama, D9 Mithuna (neither own, exalted nor debilitated
     # for these planets), and houses 2, 3 and 11 carry no house factor.
-    #   Moon in Vrishabha (2nd): occupant -> trade
-    #   Venus (2nd lord) in Mithuna (3rd) -> own_enterprise
-    #   Saturn (10th and 11th lord) in Kumbha (11th) -> investments_gains; occupant -> service;
-    #   Mars in Mithuna aspects Makara (10th) and Saturn does not -> foreign (Phaladeepika 5.9)
+    #   Saturn: 10th and 11th lord in Kumbha (11th) -> investments_gains; also occupant of the
+    #     11th and the Phaladeepika 5.9 foreign indicator (Mars aspects Makara), both in `why`
+    #   Venus: 2nd lord in Mithuna (3rd) -> own_enterprise
+    #   Moon: occupant of Vrishabha (2nd) -> trade
     base = _synthetic({**_BASE_SIGNS, Graha.VENUS: 2, Graha.SATURN: 10})
     facts = replace(
         base,
@@ -242,14 +244,44 @@ def test_income_tie_broken_by_graha_order() -> None:
     )
     srcs = income_sources(facts)
     assert {s.score for s in srcs} == {50}
-    assert [(s.type, s.planets[0]) for s in srcs] == [
-        ("trade", Graha.MOON),
-        ("own_enterprise", Graha.VENUS),
-        ("foreign", Graha.SATURN),
+    assert [(s.type, s.planet) for s in srcs] == [
         ("investments_gains", Graha.SATURN),
-        ("service", Graha.SATURN),
+        ("own_enterprise", Graha.VENUS),
+        ("trade", Graha.MOON),
     ]
-    assert srcs[3].roles == ("10th lord", "11th lord")
+    assert srcs[0].roles == ("10th lord", "11th lord", "occupant", "foreign")
+    assert any("not by its lord Saturn" in w for w in srcs[0].why)
+
+
+def test_income_one_entry_per_planet_makara_1985() -> None:
+    # Makara lagna: Venus rules the 10th (Tula) and stands in Kumbha (2nd), so it is both the
+    # 10th lord and an occupant of the 2nd; its type is the 10th-lord-in-2nd type.
+    k = build_kundli(BirthInput(datetime(1985, 1, 20, 7, 0), "Asia/Kolkata", 28.6139, 77.2090))
+    srcs = income_sources(k)
+    venus = [s for s in srcs if s.planet is Graha.VENUS]
+    assert len(venus) == 1
+    assert venus[0].type == "family_wealth"
+    assert venus[0].roles == ("10th lord", "occupant")
+    assert any(w.startswith("10th lord Venus in 2nd (Kumbha)") for w in venus[0].why)
+    assert len({s.planet for s in srcs}) == len(srcs)
+
+
+def test_chandra_kundli_real_chart() -> None:
+    birth = BirthInput(
+        datetime(1990, 6, 1, 12, 0), "Asia/Kolkata", 28.6139, 77.2090, time_known=False
+    )
+    k = build_kundli(birth)
+    assert k.shadbala is None
+    areas = life_areas(k)
+    for reading in areas.values():
+        assert reading.statements[0].why[0].startswith("birth time unknown")
+    whys = [w for r in areas.values() for s in r.statements for w in s.why]
+    assert any("shadbala n/a" in w for w in whys)
+    marriage = [s.text_en for s in areas["marriage"].statements]
+    assert not any("lagna" in t.lower() and "Manglik" in t for t in marriage)
+    strength = planet_strength(k, Graha.SATURN)
+    note = [f for f in strength.factors if f.name == "shadbala"]
+    assert [(f.delta, f.why) for f in note] == [(0, "Shadbala unavailable: birth time unknown")]
 
 
 @pytest.mark.parametrize(
@@ -423,3 +455,69 @@ def test_lucky_entries_complete_and_sourced() -> None:
         for kind, item in entry.items():
             assert item["source"], (g, kind)
         assert entry["number"]["source"] == "popular tradition"
+
+
+# --- lagna-lord conditions, grammar, dedupe ---------------------------------------------------
+
+
+def _lagna_lord_statement(signs: Mapping[Graha, int]) -> tuple[str, tuple[str, ...]]:
+    p = life_areas(_synthetic({**_BASE_SIGNS, **signs}))["personality"]
+    s = next(s for s in p.statements if s.why[0].startswith("Lagna lord"))
+    return s.text_en, s.why
+
+
+def _lagna_lord_text(key: str) -> str:
+    return str(load_data("personality")["lagna_lord_in_house"][key]["en"])
+
+
+# Mesha lagna; Mars is the lagna lord. Placements below keep every other graha out of contact
+# with Mars unless named: Sun Simha, Moon Vrishabha (waning), Mercury/Venus/Jupiter Mesha.
+_QUIET = {Graha.MERCURY: 0, Graha.VENUS: 0, Graha.JUPITER: 0}
+
+
+def test_lagna_lord_6th_afflicted_only_with_malefic_and_no_benefic() -> None:
+    text, why = _lagna_lord_statement({**_QUIET, Graha.MARS: 5, Graha.SATURN: 5})
+    assert _lagna_lord_text("6_afflicted") in text
+    assert "malefic contact: Saturn; no benefic contact" in why
+    # Jupiter in Makara aspects Kanya (its 9th): benefic aspect -> neutral wording.
+    text, why = _lagna_lord_statement({**_QUIET, Graha.MARS: 5, Graha.SATURN: 5, Graha.JUPITER: 9})
+    assert _lagna_lord_text("6") in text
+    assert "benefic contact: Jupiter" in " ".join(why)
+
+
+def test_lagna_lord_12th_needs_benefic_support() -> None:
+    text, _ = _lagna_lord_statement({**_QUIET, Graha.MARS: 11, Graha.SATURN: 9})
+    assert _lagna_lord_text("12_unsupported") in text
+    text, _ = _lagna_lord_statement({**_QUIET, Graha.MARS: 11, Graha.SATURN: 9, Graha.JUPITER: 11})
+    assert _lagna_lord_text("12") in text
+
+
+def test_lagna_lord_7th_wording_follows_strength() -> None:
+    # Mars in Tula (7th, kendra +10), no shadbala: neutral dignity... strength decides the text.
+    facts = _synthetic({**_BASE_SIGNS, **_QUIET, Graha.MARS: 6})
+    s = next(
+        s for s in life_areas(facts)["personality"].statements if s.why[0].startswith("Lagna lord")
+    )
+    score = int(s.why[1].split("strength ")[1].split("/")[0])
+    key = "7_strong" if score >= 60 else "7_weak" if score < 40 else "7"
+    assert _lagna_lord_text(key) in s.text_en
+
+
+def test_health_not_duplicated_when_lagna_lord_is_moon() -> None:
+    facts = _synthetic(_BASE_SIGNS, lagna_sign=3)  # Karka: lagna lord is the Moon
+    health = life_areas(facts)["health"]
+    moon = [s for s in health.statements if s.ref == "Phaladeepika Ch 2 v. 2"]
+    assert len(moon) == 1
+    assert "Moon is also the lagna lord" in moon[0].why
+
+
+def test_no_a_before_vowel_element() -> None:
+    for _name, reading in _all_readings():
+        for s in reading.statements:
+            assert " a earth" not in s.text_en and " a air" not in s.text_en, s.text_en
+
+
+def test_chandra_manglik_text_omits_lagna() -> None:
+    for level in ("none", "low", "medium"):
+        text = load_data("areas")["marriage"]["manglik_moon"][level]["en"]
+        assert "lagna" not in text.lower()
