@@ -56,10 +56,10 @@ function esc(v) {
   return String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 function cap(s) { s = String(s ?? ''); return s.charAt(0).toUpperCase() + s.slice(1); }
-function pretty(key) { return String(key ?? '').split('_').map(cap).join(' '); }
-function grahaName(key) { return cap(key); }
-function rashiName(i1) { return RASHI_NAMES[i1 - 1]; }   // i1 is the API's 1-based rashi
-function nakName(i1) { return NAKSHATRAS[i1 - 1]; }
+function pretty(key) { return esc(String(key ?? '').split('_').map(cap).join(' ')); }
+function grahaName(key) { return esc(cap(key)); }
+function rashiName(i1) { return esc(RASHI_NAMES[i1 - 1]); }   // i1 is the API's 1-based rashi
+function nakName(i1) { return esc(NAKSHATRAS[i1 - 1]); }
 
 /** Localised text from an object carrying `<base>_en` / `<base>_hi`. */
 function loc(obj, base) {
@@ -73,7 +73,8 @@ function localDate(s) {
   if (!s) return '';
   const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s);
   if (!m) return s;
-  return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' });
+  const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${Number(m[3])} ${MON[Number(m[2]) - 1]} ${m[1]}`;
 }
 function localTime(s) {
   const m = /T(\d{2}:\d{2})/.exec(s || '');
@@ -203,7 +204,7 @@ function incomeSourcesHtml() {
   if (!src.length) return '';
   return `<p style="font-size:11px;color:var(--maroon);font-weight:600;margin:12px 0 4px">Income sources</p>` + src.map(s => `
     <div class="life-item"><div class="life-item-icon">💰</div><div class="life-item-content">
-      <div class="life-item-title">${esc(loc(s, 'label') || pretty(s.type))}${s.score != null ? ` <span class="badge gold">${esc(s.score)}</span>` : ''}</div>
+      <div class="life-item-title">${loc(s, 'label') ? esc(loc(s, 'label')) : pretty(s.type)}${s.score != null ? ` <span class="badge gold">${esc(s.score)}</span>` : ''}</div>
       ${chipsHtml(s.why, s.ref)}</div></div>`).join('');
 }
 
@@ -213,15 +214,16 @@ function luckyHtml() {
   if (!items.length) return PENDING_HTML;
   return items.map(it => {
     if (typeof it === 'string') return `<div class="data-row"><span class="data-value">${esc(it)}</span></div>`;
-    const label = pretty(it.type || it.kind || '');
+    const label = pretty(it.type || it.kind || '');  // already escaped
     const val = loc(it, 'label') || loc(it, 'text') || loc(it, 'value') || (Array.isArray(it.values) ? it.values.join(', ') : '');
-    return `<div class="data-row"><span class="data-label">${esc(label)}</span><span class="data-value">${esc(val)}</span></div>${chipsHtml(it.why, it.ref)}`;
+    return `<div class="data-row"><span class="data-label">${label}</span><span class="data-value">${esc(val)}</span></div>${chipsHtml(it.why, it.ref)}`;
   }).join('');
 }
 
 function windowHtml(w, tone) {
   if (!w || typeof w !== 'object') return '';
-  const title = loc(w, 'label') || loc(w, 'title') || [w.maha, w.antar].filter(Boolean).map(grahaName).join(' – ') || (w.lord ? grahaName(w.lord) : '');
+  const rawTitle = loc(w, 'label') || loc(w, 'title');
+  const title = rawTitle ? esc(rawTitle) : [w.maha, w.antar].filter(Boolean).map(grahaName).join(' – ') || (w.lord ? grahaName(w.lord) : '');
   const start = w.start_local || w.start_utc, end = w.end_local || w.end_utc;
   const dates = start ? `${localDate(start)}${end ? ' → ' + localDate(end) : ''}` : '';
   const text = loc(w, 'text') || loc(w, 'advice');
@@ -229,7 +231,7 @@ function windowHtml(w, tone) {
   const ind = tone === 'good' ? '🟢' : tone === 'bad' ? '🔴' : '🟡';
   const stmts = Array.isArray(w.statements) ? w.statements.map(s => statementHtml(s)).join('') : '';
   return `<div class="dosha-card ${cls}"><div class="dosha-indicator">${ind}</div><div>
-    <div class="dosha-name">${esc(title)}</div>
+    <div class="dosha-name">${title}</div>
     <div class="dosha-detail">${esc(dates)}${text ? '<br>' + esc(text) : ''}${stmts}${chipsHtml(w.why, w.ref)}</div></div></div>`;
 }
 
@@ -238,8 +240,8 @@ function periodCurrentHtml() {
   const cur = (analysisState.data.periods || {}).current;
   if (!cur || typeof cur !== 'object') return PENDING_HTML;
   let h = '';
-  if (cur.maha) h += `<div class="data-row"><span class="data-label">Mahadasha</span><span class="data-value" style="font-size:16px">${esc(grahaName(cur.maha))}</span></div>`;
-  if (cur.antar) h += `<div class="data-row"><span class="data-label">Antardasha</span><span class="data-value">${esc(grahaName(cur.antar))}</span></div>`;
+  if (cur.maha) h += `<div class="data-row"><span class="data-label">Mahadasha</span><span class="data-value" style="font-size:16px">${grahaName(cur.maha)}</span></div>`;
+  if (cur.antar) h += `<div class="data-row"><span class="data-label">Antardasha</span><span class="data-value">${grahaName(cur.antar)}</span></div>`;
   if (cur.end_local || cur.end_utc) h += `<div class="data-row"><span class="data-label">Period Ends</span><span class="data-value">${esc(localDate(cur.end_local || cur.end_utc))}</span></div>`;
   const text = loc(cur, 'text');
   const sts = (cur.statements || []).map(s => statementHtml(s)).join('');
@@ -260,12 +262,12 @@ function dailyColourHtml() {
   if (dailyState.status !== 'ok') return pendingOrError(dailyState);
   const d = dailyState.data;
   let h = '';
-  if (d.vaar) h += `<div class="data-row"><span class="data-label">Vaar</span><span class="data-value">${esc(VAAR_NAMES[d.vaar] || pretty(d.vaar))}</span></div>`;
+  if (d.vaar) h += `<div class="data-row"><span class="data-label">Vaar</span><span class="data-value">${VAAR_NAMES[d.vaar] || pretty(d.vaar)}</span></div>`;
   const colour = v => (v && typeof v === 'object') ? loc(v, 'label') || loc(v, 'name') || loc(v, 'colour') : v;
   if (d.colour_today) h += `<div class="life-item"><div class="life-item-icon">🎨</div><div class="life-item-content"><div class="life-item-title">Colour Today</div><div class="life-item-desc">${esc(Array.isArray(d.colour_today) ? d.colour_today.map(colour).join(', ') : colour(d.colour_today))}</div></div></div>`;
   if (d.colour_avoid) h += `<div class="life-item"><div class="life-item-icon">🚫</div><div class="life-item-content"><div class="life-item-title">Avoid</div><div class="life-item-desc">${esc(Array.isArray(d.colour_avoid) ? d.colour_avoid.map(colour).join(', ') : colour(d.colour_avoid))}</div></div></div>`;
   (d.horas || []).forEach(hr => {
-    h += `<div class="data-row"><span class="data-label">${esc(grahaName(hr.lord))} hora ${esc(localTime(hr.start_local))}–${esc(localTime(hr.end_local))}</span>
+    h += `<div class="data-row"><span class="data-label">${grahaName(hr.lord)} hora ${esc(localTime(hr.start_local))}–${esc(localTime(hr.end_local))}</span>
       <span class="data-value"><span class="badge ${hr.favourable ? 'green' : 'amber'}">${esc(loc(hr, 'colour'))}</span></span></div>`;
   });
   (d.body_language || []).forEach(b => { h += statementHtml(b, '🤝'); });
@@ -276,7 +278,7 @@ function decisionsHtml() {
   if (dailyState.status !== 'ok') return pendingOrError(dailyState);
   const ds = dailyState.data.decisions || [];
   if (!ds.length) return PENDING_HTML;
-  return ds.map(d => `<div class="life-section"><h4>📌 ${esc(loc(d, 'area') || loc(d, 'title') || pretty(d.type || ''))}</h4>
+  return ds.map(d => `<div class="life-section"><h4>📌 ${esc(loc(d, 'area') || loc(d, 'title')) || pretty(d.type || '')}</h4>
     <p class="prediction-text">${esc(loc(d, 'text') || loc(d, 'advice'))}</p>${chipsHtml(d.why, d.ref)}</div>`).join('');
 }
 
@@ -353,12 +355,12 @@ function renderResults() {
           <div class="card-icon gold">📿</div>
           <div><div class="card-title">Panchang</div><div class="card-subtitle">Five limbs of time</div></div>
         </div>
-        <div class="data-row"><span class="data-label">Tithi</span><span class="data-value">${cap(pc.paksha)} ${tithiLabel(pc.tithi.index)}</span></div>
-        <div class="data-row"><span class="data-label">Nakshatra</span><span class="data-value">${nakName(pc.nakshatra.index)} (Pada ${pc.nakshatra.pada})</span></div>
+        <div class="data-row"><span class="data-label">Tithi</span><span class="data-value">${esc(cap(pc.paksha))} ${tithiLabel(pc.tithi.index)}</span></div>
+        <div class="data-row"><span class="data-label">Nakshatra</span><span class="data-value">${nakName(pc.nakshatra.index)} (Pada ${esc(pc.nakshatra.pada)})</span></div>
         <div class="data-row"><span class="data-label">Nakshatra Lord</span><span class="data-value">${NAKSHATRA_LORDS[pc.nakshatra.index - 1]}</span></div>
         <div class="data-row"><span class="data-label">Yoga</span><span class="data-value">${YOGAS[pc.yoga.index - 1]}</span></div>
         <div class="data-row"><span class="data-label">Karana</span><span class="data-value">${karanaName(pc.karana.index)}</span></div>
-        <div class="data-row"><span class="data-label">Vaar</span><span class="data-value">${esc(VAAR_NAMES[pc.vaar] || pretty(pc.vaar))}</span></div>
+        <div class="data-row"><span class="data-label">Vaar</span><span class="data-value">${VAAR_NAMES[pc.vaar] || pretty(pc.vaar)}</span></div>
         <div class="data-row"><span class="data-label">Name Syllable</span><span class="data-value" style="font-size:16px;font-weight:800">${esc(k.name_syllable.latin)}</span></div>
       </div>
 
@@ -377,8 +379,8 @@ function renderResults() {
                   <td><span style="color:${GRAHA_COLORS[i]};font-weight:700">${GRAHA_SYMBOLS[i]} ${GRAHAS[i]}${g.retro ? ' ℞' : ''}</span></td>
                   <td>${esc(g.dms)}</td>
                   <td>${rashiName(g.rashi)}</td>
-                  <td>${nakName(g.nakshatra)} P${g.pada}</td>
-                  <td style="font-weight:700">${g.house}</td>
+                  <td>${nakName(g.nakshatra)} P${esc(g.pada)}</td>
+                  <td style="font-weight:700">${esc(g.house)}</td>
                   <td><span class="badge ${DIGNITY_COLOR[g.dignity] || 'gold'}">${DIGNITY_LABEL[g.dignity] || pretty(g.dignity)}</span></td>
                   <td>${g.combust ? '<span class="badge red">🔥 Combust</span>' : ''}${g.vargottama ? '<span class="badge gold">⭐ Vargottama</span>' : ''}</td>
                 </tr>`;
@@ -387,7 +389,7 @@ function renderResults() {
                 <td><span style="color:#7B1F1F;font-weight:700">⬆ Ascendant</span></td>
                 <td>${esc(k.lagna.dms)}</td>
                 <td>${RASHI_NAMES[lagnaIdx]}</td>
-                <td>${nakName(k.lagna.nakshatra)} P${k.lagna.pada}</td>
+                <td>${nakName(k.lagna.nakshatra)} P${esc(k.lagna.pada)}</td>
                 <td style="font-weight:700">1</td>
                 <td>—</td>
                 <td>—</td>
@@ -413,10 +415,10 @@ function renderResults() {
           <thead><tr><th>House</th><th>Rashi</th><th>Lord</th><th>Lord In</th><th>Occupants</th><th>Karaka</th><th>Signification</th></tr></thead>
           <tbody>
             ${k.bhavas.map((b, i) => `<tr>
-                <td style="font-weight:800;font-size:16px;color:var(--maroon)">${b.house}</td>
+                <td style="font-weight:800;font-size:16px;color:var(--maroon)">${esc(b.house)}</td>
                 <td>${RASHI_SYMBOLS[b.rashi - 1]} ${rashiName(b.rashi)}</td>
                 <td style="font-weight:600">${grahaName(b.lord)}</td>
-                <td>House ${b.lord_house}</td>
+                <td>House ${esc(b.lord_house)}</td>
                 <td>${b.occupants.length ? b.occupants.map(g => `<span class="badge gold" style="margin:2px">${grahaName(g)}</span>`).join('') : '<span style="opacity:0.4">Empty</span>'}</td>
                 <td>${b.karakas.map(grahaName).join(' / ')}</td>
                 <td style="font-size:11px;max-width:200px;line-height:1.4">${HOUSE_SIGNIFICATIONS[i]}</td>
@@ -431,15 +433,15 @@ function renderResults() {
       return `<div class="result-card" style="animation-delay:${0.1 * i}s">
         <div class="card-header">
           <div class="card-icon ${i < 4 ? 'gold' : i < 8 ? 'maroon' : 'emerald'}">${RASHI_SYMBOLS[b.rashi - 1]}</div>
-          <div><div class="card-title">House ${b.house} — ${rashiName(b.rashi)}</div><div class="card-subtitle">${HOUSE_SIGNIFICATIONS[i].split(',').slice(0, 3).join(',')}</div></div>
+          <div><div class="card-title">House ${esc(b.house)} — ${rashiName(b.rashi)}</div><div class="card-subtitle">${HOUSE_SIGNIFICATIONS[i].split(',').slice(0, 3).join(',')}</div></div>
         </div>
-        <div class="data-row"><span class="data-label">Lord</span><span class="data-value">${grahaName(b.lord)} (in House ${b.lord_house})</span></div>
+        <div class="data-row"><span class="data-label">Lord</span><span class="data-value">${grahaName(b.lord)} (in House ${esc(b.lord_house)})</span></div>
         <div class="data-row"><span class="data-label">Lord Dignity</span><span class="data-value"><span class="badge ${DIGNITY_COLOR[lordG.dignity] || 'gold'}">${DIGNITY_LABEL[lordG.dignity] || pretty(lordG.dignity)}</span></span></div>
         <div class="data-row"><span class="data-label">Occupants</span><span class="data-value">${b.occupants.length ? b.occupants.map(grahaName).join(', ') : 'None'}</span></div>
         <div class="data-row"><span class="data-label">Aspected By</span><span class="data-value">${b.aspected_by.length ? b.aspected_by.map(grahaName).join(', ') : 'None'}</span></div>
         <div class="data-row"><span class="data-label">Karaka</span><span class="data-value">${b.karakas.map(grahaName).join(' / ')}</span></div>
         <div class="prediction-section">
-          <div class="prediction-title">📖 House ${b.house} Reading</div>
+          <div class="prediction-title">📖 House ${esc(b.house)} Reading</div>
           ${housePending || houseReadingHtml(b.house)}
         </div>
       </div>`;
@@ -511,7 +513,7 @@ function doshasHtml(k, now) {
   const activeSS = periods.find(p => now >= ms(p.start_utc) && now < ms(p.end_utc));
   const nextSS = periods.filter(p => ms(p.start_utc) > now).slice(0, 3);
   const mgCls = mg.level === 'none' ? 'safe' : mg.level === 'low' ? 'warning' : 'danger';
-  const mgLevelText = cap(mg.level);
+  const mgLevelText = esc(cap(mg.level));
   const yn = v => v == null ? 'n/a' : v ? 'Yes' : 'No';
   const ssIsSade = activeSS && activeSS.kind.startsWith('sade_sati');
   const ssCls = !activeSS ? 'safe' : (activeSS.kind === 'sade_sati_peak' ? 'danger' : 'warning');
@@ -532,7 +534,7 @@ function doshasHtml(k, now) {
       <div class="dosha-card ${!ks ? 'safe' : ks.kind === 'partial' ? 'warning' : 'danger'}">
         <div class="dosha-indicator">${!ks ? '✅' : '🐍'}</div>
         <div>
-          <div class="dosha-name">Kaal Sarpa Dosha — ${ks ? cap(ks.kind) + ' (' + cap(ks.name) + ')' : 'Not present'}</div>
+          <div class="dosha-name">Kaal Sarpa Dosha — ${ks ? esc(cap(ks.kind)) + ' (' + esc(cap(ks.name)) + ')' : 'Not present'}</div>
           <div class="dosha-detail">${ks
             ? `Planets lie between the Rahu-Ketu axis. ${ks.outside.length ? 'Outside: ' + ks.outside.map(grahaName).join(', ') : 'Complete enclosure.'}`
             : 'Planets are distributed on both sides of the Rahu-Ketu axis.'}</div>
@@ -559,7 +561,7 @@ function doshasHtml(k, now) {
         <div class="data-row">
           <span class="data-label">${RASHI_SYMBOLS[i]} ${RASHI_SHORT[i]}</span>
           <span class="data-value">
-            ${v} bindus
+            ${esc(v)} bindus
             <div class="strength-bar" style="width:100px;display:inline-block;margin-left:8px;vertical-align:middle">
               <div class="strength-fill ${v >= 30 ? 'high' : v >= 25 ? 'medium' : 'low'}" style="width:${Math.min(v / 40 * 100, 100)}%"></div>
             </div>
@@ -661,14 +663,15 @@ function buildPayload() {
   else payload.time = document.getElementById('tob').value;
 
   const tz = document.getElementById('tzName').value;
-  if (tz && !document.getElementById('useOffset').checked) {
-    payload.tz = tz;
-  } else {
+  const useOffset = document.getElementById('useOffset').checked;
+  if (useOffset) {
     const h = parseFloat(document.getElementById('tz').value);
     const sign = h < 0 ? '-' : '+';
     const mins = Math.round(Math.abs(h) * 60);
     payload.utc_offset = `${sign}${String(Math.floor(mins / 60)).padStart(2, '0')}:${String(mins % 60).padStart(2, '0')}`;
-  }
+  } else if (tz) {
+    payload.tz = tz;
+  }   // otherwise no zone key: the caller refuses to submit (no silent default timezone)
   return payload;
 }
 
@@ -682,6 +685,11 @@ document.getElementById('birthForm').addEventListener('submit', async function (
   e.preventDefault();
   showFormError('');
   const payload = buildPayload();
+  if (!payload.tz && !payload.utc_offset) {
+    document.getElementById('placeHint').style.display = 'block';
+    showFormError('Pick a place from the list, or open Advanced and set a UTC offset.');
+    return;
+  }
   if (!payload.date || isNaN(payload.lat) || isNaN(payload.lon)) {
     showFormError('Please fill in the date, place and coordinates.');
     return;
@@ -700,10 +708,16 @@ document.getElementById('birthForm').addEventListener('submit', async function (
     renderResults();
     showSection('overview');
     // Interpretation endpoints: rendered independently so the chart never waits on them.
-    const secondary = { ...payload };
+    const gender = document.getElementById('gender').value;
+    const analysisBody = { ...payload, now_utc: new Date().toISOString() };
+    if (gender === 'male' || gender === 'female') analysisBody.gender = gender;
+    // The kundli body already uses `date` for the birth date, so the user's local today goes in `today`.
+    const d = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    const dailyBody = { ...payload, today: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}` };
     Promise.all([
-      loadSecondary('/analysis', secondary, s => { analysisState = s; }),
-      loadSecondary('/daily', secondary, s => { dailyState = s; }),
+      loadSecondary('/analysis', analysisBody, s => { analysisState = s; }),
+      loadSecondary('/daily', dailyBody, s => { dailyState = s; }),
     ]).then(rerenderAll);
   } catch (err) {
     showFormError(err.message || 'Something went wrong computing the Kundli.');
@@ -725,6 +739,7 @@ document.getElementById('birthForm').addEventListener('submit', async function (
     document.getElementById('lat').value = p.lat;
     document.getElementById('lon').value = p.lon;
     document.getElementById('tzName').value = p.tz;
+    document.getElementById('placeHint').style.display = 'none';
     close();
   }
   function paint() {
@@ -735,7 +750,9 @@ document.getElementById('birthForm').addEventListener('submit', async function (
   }
 
   input.addEventListener('input', () => {
+    const hadTz = document.getElementById('tzName').value !== '';
     document.getElementById('tzName').value = '';   // typed text no longer matches the chosen place
+    if (hadTz) document.getElementById('placeHint').style.display = 'block';
     clearTimeout(timer);
     const q = input.value.trim();
     if (q.length < 2) { results = []; close(); return; }
@@ -777,6 +794,7 @@ document.getElementById('timeUnknown').addEventListener('change', function () {
 
 document.getElementById('langBtn').addEventListener('click', () => {
   lang = lang === 'en' ? 'hi' : 'en';
+  document.getElementById('langBtn').textContent = lang === 'en' ? '🌐 EN' : '🌐 हिं';
   document.documentElement.lang = lang;
   rerenderAll();
 });

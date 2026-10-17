@@ -162,6 +162,12 @@ def test_time_unknown_and_error_state(page: Page, base_url: str) -> None:
     page.fill("#birthPlace", "Somewhere")
     page.fill("#lat", "28.6139")
     page.fill("#lon", "77.2090")
+    # No place picked and no explicit offset: refused with a hint, never a silent IST default.
+    page.click("#submitBtn")
+    expect(page.locator("#placeHint")).to_be_visible()
+    assert posted == []
+    page.click("summary")
+    page.check("#useOffset")
     page.click("#submitBtn")
     expect(page.get_by_test_id("sensitivity-banner")).to_contain_text("birth time unknown")
     assert '"time_known":false' in posted[0] and '"utc_offset":"+05:30"' in posted[0]
@@ -181,3 +187,29 @@ def test_time_unknown_and_error_state(page: Page, base_url: str) -> None:
     page.fill("#lat", "95")
     page.click("#submitBtn")
     expect(page.locator("#formError")).to_contain_text("lat")
+
+
+@pytest.mark.e2e
+def test_no_horizontal_overflow_on_mobile(page: Page, base_url: str) -> None:
+    page.set_viewport_size({"width": 390, "height": 844})
+    try:
+        page.goto(base_url + "/")
+        page.fill("#name", "India 1947")
+        page.fill("#dob", "1947-08-15")
+        page.fill("#tob", "00:00")
+        page.fill("#birthPlace", "New Delhi")
+        page.locator("#placeList li", has_text="New Delhi").first.click()
+        # Editing the text after picking clears the zone and shows the hint.
+        page.fill("#birthPlace", "New Delhi ")
+        expect(page.locator("#placeHint")).to_be_visible()
+        page.fill("#birthPlace", "New Delhi")
+        page.locator("#placeList li", has_text="New Delhi").first.click()
+        expect(page.locator("#placeHint")).to_be_hidden()
+        page.click("#submitBtn")
+        expect(page.get_by_test_id("lagna")).to_have_text("Vrishabha")
+        for section in ("overview", "houses", "dasha", "doshas", "predictions"):
+            page.evaluate(f"showSection('{section}')")
+            width = page.evaluate("document.documentElement.scrollWidth")
+            assert width <= 390, f"{section}: scrollWidth {width}"
+    finally:
+        page.set_viewport_size({"width": 1280, "height": 720})

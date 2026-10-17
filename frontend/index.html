@@ -292,6 +292,9 @@
       }
     }
 
+    .dashboard-grid > *, .result-card, .life-item-content, .dosha-card > div { min-width: 0; }
+    .result-card, .dosha-detail, .life-item-desc, .prediction-text, .data-value { overflow-wrap: anywhere; }
+    .kundli-svg { max-width: 100%; height: auto; }
     .result-card {
       background: rgba(255,255,255,0.95);
       backdrop-filter: blur(20px);
@@ -396,6 +399,7 @@
     .place-list li:last-child { border-bottom: none; }
     .place-list li:hover, .place-list li.sel { background: rgba(212,175,55,0.12); }
     .place-list li small { color: #888; margin-left: 6px; }
+    .place-hint { font-size: 12px; color: #92400E; margin-top: 4px; }
     .check-row { display: flex; align-items: center; gap: 8px; font-size: 13px; }
     .check-row input { width: auto; }
     .adv-box { grid-column: 1 / -1; font-size: 13px; }
@@ -763,9 +767,12 @@
 
     /* Responsive */
     @media (max-width: 640px) {
+      .result-card { padding: 16px; }
+      .quick-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .form-grid { grid-template-columns: 1fr; }
       .form-card { padding: 24px; }
-      .header-nav { display: none; }
+      .header-nav { display: flex; }
+      .header-nav .nav-btn:not(.lang-btn) { display: none !important; }
       .quick-stats { grid-template-columns: repeat(2, 1fr); }
       .header-inner { padding: 12px 16px; }
       .main-content { padding: 16px; }
@@ -842,7 +849,7 @@
         <button class="nav-btn" onclick="showSection('dasha')" id="navDasha" style="display:none">⏳ Dasha</button>
         <button class="nav-btn" onclick="showSection('doshas')" id="navDoshas" style="display:none">⚠️ Doshas</button>
         <button class="nav-btn" onclick="showSection('predictions')" id="navPredictions" style="display:none">🔮 Life Analysis</button>
-        <button class="nav-btn lang-btn" id="langBtn" type="button" title="Switch language">EN / हिं</button>
+        <button class="nav-btn lang-btn" id="langBtn" type="button" title="Switch language">🌐 EN</button>
       </nav>
     </div>
   </header>
@@ -889,6 +896,7 @@
             <div class="form-group">
               <label>Birth City / Place</label>
               <div class="place-wrap"><input type="text" id="birthPlace" placeholder="e.g. New Delhi" required autocomplete="off" role="combobox" aria-expanded="false" aria-controls="placeList"><ul class="place-list" id="placeList" role="listbox" style="display:none"></ul></div>
+              <div class="place-hint" id="placeHint" role="status" style="display:none">Pick a place from the list, or set the UTC offset under Advanced.</div>
             </div>
             <div class="form-group">
               <label>Gender</label>
