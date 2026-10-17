@@ -26,6 +26,8 @@ _FINE_SUBSTEPS = 48
 # speeds) and consistent with the published extremes: Moon ~15.4 (perigee), Mercury ~2.2, Venus
 # ~1.26, Sun ~1.02 (perihelion), Mars ~0.79, Jupiter ~0.24, Saturn ~0.134, mean node 0.053
 # (true node up to ~0.26 is the bound used for Rahu/Ketu so both node modes are covered).
+# These bounds hold for real ephemeris longitudes only; they are NOT valid for synthetic
+# longitude functions (a test faking a faster mover must stay inside the near-boundary band).
 MAX_SPEED_DEG_PER_DAY: dict[Graha, float] = {
     Graha.SUN: 1.03,
     Graha.MOON: 15.5,

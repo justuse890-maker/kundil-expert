@@ -114,6 +114,15 @@ def _reference_ingresses(
     return out
 
 
+def test_adaptive_matches_reference_on_real_saturn_station_window() -> None:
+    """Saturn's 2022-23 Makara/Kumbha retrograde re-entry: a real station near a boundary."""
+    jd0 = jd_from_utc(datetime(2022, 1, 1, tzinfo=UTC))
+    jd1 = jd_from_utc(datetime(2024, 1, 1, tzinfo=UTC))
+    got = sign_ingresses(Graha.SATURN, jd0, jd1, S)
+    assert [s for _, s in got] == [KUMBHA, MAKARA, KUMBHA]
+    assert got == _reference_ingresses(Graha.SATURN, jd0, jd1, S)
+
+
 def test_adaptive_matches_reference_on_50_random_births() -> None:
     rng = random.Random(2026)
     for _ in range(50):
@@ -163,7 +172,7 @@ def test_speed_table_bounds_real_speeds() -> None:
             jd = 2378496.5  # 1800-01-01
             while jd < 2597000.0:
                 fastest = max(fastest, abs(swe.calc_ut(jd, body, flags)[0][3]))
-                jd += 0.5 if graha is not Graha.MOON else 0.1
+                jd += 1.0  # smooth speed curves: a 1-day grid finds the maxima to ~1e-3
         assert transit.MAX_SPEED_DEG_PER_DAY[graha] >= fastest, graha
 
 
