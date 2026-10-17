@@ -16,6 +16,7 @@ the House screen's facts (``vedic_engine.bhava``); they carry no warnings of the
 
 from collections.abc import Mapping, Sequence
 from dataclasses import asdict, dataclass
+from datetime import datetime, timedelta
 from typing import Any
 
 from vedic_engine import __version__, ephemeris
@@ -24,7 +25,7 @@ from vedic_engine.ashtakavarga import bav, sav
 from vedic_engine.avastha import baladi
 from vedic_engine.bhava import BhavaFact, bhava_facts
 from vedic_engine.bhava import vargottama as vargottama_of
-from vedic_engine.constants import SEVEN, Graha
+from vedic_engine.constants import NAKSHATRAS, SEVEN, Graha
 from vedic_engine.dasha import DashaPeriod
 from vedic_engine.dasha.vimshottari import balance, vimshottari
 from vedic_engine.dasha.yogini import yogini
@@ -35,15 +36,18 @@ from vedic_engine.doshas import sade_sati as sade_sati_of
 from vedic_engine.lagna import bhava_rashis
 from vedic_engine.models import BirthInput, EngineWarning, GrahaPosition, Settings
 from vedic_engine.names import syllable
-from vedic_engine.panchang import PanchangAt, elements_at
+from vedic_engine.panchang import PanchangAt, day_start, elements_at
 from vedic_engine.sensitivity import SensitivityItem
 from vedic_engine.sensitivity import sensitivity as sensitivity_of
 from vedic_engine.shadbala import ShadbalaRow, shadbala_report
-from vedic_engine.timeutil import jd_from_utc, to_utc
+from vedic_engine.timeutil import NonexistentTimeError, effective_tz, jd_from_utc, to_utc
 from vedic_engine.varga import VARGAS, varga_chart
 
 POLAR_LATITUDE = 66.5
 YOGINI_DEPTH = 3  # spec 5.6: Yogini has 3 levels
+NOON_HOUR = 12
+NOON_FALLBACK_HOUR = 13  # used when local noon falls in a DST gap
+MOON_SAMPLE_MINUTES = 30  # a pada lasts >= ~5 h, so half-hour sampling cannot skip one
 
 
 @dataclass(frozen=True, slots=True)
@@ -64,7 +68,7 @@ class Kundli:
     manglik: ManglikResult
     kaal_sarpa: KaalSarpaResult | None
     sade_sati: tuple[SaturnPhase, ...]
-    shadbala: dict[Graha, ShadbalaRow]
+    shadbala: dict[Graha, ShadbalaRow] | None  # None when the birth time is unknown
     ashtakavarga: dict[str, Any]
     sensitivity: tuple[SensitivityItem, ...]
     name_syllable: tuple[str, str]
@@ -113,23 +117,97 @@ def _node_warning(dig: Mapping[Graha, Dignity]) -> tuple[EngineWarning, ...]:
     )
 
 
+def _moon_padas(birth: BirthInput, tz: str, settings: Settings) -> list[tuple[int, int]]:
+    """Distinct (nakshatra, pada) the Moon occupies between local 00:00 and 23:59, in order."""
+    day = birth.local.date()
+    start = max(jd_from_utc(day_start(day, tz)), ephemeris.JD_MIN)
+    end = min(jd_from_utc(day_start(day + timedelta(days=1), tz)) - 1.0 / 1440.0, ephemeris.JD_MAX)
+    step = MOON_SAMPLE_MINUTES / 1440.0
+    seen: list[tuple[int, int]] = []
+    t = start
+    while True:
+        t = min(t, end)
+        cell = nak_of(ephemeris.body_longitude(t, Graha.MOON, settings))
+        if cell not in seen:
+            seen.append(cell)
+        if t >= end:
+            return seen
+        t += step
+
+
+def _local_noon_utc(birth: BirthInput, tz: str) -> tuple[datetime, bool]:
+    """UTC instant of local noon of the birth date, and whether 13:00 was used (DST gap)."""
+    day = birth.local.date()
+    noon = datetime(day.year, day.month, day.day, NOON_HOUR)
+    try:
+        return to_utc(noon, tz, 0), False
+    except NonexistentTimeError:
+        return to_utc(noon.replace(hour=NOON_FALLBACK_HOUR), tz, 0), True
+
+
+def _time_unknown_warnings(
+    birth: BirthInput, tz: str, settings: Settings, shifted: bool
+) -> list[EngineWarning]:
+    basis = "local 13:00 (noon falls in a DST gap)" if shifted else "local noon"
+    out = [
+        EngineWarning(
+            "time_unknown",
+            f"birth time unknown: Chandra kundli from positions at {basis}, with the Moon's "
+            "sign as lagna; ascendant, shadbala and birth-time sensitivity are omitted and the "
+            "Vimshottari dasha (from the noon Moon) is approximate",
+        ),
+        EngineWarning(
+            "lagna_is_moon",
+            "the lagna is the Moon (Chandra lagna): Manglik from the lagna repeats the Moon "
+            "reference and is not reported separately",
+        ),
+    ]
+    padas = _moon_padas(birth, tz, settings)
+    if len({nak for nak, _ in padas}) > 1:  # the nakshatra itself changes (Ruling U1)
+        listed = ", ".join(f"{NAKSHATRAS[n]} pada {p}" for n, p in padas)
+        out.append(
+            EngineWarning(
+                "moon_nakshatra_uncertain",
+                f"the Moon changes nakshatra during the day (covers {listed}): the noon "
+                "Moon nakshatra and the Vimshottari dasha from it (approximate) may differ "
+                "at the true birth time",
+            )
+        )
+    return out
+
+
 def build_kundli(
     birth: BirthInput,
     settings: Settings = Settings(),  # noqa: B008 - frozen dataclass, safe as a default
     vargas: Sequence[int] = VARGAS,
     dasha_depth: int = 3,
 ) -> Kundli:
-    birth_utc = to_utc(birth.local, birth.tz, birth.fold)
+    tz = effective_tz(birth)
+    shifted = False
+    if birth.time_known:
+        birth_utc = to_utc(birth.local, tz, birth.fold)
+    else:  # Chandra kundli: positions at local noon of the birth date
+        birth_utc, shifted = _local_noon_utc(birth, tz)
     jd = jd_from_utc(birth_utc)
     grahas = ephemeris.positions(jd, settings)
     lons = {g: p.lon for g, p in grahas.items()}
-    lagna_lon = ephemeris.ascendant(jd, birth.lat, birth.lon)
     moon = lons[Graha.MOON]
+    lagna_lon = (
+        ephemeris.ascendant(jd, birth.lat, birth.lon, settings) if birth.time_known else moon
+    )
 
     dig = _dignities(lons)
     phases, sade_sati_warnings = sade_sati_of(moon, jd, settings)
-    shadbala_rows, shadbala_warnings = shadbala_report(jd, birth.lat, birth.lon, settings)
-    sens, sens_warnings = sensitivity_of(birth, settings)
+    shadbala_rows: dict[Graha, ShadbalaRow] | None = None
+    shadbala_warnings: tuple[EngineWarning, ...] = ()
+    sens: tuple[SensitivityItem, ...] = ()
+    sens_warnings: tuple[EngineWarning, ...] = ()
+    unknown_warnings: list[EngineWarning] = []
+    if birth.time_known:
+        shadbala_rows, shadbala_warnings = shadbala_report(jd, birth.lat, birth.lon, settings)
+        sens, sens_warnings = sensitivity_of(birth, settings)
+    else:
+        unknown_warnings = _time_unknown_warnings(birth, tz, settings, shifted)
     signs = {**{g.value: sign_of(lons[g]) for g in SEVEN}, "lagna": sign_of(lagna_lon)}
     bav_table = bav(signs)
 
@@ -138,6 +216,7 @@ def build_kundli(
         *shadbala_warnings,
         *sens_warnings,
         *_node_warning(dig),
+        *unknown_warnings,
     ]
     if abs(birth.lat) > POLAR_LATITUDE:
         warnings.append(
@@ -153,6 +232,8 @@ def build_kundli(
             "settings": asdict(settings),
             "ayanamsa_deg": ephemeris.ayanamsa(jd, settings),
             "jd_ut": jd,
+            "time_known": birth.time_known,
+            "lagna_basis": "ascendant" if birth.time_known else "moon",
             "ephemeris_files": list(ephemeris.EPHE_FILES),
         },
         grahas=grahas,
@@ -167,7 +248,9 @@ def build_kundli(
         avastha={g: baladi(lon) for g, lon in lons.items()},
         vimshottari=vimshottari(moon, birth_utc, settings, dasha_depth),
         yogini=yogini(moon, birth_utc, settings, min(dasha_depth, YOGINI_DEPTH)),
-        manglik=manglik_of(lons[Graha.MARS], lagna_lon, moon, lons[Graha.VENUS]),
+        manglik=manglik_of(
+            lons[Graha.MARS], lagna_lon, moon, lons[Graha.VENUS], lagna_is_moon=not birth.time_known
+        ),
         kaal_sarpa=kaal_sarpa(lons, lagna_lon),
         sade_sati=phases,
         shadbala=shadbala_rows,

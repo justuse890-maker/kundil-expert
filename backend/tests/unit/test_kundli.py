@@ -74,7 +74,15 @@ def test_kundli_deterministic() -> None:
 
 def test_meta() -> None:
     k = _build(DELHI_1947)
-    assert set(k.meta) == {"engine_version", "settings", "ayanamsa_deg", "jd_ut", "ephemeris_files"}
+    assert set(k.meta) == {
+        "engine_version",
+        "settings",
+        "ayanamsa_deg",
+        "jd_ut",
+        "time_known",
+        "lagna_basis",
+        "ephemeris_files",
+    }
     assert k.meta["engine_version"] == __version__
     assert k.meta["settings"] == dataclasses.asdict(Settings())
     assert k.meta["ephemeris_files"] == list(ephemeris.EPHE_FILES)

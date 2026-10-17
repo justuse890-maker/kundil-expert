@@ -19,21 +19,33 @@ _LEVELS: tuple[Literal["none", "low", "medium", "high"], ...] = ("none", "low", 
 
 @dataclass(frozen=True, slots=True)
 class ManglikResult:
-    from_lagna: bool
+    from_lagna: bool | None  # None when the lagna is the Moon (it would repeat from_moon)
     from_moon: bool
     from_venus: bool
     level: Literal["none", "low", "medium", "high"]
 
 
-def manglik(mars_lon: float, lagna_lon: float, moon_lon: float, venus_lon: float) -> ManglikResult:
-    """Mars in houses 1/2/4/7/8/12 (whole-sign) from the lagna, Moon and Venus."""
+def manglik(
+    mars_lon: float,
+    lagna_lon: float,
+    moon_lon: float,
+    venus_lon: float,
+    *,
+    lagna_is_moon: bool = False,
+) -> ManglikResult:
+    """Mars in houses 1/2/4/7/8/12 (whole-sign) from the lagna, Moon and Venus.
+
+    With ``lagna_is_moon`` (Chandra kundli) the lagna reference is dropped (``from_lagna`` is
+    None) so the level counts only distinct references.
+    """
     mars = sign_of(mars_lon)
 
     def hit(ref_lon: float) -> bool:
         return house_of(mars, sign_of(ref_lon)) in _MANGLIK_HOUSES
 
-    flags = (hit(lagna_lon), hit(moon_lon), hit(venus_lon))
-    return ManglikResult(*flags, _LEVELS[sum(flags)])
+    lagna = None if lagna_is_moon else hit(lagna_lon)
+    moon, venus = hit(moon_lon), hit(venus_lon)
+    return ManglikResult(lagna, moon, venus, _LEVELS[sum((bool(lagna), moon, venus))])
 
 
 KAAL_SARPA_NAMES: tuple[str, ...] = (

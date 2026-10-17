@@ -1,0 +1,1055 @@
+{
+  "ashtakavarga": {
+    "bav": {
+      "jupiter": [
+        "int"
+      ],
+      "mars": [
+        "int"
+      ],
+      "mercury": [
+        "int"
+      ],
+      "moon": [
+        "int"
+      ],
+      "saturn": [
+        "int"
+      ],
+      "sun": [
+        "int"
+      ],
+      "venus": [
+        "int"
+      ]
+    },
+    "sav": [
+      "int"
+    ]
+  },
+  "bhavas": [
+    {
+      "aspected_by": [
+        "str"
+      ],
+      "house": "int",
+      "karakas": [
+        "str"
+      ],
+      "lord": "str",
+      "lord_house": "int",
+      "occupants": [
+        "str"
+      ],
+      "rashi": "int",
+      "rashi_key": "str"
+    }
+  ],
+  "doshas": {
+    "kaal_sarpa": {
+      "kind": "str",
+      "name": "str",
+      "outside": [
+        null
+      ]
+    },
+    "manglik": {
+      "from_lagna": "null",
+      "from_moon": "bool",
+      "from_venus": "bool",
+      "level": "str"
+    },
+    "sade_sati": [
+      {
+        "end_local": "str",
+        "end_utc": "str",
+        "kind": "str",
+        "start_local": "str",
+        "start_utc": "str"
+      }
+    ]
+  },
+  "grahas": {
+    "jupiter": {
+      "avastha": "str",
+      "combust": "bool",
+      "deg_in_sign": "float",
+      "dignity": "str",
+      "dms": "str",
+      "house": "int",
+      "lat": "float",
+      "lon": "float",
+      "nakshatra": "int",
+      "nakshatra_key": "str",
+      "pada": "int",
+      "rashi": "int",
+      "rashi_key": "str",
+      "retro": "bool",
+      "speed": "float",
+      "vargottama": "bool"
+    },
+    "ketu": {
+      "avastha": "str",
+      "combust": "bool",
+      "deg_in_sign": "float",
+      "dignity": "str",
+      "dms": "str",
+      "house": "int",
+      "lat": "float",
+      "lon": "float",
+      "nakshatra": "int",
+      "nakshatra_key": "str",
+      "pada": "int",
+      "rashi": "int",
+      "rashi_key": "str",
+      "retro": "bool",
+      "speed": "float",
+      "vargottama": "bool"
+    },
+    "mars": {
+      "avastha": "str",
+      "combust": "bool",
+      "deg_in_sign": "float",
+      "dignity": "str",
+      "dms": "str",
+      "house": "int",
+      "lat": "float",
+      "lon": "float",
+      "nakshatra": "int",
+      "nakshatra_key": "str",
+      "pada": "int",
+      "rashi": "int",
+      "rashi_key": "str",
+      "retro": "bool",
+      "speed": "float",
+      "vargottama": "bool"
+    },
+    "mercury": {
+      "avastha": "str",
+      "combust": "bool",
+      "deg_in_sign": "float",
+      "dignity": "str",
+      "dms": "str",
+      "house": "int",
+      "lat": "float",
+      "lon": "float",
+      "nakshatra": "int",
+      "nakshatra_key": "str",
+      "pada": "int",
+      "rashi": "int",
+      "rashi_key": "str",
+      "retro": "bool",
+      "speed": "float",
+      "vargottama": "bool"
+    },
+    "moon": {
+      "avastha": "str",
+      "combust": "bool",
+      "deg_in_sign": "float",
+      "dignity": "str",
+      "dms": "str",
+      "house": "int",
+      "lat": "float",
+      "lon": "float",
+      "nakshatra": "int",
+      "nakshatra_key": "str",
+      "pada": "int",
+      "rashi": "int",
+      "rashi_key": "str",
+      "retro": "bool",
+      "speed": "float",
+      "vargottama": "bool"
+    },
+    "rahu": {
+      "avastha": "str",
+      "combust": "bool",
+      "deg_in_sign": "float",
+      "dignity": "str",
+      "dms": "str",
+      "house": "int",
+      "lat": "float",
+      "lon": "float",
+      "nakshatra": "int",
+      "nakshatra_key": "str",
+      "pada": "int",
+      "rashi": "int",
+      "rashi_key": "str",
+      "retro": "bool",
+      "speed": "float",
+      "vargottama": "bool"
+    },
+    "saturn": {
+      "avastha": "str",
+      "combust": "bool",
+      "deg_in_sign": "float",
+      "dignity": "str",
+      "dms": "str",
+      "house": "int",
+      "lat": "float",
+      "lon": "float",
+      "nakshatra": "int",
+      "nakshatra_key": "str",
+      "pada": "int",
+      "rashi": "int",
+      "rashi_key": "str",
+      "retro": "bool",
+      "speed": "float",
+      "vargottama": "bool"
+    },
+    "sun": {
+      "avastha": "str",
+      "combust": "bool",
+      "deg_in_sign": "float",
+      "dignity": "str",
+      "dms": "str",
+      "house": "int",
+      "lat": "float",
+      "lon": "float",
+      "nakshatra": "int",
+      "nakshatra_key": "str",
+      "pada": "int",
+      "rashi": "int",
+      "rashi_key": "str",
+      "retro": "bool",
+      "speed": "float",
+      "vargottama": "bool"
+    },
+    "venus": {
+      "avastha": "str",
+      "combust": "bool",
+      "deg_in_sign": "float",
+      "dignity": "str",
+      "dms": "str",
+      "house": "int",
+      "lat": "float",
+      "lon": "float",
+      "nakshatra": "int",
+      "nakshatra_key": "str",
+      "pada": "int",
+      "rashi": "int",
+      "rashi_key": "str",
+      "retro": "bool",
+      "speed": "float",
+      "vargottama": "bool"
+    }
+  },
+  "lagna": {
+    "deg_in_sign": "float",
+    "dms": "str",
+    "lon": "float",
+    "nakshatra": "int",
+    "nakshatra_key": "str",
+    "pada": "int",
+    "rashi": "int",
+    "rashi_key": "str"
+  },
+  "meta": {
+    "ayanamsa_deg": "float",
+    "ayanamsa_dms": "str",
+    "birth_local": "null",
+    "birth_utc": "null",
+    "engine_version": "str",
+    "ephemeris_files": [
+      "str"
+    ],
+    "jd_ut": "float",
+    "lagna_basis": "str",
+    "lmt": "bool",
+    "name": "null",
+    "settings": {
+      "ayanamsa": "str",
+      "dasha_year_days": "float",
+      "node": "str",
+      "sunrise": "str"
+    },
+    "time_known": "bool",
+    "tz": "str",
+    "utc_offset_seconds": "null"
+  },
+  "name_syllable": {
+    "devanagari": "str",
+    "latin": "str"
+  },
+  "panchang": {
+    "karana": {
+      "ends_local": "str",
+      "ends_utc": "str",
+      "index": "int",
+      "key": "str"
+    },
+    "nakshatra": {
+      "ends_local": "str",
+      "ends_utc": "str",
+      "index": "int",
+      "key": "str",
+      "pada": "int"
+    },
+    "paksha": "str",
+    "tithi": {
+      "ends_local": "str",
+      "ends_utc": "str",
+      "index": "int",
+      "key": "str"
+    },
+    "vaar": "str",
+    "yoga": {
+      "ends_local": "str",
+      "ends_utc": "str",
+      "index": "int",
+      "key": "str"
+    }
+  },
+  "sensitivity": [
+    null
+  ],
+  "shadbala": "null",
+  "vargas": {
+    "d1": {
+      "jupiter": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "ketu": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "lagna": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "mars": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "mercury": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "moon": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "rahu": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "saturn": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "sun": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "venus": {
+        "rashi": "int",
+        "rashi_key": "str"
+      }
+    },
+    "d10": {
+      "jupiter": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "ketu": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "lagna": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "mars": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "mercury": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "moon": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "rahu": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "saturn": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "sun": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "venus": {
+        "rashi": "int",
+        "rashi_key": "str"
+      }
+    },
+    "d12": {
+      "jupiter": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "ketu": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "lagna": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "mars": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "mercury": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "moon": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "rahu": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "saturn": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "sun": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "venus": {
+        "rashi": "int",
+        "rashi_key": "str"
+      }
+    },
+    "d16": {
+      "jupiter": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "ketu": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "lagna": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "mars": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "mercury": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "moon": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "rahu": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "saturn": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "sun": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "venus": {
+        "rashi": "int",
+        "rashi_key": "str"
+      }
+    },
+    "d2": {
+      "jupiter": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "ketu": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "lagna": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "mars": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "mercury": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "moon": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "rahu": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "saturn": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "sun": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "venus": {
+        "rashi": "int",
+        "rashi_key": "str"
+      }
+    },
+    "d20": {
+      "jupiter": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "ketu": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "lagna": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "mars": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "mercury": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "moon": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "rahu": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "saturn": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "sun": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "venus": {
+        "rashi": "int",
+        "rashi_key": "str"
+      }
+    },
+    "d24": {
+      "jupiter": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "ketu": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "lagna": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "mars": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "mercury": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "moon": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "rahu": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "saturn": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "sun": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "venus": {
+        "rashi": "int",
+        "rashi_key": "str"
+      }
+    },
+    "d27": {
+      "jupiter": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "ketu": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "lagna": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "mars": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "mercury": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "moon": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "rahu": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "saturn": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "sun": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "venus": {
+        "rashi": "int",
+        "rashi_key": "str"
+      }
+    },
+    "d3": {
+      "jupiter": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "ketu": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "lagna": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "mars": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "mercury": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "moon": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "rahu": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "saturn": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "sun": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "venus": {
+        "rashi": "int",
+        "rashi_key": "str"
+      }
+    },
+    "d30": {
+      "jupiter": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "ketu": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "lagna": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "mars": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "mercury": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "moon": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "rahu": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "saturn": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "sun": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "venus": {
+        "rashi": "int",
+        "rashi_key": "str"
+      }
+    },
+    "d4": {
+      "jupiter": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "ketu": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "lagna": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "mars": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "mercury": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "moon": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "rahu": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "saturn": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "sun": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "venus": {
+        "rashi": "int",
+        "rashi_key": "str"
+      }
+    },
+    "d40": {
+      "jupiter": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "ketu": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "lagna": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "mars": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "mercury": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "moon": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "rahu": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "saturn": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "sun": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "venus": {
+        "rashi": "int",
+        "rashi_key": "str"
+      }
+    },
+    "d45": {
+      "jupiter": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "ketu": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "lagna": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "mars": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "mercury": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "moon": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "rahu": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "saturn": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "sun": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "venus": {
+        "rashi": "int",
+        "rashi_key": "str"
+      }
+    },
+    "d60": {
+      "jupiter": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "ketu": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "lagna": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "mars": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "mercury": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "moon": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "rahu": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "saturn": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "sun": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "venus": {
+        "rashi": "int",
+        "rashi_key": "str"
+      }
+    },
+    "d7": {
+      "jupiter": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "ketu": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "lagna": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "mars": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "mercury": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "moon": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "rahu": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "saturn": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "sun": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "venus": {
+        "rashi": "int",
+        "rashi_key": "str"
+      }
+    },
+    "d9": {
+      "jupiter": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "ketu": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "lagna": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "mars": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "mercury": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "moon": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "rahu": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "saturn": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "sun": {
+        "rashi": "int",
+        "rashi_key": "str"
+      },
+      "venus": {
+        "rashi": "int",
+        "rashi_key": "str"
+      }
+    }
+  },
+  "vimshottari": [
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "children": [
+                null
+              ],
+              "end_local": "str",
+              "end_utc": "str",
+              "level": "int",
+              "lord": "str",
+              "start_local": "str",
+              "start_utc": "str"
+            }
+          ],
+          "end_local": "str",
+          "end_utc": "str",
+          "level": "int",
+          "lord": "str",
+          "start_local": "str",
+          "start_utc": "str"
+        }
+      ],
+      "end_local": "str",
+      "end_utc": "str",
+      "level": "int",
+      "lord": "str",
+      "start_local": "str",
+      "start_utc": "str"
+    }
+  ],
+  "warnings": [
+    {
+      "code": "str",
+      "message": "str"
+    }
+  ],
+  "yogini": [
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "children": [
+                null
+              ],
+              "end_local": "str",
+              "end_utc": "str",
+              "graha": "str",
+              "level": "int",
+              "lord": "str",
+              "start_local": "str",
+              "start_utc": "str"
+            }
+          ],
+          "end_local": "str",
+          "end_utc": "str",
+          "graha": "str",
+          "level": "int",
+          "lord": "str",
+          "start_local": "str",
+          "start_utc": "str"
+        }
+      ],
+      "end_local": "str",
+      "end_utc": "str",
+      "graha": "str",
+      "level": "int",
+      "lord": "str",
+      "start_local": "str",
+      "start_utc": "str"
+    }
+  ]
+}

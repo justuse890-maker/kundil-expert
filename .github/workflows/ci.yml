@@ -14,10 +14,25 @@ jobs:
       - run: uv sync
       - run: uv run ruff check
       - run: uv run mypy --strict src/vedic_engine
-      - run: uv run pytest -m "not network" -n auto
+      - run: uv run pytest -n auto
+      # Latency gate: serial, so parallel workers do not distort the timings.
+      - run: uv run pytest -m perf -p no:xdist -s
+      # Exits 1 if any quantity exceeds its tolerance.
+      - run: uv run python scripts/accuracy_report.py --skip-perf
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: reports
-          path: backend/reports/
+          path: reports/accuracy.md
           if-no-files-found: ignore
+  docker:
+    # The Docker image is verified here only: it was not built locally (no Docker there).
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t vedic-astro-api .
+      - run: |
+          docker run -d --name api -p 8000:8000 vedic-astro-api
+          for i in $(seq 1 30); do curl -sf localhost:8000/health && break; sleep 1; done
+          curl -sf localhost:8000/health | grep '"status":"ok"'
+          docker logs api

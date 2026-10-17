@@ -130,7 +130,7 @@ def test_out_of_range_raises(dt: datetime) -> None:
     with pytest.raises(EphemerisRangeError):
         ephemeris.positions(jd, DEFAULT)
     with pytest.raises(EphemerisRangeError):
-        ephemeris.ascendant(jd, *DELHI)
+        ephemeris.ascendant(jd, *DELHI, DEFAULT)
 
 
 def test_range_edges_use_swiss_ephemeris_files() -> None:
@@ -155,14 +155,14 @@ def test_unusable_ephe_files_fail_fast(tmp_path: Path, ephe_path: Path) -> None:
     ephemeris.init(ephe_path)
 
 
-def test_unsupported_ayanamsa_rejected() -> None:
+def test_unknown_ayanamsa_rejected() -> None:
     with pytest.raises(InputError):
-        ephemeris.ayanamsa(JD_2024, Settings(ayanamsa="RAMAN"))
+        ephemeris.ayanamsa(JD_2024, Settings(ayanamsa="BOGUS"))  # type: ignore[arg-type]
 
 
 def test_ascendant_is_sidereal() -> None:
     # Delhi, 2024-04-10 00:00 UTC (05:30 IST): just after sunrise the lagna is near the Sun.
-    lagna = ephemeris.ascendant(JD_2024, *DELHI)
+    lagna = ephemeris.ascendant(JD_2024, *DELHI, DEFAULT)
     sun = ephemeris.positions(JD_2024, DEFAULT)[Graha.SUN].lon
     assert 0.0 <= lagna < 360.0
     assert abs(_signed_diff(lagna, sun)) < 15.0
@@ -257,15 +257,17 @@ def test_midheaven_is_sidereal_mc(dt: datetime) -> None:
     """Independent check: Meeus MC minus Lahiri ayanamsa; nutation (< 20") is left out."""
     jd = jd_from_utc(dt)
     expected = norm(_meeus_mc(jd, 77.58) - ephemeris.ayanamsa(jd, DEFAULT))
-    got = ephemeris.midheaven(jd, 13.0, 77.58)
+    got = ephemeris.midheaven(jd, 13.0, 77.58, DEFAULT)
     assert abs(_signed_diff(got, expected)) * 60.0 < LAGNA_ARCMIN
-    assert ephemeris.midheaven(jd, 60.0, 77.58) == pytest.approx(got)  # MC ignores latitude
+    assert ephemeris.midheaven(jd, 60.0, 77.58, DEFAULT) == pytest.approx(
+        got
+    )  # MC ignores latitude
 
 
 def test_midheaven_and_equation_of_time_reject_out_of_range() -> None:
     for jd in (ephemeris.JD_MIN - 0.01, ephemeris.JD_MAX + 0.01):
         with pytest.raises(EphemerisRangeError):
-            ephemeris.midheaven(jd, *DELHI)
+            ephemeris.midheaven(jd, *DELHI, DEFAULT)
         with pytest.raises(EphemerisRangeError):
             ephemeris.equation_of_time(jd)
 

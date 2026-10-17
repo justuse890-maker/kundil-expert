@@ -618,8 +618,8 @@ def shadbala_report(
     )
     inputs = ShadbalaInputs(
         lon=lons,
-        asc=ephemeris.ascendant(jd_ut, lat, lon),
-        mc=ephemeris.midheaven(jd_ut, lat, lon),
+        asc=ephemeris.ascendant(jd_ut, lat, lon, settings),
+        mc=ephemeris.midheaven(jd_ut, lat, lon, settings),
         ayanamsa=ephemeris.ayanamsa(jd_ut, settings),
         apparent_hours=(apparent % 1.0) * 24.0,
         is_day=is_day,

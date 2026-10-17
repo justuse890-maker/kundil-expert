@@ -40,7 +40,7 @@ def _init(ephe_path: Path) -> None:
 
 def _value_fns(b: BirthInput) -> dict[str, Callable[[float], object]]:
     def asc(t: float) -> float:
-        return ephemeris.ascendant(t, b.lat, b.lon)
+        return ephemeris.ascendant(t, b.lat, b.lon, DEFAULT)
 
     def lon(t: float, g: Graha) -> float:
         return ephemeris.body_longitude(t, g, DEFAULT)

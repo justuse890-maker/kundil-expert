@@ -1,0 +1,733 @@
+{
+  "components": {
+    "schemas": {
+      "DashaRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "depth": {
+            "default": 1,
+            "description": "Levels to expand below the addressed period",
+            "maximum": 5.0,
+            "minimum": 1.0,
+            "title": "Depth",
+            "type": "integer"
+          },
+          "kundli": {
+            "$ref": "#/components/schemas/KundliRequest"
+          },
+          "maha_index": {
+            "description": "0-based position of the maha in the /kundli response list for this scheme (a lord can occur twice in the 120-year span)",
+            "minimum": 0.0,
+            "title": "Maha Index",
+            "type": "integer"
+          },
+          "path": {
+            "description": "Lords below the maha (antar, pratyantar, ...); may be empty",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 4,
+            "title": "Path",
+            "type": "array"
+          },
+          "scheme": {
+            "enum": [
+              "vimshottari",
+              "yogini"
+            ],
+            "title": "Scheme",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kundli",
+          "scheme",
+          "maha_index"
+        ],
+        "title": "DashaRequest",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "KundliRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "alt": {
+            "default": 0.0,
+            "maximum": 10000.0,
+            "minimum": -500.0,
+            "title": "Alt",
+            "type": "number"
+          },
+          "dasha_depth": {
+            "default": 3,
+            "maximum": 5.0,
+            "minimum": 1.0,
+            "title": "Dasha Depth",
+            "type": "integer"
+          },
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "fold": {
+            "anyOf": [
+              {
+                "enum": [
+                  0,
+                  1
+                ],
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "0 = first, 1 = second occurrence",
+            "title": "Fold"
+          },
+          "lat": {
+            "maximum": 90.0,
+            "minimum": -90.0,
+            "title": "Lat",
+            "type": "number"
+          },
+          "lmt": {
+            "default": false,
+            "description": "Local mean time at the longitude (lon/15 hours)",
+            "title": "Lmt",
+            "type": "boolean"
+          },
+          "lon": {
+            "maximum": 180.0,
+            "minimum": -180.0,
+            "title": "Lon",
+            "type": "number"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "settings": {
+            "$ref": "#/components/schemas/SettingsIn"
+          },
+          "time": {
+            "anyOf": [
+              {
+                "format": "time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "HH:MM[:SS]; may be omitted if time_known=false",
+            "title": "Time"
+          },
+          "time_known": {
+            "default": true,
+            "title": "Time Known",
+            "type": "boolean"
+          },
+          "tz": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "IANA zone, e.g. Asia/Kolkata",
+            "title": "Tz"
+          },
+          "utc_offset": {
+            "anyOf": [
+              {
+                "pattern": "^[+-][0-9]{2}:[0-9]{2}(:[0-9]{2})?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Fixed offset from UTC, e.g. \"+05:30\"",
+            "title": "Utc Offset"
+          },
+          "vargas": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Subset of [1, 2, 3, 4, 7, 9, 10, 12, 16, 20, 24, 27, 30, 40, 45, 60]; default all",
+            "title": "Vargas"
+          }
+        },
+        "required": [
+          "date",
+          "lat",
+          "lon"
+        ],
+        "title": "KundliRequest",
+        "type": "object"
+      },
+      "PanchangRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "alt": {
+            "default": 0.0,
+            "maximum": 10000.0,
+            "minimum": -500.0,
+            "title": "Alt",
+            "type": "number"
+          },
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "lat": {
+            "maximum": 90.0,
+            "minimum": -90.0,
+            "title": "Lat",
+            "type": "number"
+          },
+          "lmt": {
+            "default": false,
+            "description": "Local mean time at the longitude (lon/15 hours)",
+            "title": "Lmt",
+            "type": "boolean"
+          },
+          "lon": {
+            "maximum": 180.0,
+            "minimum": -180.0,
+            "title": "Lon",
+            "type": "number"
+          },
+          "settings": {
+            "$ref": "#/components/schemas/SettingsIn"
+          },
+          "tz": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "IANA zone, e.g. Asia/Kolkata",
+            "title": "Tz"
+          },
+          "utc_offset": {
+            "anyOf": [
+              {
+                "pattern": "^[+-][0-9]{2}:[0-9]{2}(:[0-9]{2})?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Fixed offset from UTC, e.g. \"+05:30\"",
+            "title": "Utc Offset"
+          }
+        },
+        "required": [
+          "date",
+          "lat",
+          "lon"
+        ],
+        "title": "PanchangRequest",
+        "type": "object"
+      },
+      "PlaceOut": {
+        "properties": {
+          "admin1": {
+            "title": "Admin1",
+            "type": "string"
+          },
+          "country": {
+            "title": "Country",
+            "type": "string"
+          },
+          "lat": {
+            "title": "Lat",
+            "type": "number"
+          },
+          "lon": {
+            "title": "Lon",
+            "type": "number"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "population": {
+            "title": "Population",
+            "type": "integer"
+          },
+          "tz": {
+            "title": "Tz",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "admin1",
+          "country",
+          "lat",
+          "lon",
+          "tz",
+          "population"
+        ],
+        "title": "PlaceOut",
+        "type": "object"
+      },
+      "SettingsIn": {
+        "additionalProperties": false,
+        "properties": {
+          "ayanamsa": {
+            "default": "LAHIRI",
+            "enum": [
+              "LAHIRI",
+              "RAMAN",
+              "KP",
+              "FAGAN_BRADLEY"
+            ],
+            "title": "Ayanamsa",
+            "type": "string"
+          },
+          "dasha_year_days": {
+            "default": 365.25,
+            "maximum": 400.0,
+            "minimum": 300.0,
+            "title": "Dasha Year Days",
+            "type": "number"
+          },
+          "node": {
+            "default": "MEAN",
+            "enum": [
+              "MEAN",
+              "TRUE"
+            ],
+            "title": "Node",
+            "type": "string"
+          },
+          "sunrise": {
+            "default": "UPPER_LIMB_REFRACTED",
+            "enum": [
+              "UPPER_LIMB_REFRACTED",
+              "CENTER_NO_REFRACTION"
+            ],
+            "title": "Sunrise",
+            "type": "string"
+          }
+        },
+        "title": "SettingsIn",
+        "type": "object"
+      },
+      "TransitRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "datetime_utc": {
+            "description": "Instant with `Z` or an offset; the response is UTC-only (no `*_local`)",
+            "format": "date-time",
+            "title": "Datetime Utc",
+            "type": "string"
+          },
+          "natal": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/KundliRequest"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "settings": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SettingsIn"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Defaults to natal.settings if natal is given, else the defaults"
+          }
+        },
+        "required": [
+          "datetime_utc"
+        ],
+        "title": "TransitRequest",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "description": "Vedic astrology calculation engine (Swiss Ephemeris) with an offline place search. All indices are 1-based and accompanied by machine keys; every instant is returned as `*_utc` and `*_local`.",
+    "title": "Vedic Kundli API",
+    "version": "1"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/v1/analysis": {
+      "post": {
+        "operationId": "analysis_api_v1_analysis_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Analysis (not implemented yet)"
+      }
+    },
+    "/api/v1/daily": {
+      "post": {
+        "operationId": "daily_api_v1_daily_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Daily guidance (not implemented yet)"
+      }
+    },
+    "/api/v1/dasha": {
+      "post": {
+        "description": "Expand one maha of the `/kundli` response.\n\n`maha_index` is the 0-based position of the maha in `/kundli`'s `vimshottari` or `yogini`\nlist (the same lord can occur twice in the 120-year span, so a lord alone is ambiguous);\n`path` holds the lords below it (antar, pratyantar, ...), and `depth` the levels to\nexpand below the addressed period.",
+        "operationId": "dasha_api_v1_dasha_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DashaRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Dasha Api V1 Dasha Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Dasha subtree on demand"
+      }
+    },
+    "/api/v1/health": {
+      "get": {
+        "operationId": "health_api_v1_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Liveness and ephemeris status"
+      }
+    },
+    "/api/v1/kundli": {
+      "post": {
+        "operationId": "kundli_api_v1_kundli_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KundliRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Kundli Api V1 Kundli Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Full kundli"
+      }
+    },
+    "/api/v1/panchang": {
+      "post": {
+        "operationId": "panchang_api_v1_panchang_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PanchangRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Panchang Api V1 Panchang Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Panchang of a date and place"
+      }
+    },
+    "/api/v1/places": {
+      "get": {
+        "operationId": "search_places_api_v1_places_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "required": true,
+            "schema": {
+              "maxLength": 100,
+              "minLength": 1,
+              "title": "Q",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 10,
+              "maximum": 50,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PlaceOut"
+                  },
+                  "title": "Response Search Places Api V1 Places Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Offline city search"
+      }
+    },
+    "/api/v1/transit": {
+      "post": {
+        "description": "Graha positions at `datetime_utc`, optionally as houses from a natal chart.\n\nThe one UTC-only endpoint: `datetime_utc` must carry a `Z` or offset, and the response gives\nthe instant in UTC only (no `*_local`), because no zone is attached to a transit.",
+        "operationId": "transit_api_v1_transit_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransitRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Transit Api V1 Transit Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Graha positions at an instant"
+      }
+    },
+    "/api/v1/version": {
+      "get": {
+        "operationId": "version_api_v1_version_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Version Api V1 Version Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Engine and ephemeris versions"
+      }
+    }
+  }
+}
