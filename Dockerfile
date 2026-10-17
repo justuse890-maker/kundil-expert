@@ -1,18 +1,29 @@
-FROM python:3.12-slim
+# --- build stage: compile dependencies (pyswisseph has no Linux wheel and needs a C compiler) ---
+FROM python:3.12-slim AS build
 
 COPY --from=ghcr.io/astral-sh/uv:0.5 /uv /usr/local/bin/uv
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends gcc libc6-dev \
+ && rm -rf /var/lib/apt/lists/*
 
-RUN useradd --create-home --uid 10001 app
 WORKDIR /app
 # The API serves ../frontend relative to backend/, so keep both directories side by side.
 COPY backend /app/backend
 COPY frontend /app/frontend
-RUN chown -R app:app /app
+
+WORKDIR /app/backend
+ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
+RUN uv sync --frozen --no-dev
+
+# --- runtime stage: no compiler, non-root user ---
+FROM python:3.12-slim
+
+RUN useradd --create-home --uid 10001 app
+COPY --from=build --chown=app:app /app /app
 USER app
 
 WORKDIR /app/backend
-ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy PATH="/app/backend/.venv/bin:${PATH}"
-RUN uv sync --frozen --no-dev
+ENV PATH="/app/backend/.venv/bin:${PATH}"
 
 EXPOSE 8000
 # Hosting platforms (e.g. Render) pass the port in $PORT; default 8000 locally.
