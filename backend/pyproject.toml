@@ -21,6 +21,7 @@ dev = [
     "ruff",
     "mypy",
     "httpx",
+    "playwright>=1.64.0",
 ]
 
 [build-system]
@@ -36,13 +37,15 @@ pythonpath = ["tests"]
 # Network tests are skipped by default; run them with: pytest -m network
 # Perf tests time wall-clock latency, so they are skipped by default (they fail under
 # `-n auto`, where workers compete for cores); run them serially with: pytest -m perf -s
-addopts = "-m 'not network and not perf'"
+# e2e tests drive Chromium via Playwright (uv run playwright install chromium); run with: pytest -m e2e
+addopts = "-m 'not network and not perf and not e2e'"
 # Starlette 1.x deprecates httpx in TestClient in favour of httpx2, whose provenance we have
 # not verified; the official httpx stays.
 filterwarnings = ["ignore:Using .httpx. with .starlette.testclient. is deprecated"]
 markers = [
     "golden: golden-file regression tests against reference data",
     "perf: performance / latency budget tests",
+    "e2e: browser tests (Playwright) against a running server; run with: pytest -m e2e",
     "network: tests that need network access (skipped by default)",
 ]
 
