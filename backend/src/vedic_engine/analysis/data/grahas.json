@@ -47,6 +47,16 @@
       "text": "The 2nd and 7th are the maraka (death-inflicting) houses; their lords carry the maraka role in addition to their other nature.",
       "ref": "BPHS Ch 44; BPHS Ch 34 vv. 19-22; Phaladeepika Ch 20 v. 40"
     },
+    "bphs_lagna": {
+      "text": "Parasara's list for this lagna classifies the planet as {category}.",
+      "categories": {
+        "yogakaraka": "a yoga-giver (yogakaraka)",
+        "benefic": "auspicious",
+        "malefic": "malefic",
+        "neutral": "neutral"
+      },
+      "ref": "BPHS Ch 34 vv. 19-44 (per lagna; see functional_bphs.json)"
+    },
     "node": {
       "text": "Rahu and Ketu own no sign for this purpose and are neutral by lordship.",
       "ref": "BPHS Ch 34 vv. 16-17",
@@ -68,7 +78,7 @@
     },
     "house": {
       "text": "Placement in a kendra or trikona strengthens a planet; placement in the 6th, 8th or 12th weakens it.",
-      "ref": "BPHS Ch 34 v. 13; Phaladeepika Ch 20 vv. 22, 27"
+      "ref": "BPHS Ch 27 (Kendradi bala: kendra placement); Phaladeepika Ch 20 vv. 22, 27 (6th, 8th, 12th placement); trikona placement: traditional, chapter-level only"
     },
     "vargottama": {
       "text": "A vargottama planet (same sign in D1 and D9) gives favourable results in its dasha.",

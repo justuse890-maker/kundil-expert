@@ -23,7 +23,7 @@ from typing import Protocol
 from vedic_engine.analysis.functional import KENDRAS, TRIKONAS, load_data
 from vedic_engine.angles import sign_of
 from vedic_engine.constants import RASHI_LORD, RASHIS, Graha
-from vedic_engine.dignity import _EXALT_SIGN, NODE_DIGNITY_SCHOOL, Dignity
+from vedic_engine.dignity import EXALT_SIGN, NODE_DIGNITY_SCHOOL, Dignity
 from vedic_engine.lagna import house_of
 
 BASE = 50
@@ -103,7 +103,7 @@ def d9_dignity(graha: Graha, d9_sign: int) -> Dignity | None:
     if graha in (Graha.RAHU, Graha.KETU):
         exalt = NODE_DIGNITY_SCHOOL[graha.value]["exalted"]
     else:
-        exalt = _EXALT_SIGN[graha]
+        exalt = EXALT_SIGN[graha]
     if d9_sign == exalt:
         return Dignity.EXALTED
     if d9_sign == (exalt + 6) % 12:

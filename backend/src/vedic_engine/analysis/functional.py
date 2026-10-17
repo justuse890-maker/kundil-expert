@@ -1,47 +1,52 @@
-"""Functional nature of the grahas for a lagna, by house lordship (BPHS Ch 34, "Yoga Karakas").
+"""Functional nature of the grahas for a lagna (BPHS Ch 34, "Yoga Karakas"; Ruling U5).
 
-Whole-sign houses: house n is the nth sign from the lagna sign. Rules and their precedence
-(first match wins); every rule's text and verse are in ``data/grahas.json``:
+The role comes from Parasara's own per-lagna lists (BPHS Ch 34 vv. 19-44), transcribed in
+``data/functional_bphs.json``. That table wins, including for lagna lords (Tula Venus and
+Vrishchika Mars are "neutral"; Vrishabha Venus is a malefic). Precedence per graha:
 
-1. Rahu, Ketu: NEUTRAL, with a ``node_note`` (they own no sign for this purpose; BPHS Ch 34
-   vv. 16-17).
-2. Lagna lord: BENEFIC, even when it also owns the 8th (Mesha, Tula) or an evil house.
-3. Owns a kendra (4, 7, 10) and a trikona (5, 9): YOGAKARAKA.
-4. Owns a trikona: BENEFIC (trine lordship prevails over the 8th and over 3/6/11; BPHS Ch 34
-   notes on v. 4: Saturn, lord of 8 and 9, is favourable for Mithuna).
-5. Owns the 3rd, 6th or 11th: MALEFIC.
-6. Owns the 8th: MALEFIC, except the Sun and Moon, whose 8th lordship "is not evil"
-   (BPHS Ch 34 vv. 2-7; Phaladeepika Ch 20 v. 41); a luminary then falls through to rule 7/8.
-7. Owns a kendra: NEUTRAL. A natural benefic loses its beneficence (kendradhipati dosha); a
-   natural malefic stops being inauspicious but does not become benefic.
-8. Otherwise (lord of the 2nd and/or 12th only): NEUTRAL; they act by association.
+1. Rahu, Ketu: NEUTRAL with a ``node_note`` (no sign of their own here; vv. 16-17).
+2. Named by the verse as causing (raja)yoga: YOGAKARAKA (``source="bphs_lagna"``).
+3. Called malefic by the verse: MALEFIC.
+4. Lord of a kendra (4, 7, 10) and a trikona (5, 9), not called malefic: YOGAKARAKA by the
+   general verse 13 (``source="bphs_v13"``; Leo Mars, Libra Saturn).
+5. Called auspicious / neutral by the verse: BENEFIC / NEUTRAL.
+6. Not classified by the verse: the generic lordship rules below (``source="rule"``).
 
-MARAKA is additional, never a replacement: the lord of the 2nd or 7th gets ``roles =
-(primary, MARAKA)``. The lagna lord is exempt (rule 2, "always BENEFIC"; only Saturn for
-Makara, lord of 1 and 2, is affected).
+MARAKA is additional, never a replacement: a graha the verse names as a killer, or the lord of the
+2nd or 7th (BPHS Ch 44) other than the lagna lord, gets ``roles = (primary, MARAKA)``.
 
-Natural benefics: Jupiter, Venus, Mercury and the waxing Moon (BPHS Ch 34 vv. 8-10). Phase 1
-treats Mercury as a benefic unconditionally: association is not evaluated yet. The Moon's paksha
-only changes which kendra rule is cited (7 either way gives NEUTRAL).
+Generic lordship rules (BPHS Ch 34 vv. 2-7, 8-10, 13, 14), first match wins. They decide only
+case 6 and always supply ``rule``, ``rule_role`` and the ``why`` text:
 
-Not modelled yet: moolatrikona precedence between two lordships (BPHS Ch 34 notes on vv. 4, 15,
-e.g. Saturn for Kanya), node yogakaraka by relation (v. 17), and grading within a group.
+a. lagna lord: BENEFIC; b. kendra + trikona lord: YOGAKARAKA; c. trikona lord: BENEFIC;
+d. lord of 3, 6 or 11: MALEFIC; e. lord of 8 (not Sun or Moon, whose 8th lordship "is not
+evil"): MALEFIC; f. kendra lord: NEUTRAL (kendradhipati dosha for a natural benefic, otherwise a
+malefic owning a kendra); g. lord of 2 / 12 / the luminaries' 8th only: NEUTRAL.
+
+Natural benefics: Jupiter, Venus, Mercury and the waxing Moon (vv. 8-10). Phase 1 treats Mercury
+as a benefic unconditionally (association is not evaluated). Not modelled: node yogakaraka by
+relation (v. 17), conjunction yogas the verses mention (kept as notes).
 """
 
 import json
+from collections.abc import Mapping
 from dataclasses import dataclass
 from enum import StrEnum
 from functools import cache
 from importlib import resources
+from types import MappingProxyType
 from typing import Any
 
 from vedic_engine.constants import RASHI_LORD, RASHIS, Graha
+from vedic_engine.dignity import MOOLATRIKONA
 from vedic_engine.lagna import house_of
 
 KENDRAS = frozenset({1, 4, 7, 10})
 TRIKONAS = frozenset({1, 5, 9})
 DUSTHANAS_3_6_11 = frozenset({3, 6, 11})
 MARAKA_HOUSES = frozenset({2, 7})
+_KENDRAS_NOT_LAGNA = frozenset({4, 7, 10})
+_TRIKONAS_NOT_LAGNA = frozenset({5, 9})
 _LUMINARIES = frozenset({Graha.SUN, Graha.MOON})
 _NODES = frozenset({Graha.RAHU, Graha.KETU})
 _ALWAYS_BENEFIC = frozenset({Graha.JUPITER, Graha.VENUS, Graha.MERCURY})
@@ -59,29 +64,42 @@ class Role(StrEnum):
 class FunctionalRole:
     """``role`` is the primary nature; ``roles`` is ``(role,)`` or ``(role, Role.MARAKA)``.
 
-    ``rule`` is the key of the deciding rule in ``data/grahas.json``; ``text`` and ``ref`` come
-    from it. ``why`` states the chart facts (houses owned). ``maraka_ref`` is set exactly when
-    MARAKA is in ``roles``.
+    ``source`` says who decided ``role``: "bphs_lagna" (the per-lagna verse), "bphs_v13"
+    (kendra + trikona lord, verse 13), "rule" (generic lordship rules) or "node". ``rule`` and
+    ``rule_role`` are always the generic rule's key and result, for comparison and ``why``.
+    ``text`` and ``ref`` describe the deciding source. ``maraka_ref`` is set exactly when MARAKA
+    is in ``roles``. ``note`` is the per-lagna verse's condition on this graha, if any.
     """
 
     graha: Graha
     role: Role
     roles: tuple[Role, ...]
     houses: tuple[int, ...]
+    source: str
     rule: str
+    rule_role: Role
     text: str
     why: str
     ref: str
     maraka_ref: str | None = None
+    note: str | None = None
     node_note: str | None = None
 
 
+def _freeze(x: Any) -> Any:
+    if isinstance(x, dict):
+        return MappingProxyType({k: _freeze(v) for k, v in x.items()})
+    if isinstance(x, list):
+        return tuple(_freeze(v) for v in x)
+    return x
+
+
 @cache
-def load_data(name: str) -> dict[str, Any]:
-    """Parsed ``analysis/data/<name>.json``."""
+def load_data(name: str) -> Mapping[str, Any]:
+    """Parsed ``analysis/data/<name>.json``, read-only (mappings are proxies, lists tuples)."""
     path = resources.files("vedic_engine.analysis").joinpath(f"data/{name}.json")
-    data: dict[str, Any] = json.loads(path.read_text("utf-8"))
-    return data
+    frozen: Mapping[str, Any] = _freeze(json.loads(path.read_text("utf-8")))
+    return frozen
 
 
 def houses_ruled(graha: Graha, lagna_sign: int) -> tuple[int, ...]:
@@ -95,7 +113,8 @@ def _is_natural_benefic(graha: Graha, moon_is_waxing: bool) -> bool:
     return graha in _ALWAYS_BENEFIC
 
 
-def _decide(graha: Graha, houses: frozenset[int], moon_is_waxing: bool) -> tuple[Role, str]:
+def rule_role(graha: Graha, houses: frozenset[int], moon_is_waxing: bool) -> tuple[Role, str]:
+    """Generic lordship rules a-g (module docstring): (role, rule key in grahas.json)."""
     if 1 in houses:
         return Role.BENEFIC, "lagna_lord"
     if houses & KENDRAS and houses & TRIKONAS:
@@ -115,36 +134,87 @@ def _decide(graha: Graha, houses: frozenset[int], moon_is_waxing: bool) -> tuple
     return Role.NEUTRAL, "lord_2_12"
 
 
+def _node_role(graha: Graha, lagna_name: str) -> FunctionalRole:
+    node = load_data("grahas")["rules"]["node"]
+    return FunctionalRole(
+        graha=graha,
+        role=Role.NEUTRAL,
+        roles=(Role.NEUTRAL,),
+        houses=(),
+        source="node",
+        rule="node",
+        rule_role=Role.NEUTRAL,
+        text=node["text"],
+        why=f"{graha.value} owns no house for {lagna_name} lagna",
+        ref=node["ref"],
+        node_note=node["node_note"],
+    )
+
+
+def _why(graha: Graha, lagna_sign: int, houses: tuple[int, ...], rule: str, r_role: Role) -> str:
+    owned = ", ".join(str(h) for h in houses)
+    mt = house_of(MOOLATRIKONA[graha][0], lagna_sign)
+    return (
+        f"{graha.value} rules house {owned} for {RASHIS[lagna_sign]} lagna "
+        f"(moolatrikona in house {mt}); lordship rule: {rule.replace('_', ' ')} -> {r_role.value}"
+    )
+
+
 def _role_of(graha: Graha, lagna_sign: int, moon_is_waxing: bool) -> FunctionalRole:
-    rules = load_data("grahas")["rules"]
     lagna_name = RASHIS[lagna_sign]
     if graha in _NODES:
-        node = rules["node"]
-        return FunctionalRole(
-            graha=graha,
-            role=Role.NEUTRAL,
-            roles=(Role.NEUTRAL,),
-            houses=(),
-            rule="node",
-            text=node["text"],
-            why=f"{graha.value} owns no house for {lagna_name} lagna",
-            ref=node["ref"],
-            node_note=node["node_note"],
-        )
+        return _node_role(graha, lagna_name)
+    rules = load_data("grahas")["rules"]
+    entry = load_data("functional_bphs")["lagnas"][lagna_name]
+    verse_ref = f"BPHS Ch 34 vv. {entry['verses']} (Santhanam p. {entry['pages']})"
     houses = houses_ruled(graha, lagna_sign)
-    role, rule = _decide(graha, frozenset(houses), moon_is_waxing)
-    maraka = rule != "lagna_lord" and bool(MARAKA_HOUSES & set(houses))
-    owned = ", ".join(str(h) for h in houses)
+    owned = frozenset(houses)
+    r_role, rule = rule_role(graha, owned, moon_is_waxing)
+    g = graha.value
+    kendra_trikona = bool(owned & _KENDRAS_NOT_LAGNA and owned & _TRIKONAS_NOT_LAGNA)
+
+    role: Role
+    if g in entry["yogakaraka"]:
+        role, source, category = Role.YOGAKARAKA, "bphs_lagna", "yogakaraka"
+    elif g in entry["malefic"]:
+        role, source, category = Role.MALEFIC, "bphs_lagna", "malefic"
+    elif kendra_trikona:
+        role, source, category = Role.YOGAKARAKA, "bphs_v13", ""
+    elif g in entry["benefic"]:
+        role, source, category = Role.BENEFIC, "bphs_lagna", "benefic"
+    elif g in entry["neutral"]:
+        role, source, category = Role.NEUTRAL, "bphs_lagna", "neutral"
+    else:
+        role, source, category = r_role, "rule", ""
+
+    if source == "bphs_lagna":
+        table = rules["bphs_lagna"]
+        text = table["text"].format(category=table["categories"][category])
+        ref = verse_ref
+    elif source == "bphs_v13":
+        text, ref = rules["yogakaraka"]["text"], f"{rules['yogakaraka']['ref']}; {verse_ref}"
+    else:
+        text, ref = rules[rule]["text"], rules[rule]["ref"]
+
+    maraka_ref: str | None = None
+    if g in entry["maraka"]:
+        maraka_ref = verse_ref
+    elif rule != "lagna_lord" and owned & MARAKA_HOUSES:
+        maraka_ref = rules["maraka"]["ref"]
+
     return FunctionalRole(
         graha=graha,
         role=role,
-        roles=(role, Role.MARAKA) if maraka else (role,),
+        roles=(role, Role.MARAKA) if maraka_ref else (role,),
         houses=houses,
+        source=source,
         rule=rule,
-        text=rules[rule]["text"],
-        why=f"{graha.value} rules house {owned} for {lagna_name} lagna",
-        ref=rules[rule]["ref"],
-        maraka_ref=rules["maraka"]["ref"] if maraka else None,
+        rule_role=r_role,
+        text=text,
+        why=_why(graha, lagna_sign, houses, rule, r_role),
+        ref=ref,
+        maraka_ref=maraka_ref,
+        note=entry["notes"].get(g),
     )
 
 

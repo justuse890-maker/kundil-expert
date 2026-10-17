@@ -10,13 +10,14 @@ import pytest
 
 from vedic_engine import ephemeris
 from vedic_engine.analysis import (
+    FunctionalRole,
     Role,
     functional_roles,
     judge_period,
     moon_waxing,
     planet_strength,
 )
-from vedic_engine.analysis.functional import houses_ruled
+from vedic_engine.analysis.functional import houses_ruled, load_data
 from vedic_engine.analysis.strength import d9_dignity
 from vedic_engine.constants import RASHIS, Graha
 from vedic_engine.dignity import Dignity
@@ -91,75 +92,91 @@ def _one_planet(
 # --- functional roles ------------------------------------------------------------------
 
 
+def _role(lagna: str, g: Graha) -> FunctionalRole:
+    return functional_roles(_sign(lagna))[g]
+
+
 def test_karka_mars_is_yogakaraka() -> None:
-    r = functional_roles(_sign("karka"))[Graha.MARS]
+    r = _role("karka", Graha.MARS)
     assert houses_ruled(Graha.MARS, _sign("karka")) == (5, 10)
-    assert r.role is Role.YOGAKARAKA
-    assert r.roles == (Role.YOGAKARAKA,)
+    assert (r.role, r.roles, r.source) == (Role.YOGAKARAKA, (Role.YOGAKARAKA,), "bphs_lagna")
+    assert r.ref == "BPHS Ch 34 vv. 27-28 (Santhanam p. 350)"
 
 
 def test_vrishabha_saturn_is_yogakaraka() -> None:
-    r = functional_roles(_sign("vrishabha"))[Graha.SATURN]
+    r = _role("vrishabha", Graha.SATURN)
     assert houses_ruled(Graha.SATURN, _sign("vrishabha")) == (9, 10)
+    assert (r.role, r.source) == (Role.YOGAKARAKA, "bphs_lagna")  # vv. 23-24
+
+
+def test_tula_saturn_is_yogakaraka_by_verse_13() -> None:
+    # vv. 33-34 call Saturn auspicious; lord of 4 and 5, so v. 13 makes him a yogakaraka.
+    r = _role("tula", Graha.SATURN)
+    assert (r.role, r.source) == (Role.YOGAKARAKA, "bphs_v13")
+
+
+def test_vrishchika_sun_is_a_yoga_giver() -> None:
+    # vv. 35-36: "The Sun as well as the Moon are Yogakarakas" (Sun rules the 10th).
+    r = _role("vrishchika", Graha.SUN)
     assert r.role is Role.YOGAKARAKA
+    assert r.rule_role is Role.NEUTRAL  # the generic kendra rule would say neutral
+
+
+def test_vrishchika_mars_is_neutral_per_verse() -> None:
+    # BPHS Ch 34 vv. 35-36 (p. 353): "Mars is neutral" for Scorpio, though lagna lord.
+    r = _role("vrishchika", Graha.MARS)
+    assert (r.role, r.source) == (Role.NEUTRAL, "bphs_lagna")
+    assert r.ref == "BPHS Ch 34 vv. 35-36 (Santhanam p. 353)"
+
+
+def test_mithuna_jupiter_is_malefic_and_maraka() -> None:
+    r = _role("mithuna", Graha.JUPITER)  # vv. 25-26; lord of 7 and 10
+    assert r.roles == (Role.MALEFIC, Role.MARAKA)
+    assert r.rule == "kendradhipati_dosha"  # still explains the lordship in `why`
+    assert "kendradhipati dosha" in r.why
+
+
+def test_vrishabha_sun_is_benefic() -> None:
+    assert _role("vrishabha", Graha.SUN).role is Role.BENEFIC  # vv. 23-24
 
 
 def test_mesha_mercury_is_malefic() -> None:
-    r = functional_roles(_sign("mesha"))[Graha.MERCURY]
+    r = _role("mesha", Graha.MERCURY)
     assert houses_ruled(Graha.MERCURY, _sign("mesha")) == (3, 6)
-    assert r.role is Role.MALEFIC
-    assert Role.MARAKA not in r.roles
+    assert r.roles == (Role.MALEFIC,)
 
 
 def test_mesha_venus_is_maraka_in_addition_to_its_role() -> None:
-    r = functional_roles(_sign("mesha"))[Graha.VENUS]
+    r = _role("mesha", Graha.VENUS)  # vv. 19-22: malefic and a direct killer
     assert houses_ruled(Graha.VENUS, _sign("mesha")) == (2, 7)
-    assert Role.MARAKA in r.roles
-    # Maraka is additional: the primary role (kendradhipati dosha on the 7th) stays first.
-    assert r.roles == (Role.NEUTRAL, Role.MARAKA)
-    assert r.role is Role.NEUTRAL
+    assert r.roles == (Role.MALEFIC, Role.MARAKA)
+    assert r.maraka_ref == "BPHS Ch 34 vv. 19-22 (Santhanam p. 347-348)"
 
 
 def test_mesha_lagna_lord_mars_is_benefic_despite_8th() -> None:
-    r = functional_roles(_sign("mesha"))[Graha.MARS]
+    r = _role("mesha", Graha.MARS)
     assert houses_ruled(Graha.MARS, _sign("mesha")) == (1, 8)
-    assert r.role is Role.BENEFIC
     assert r.roles == (Role.BENEFIC,)
+    assert r.note is not None and "8th" in r.note
 
 
-def test_tula_lagna_lord_venus_is_benefic_despite_8th() -> None:
-    assert functional_roles(_sign("tula"))[Graha.VENUS].role is Role.BENEFIC
+def test_table_wins_for_lagna_lords() -> None:
+    assert _role("tula", Graha.VENUS).role is Role.NEUTRAL  # vv. 33-34
+    assert _role("vrishabha", Graha.VENUS).roles == (Role.MALEFIC, Role.MARAKA)  # vv. 23-24
 
 
-def test_kendradhipati_dosha_and_malefic_kendra_are_neutral() -> None:
-    mithuna = functional_roles(_sign("mithuna"))
-    assert mithuna[Graha.JUPITER].role is Role.NEUTRAL  # natural benefic, lord of 7 and 10
-    assert mithuna[Graha.JUPITER].rule == "kendradhipati_dosha"
-    mesha = functional_roles(_sign("mesha"))
-    assert mesha[Graha.SUN].role is Role.BENEFIC  # lord of 5
-    vrishabha = functional_roles(_sign("vrishabha"))
-    assert vrishabha[Graha.SUN].role is Role.NEUTRAL  # natural malefic, lord of 4 only
-    assert vrishabha[Graha.SUN].rule == "malefic_kendra"
+def test_unclassified_planets_fall_back_to_rules() -> None:
+    sat = _role("mithuna", Graha.SATURN)  # "no hint on Saturn": lord of 8 and 9
+    assert (sat.role, sat.source, sat.rule) == (Role.BENEFIC, "rule", "trikona_lord")
+    moon = _role("dhanu", Graha.MOON)  # not classified; luminary's 8th lordship is not evil
+    assert (moon.role, moon.source, moon.rule) == (Role.NEUTRAL, "rule", "eighth_lord_luminary")
 
 
 def test_moon_paksha_changes_only_the_kendra_rule_cited() -> None:
     waxing = functional_roles(_sign("mesha"), moon_is_waxing=True)[Graha.MOON]
     waning = functional_roles(_sign("mesha"), moon_is_waxing=False)[Graha.MOON]
-    assert waxing.role is waning.role is Role.NEUTRAL  # lord of 4
+    assert waxing.role is waning.role is Role.NEUTRAL  # lord of 4, not discussed by the verse
     assert (waxing.rule, waning.rule) == ("kendradhipati_dosha", "malefic_kendra")
-
-
-def test_luminary_8th_lordship_is_not_evil() -> None:
-    # BPHS Ch 34 vv. 2-7: "The 8th lordship of the Sun and the Moon is not evil."
-    assert functional_roles(_sign("dhanu"))[Graha.MOON].role is Role.NEUTRAL
-    assert functional_roles(_sign("makara"))[Graha.SUN].role is Role.NEUTRAL
-    # Any other non-lagna 8th lord without a trine is malefic.
-    assert functional_roles(_sign("kanya"))[Graha.MARS].role is Role.MALEFIC  # 3 and 8
-
-
-def test_trine_lordship_prevails_over_8th() -> None:
-    # BPHS Ch 34 notes on v. 4: Saturn (8 and 9) is favourable for Mithuna.
-    assert functional_roles(_sign("mithuna"))[Graha.SATURN].role is Role.BENEFIC
 
 
 def test_nodes_are_neutral_with_a_note() -> None:
@@ -177,6 +194,46 @@ def test_every_lagna_gives_every_graha_a_cited_role() -> None:
             assert r.ref and r.why and r.text
             assert r.roles[0] is r.role
             assert (Role.MARAKA in r.roles) == (r.maraka_ref is not None)
+
+
+def test_where_the_bphs_table_differs_from_the_generic_rules() -> None:
+    """Every (lagna, graha, rule role, table role); update deliberately, never to make it pass."""
+    diffs = [
+        (RASHIS[lagna], g.value, r.rule_role.value, r.role.value)
+        for lagna in range(12)
+        for g, r in functional_roles(lagna).items()
+        if r.role is not r.rule_role
+    ]
+    assert diffs == [
+        ("mesha", "venus", "neutral", "malefic"),
+        ("vrishabha", "sun", "neutral", "benefic"),
+        ("vrishabha", "venus", "benefic", "malefic"),
+        ("mithuna", "jupiter", "neutral", "malefic"),
+        ("kanya", "jupiter", "neutral", "malefic"),
+        ("tula", "moon", "neutral", "yogakaraka"),
+        ("tula", "mars", "neutral", "malefic"),
+        ("tula", "mercury", "benefic", "yogakaraka"),
+        ("tula", "venus", "benefic", "neutral"),
+        ("vrishchika", "sun", "neutral", "yogakaraka"),
+        ("vrishchika", "moon", "benefic", "yogakaraka"),
+        ("vrishchika", "mars", "benefic", "neutral"),
+        ("vrishchika", "venus", "neutral", "malefic"),
+        ("dhanu", "sun", "benefic", "yogakaraka"),
+        ("dhanu", "mercury", "neutral", "yogakaraka"),
+        ("dhanu", "jupiter", "benefic", "neutral"),
+        ("makara", "moon", "neutral", "malefic"),
+        ("kumbha", "mercury", "benefic", "neutral"),
+        ("meena", "mars", "benefic", "yogakaraka"),
+        ("meena", "mercury", "neutral", "malefic"),
+        ("meena", "jupiter", "benefic", "yogakaraka"),
+    ]
+
+
+def test_load_data_is_read_only() -> None:
+    data = load_data("functional_bphs")
+    with pytest.raises(TypeError):
+        data["lagnas"]["mesha"]["benefic"] = ()  # type: ignore[index]
+    assert isinstance(data["lagnas"]["mesha"]["benefic"], tuple)
 
 
 # --- strength --------------------------------------------------------------------------
@@ -266,7 +323,8 @@ def test_india_1947_saturn_maha() -> None:
 def test_india_1947_saturn_mercury_antar() -> None:
     k = _india()
     j = judge_period(k, (Graha.SATURN, Graha.MERCURY))
-    # Saturn alone 40. Mercury for Vrishabha rules 2 (maraka) and 5: benefic +25, maraka -10;
+    # Saturn alone 40. Mercury for Vrishabha: 'somewhat auspicious' (BPHS Ch 34 vv. 23-24) +25;
+    # lord of the 2nd, so maraka by lordship (BPHS Ch 44) -10;
     # strength: great enemy -10, Shadbala 1.07 +15 -> 55 -> +2.5; total 17.5.
     # Mean (40 + 17.5) / 2 = 28.75; both in Karka (same sign = kendra) +10 -> 38.75 -> 39.
     assert functional_roles(_sign("vrishabha"))[Graha.MERCURY].roles == (Role.BENEFIC, Role.MARAKA)
@@ -279,8 +337,7 @@ def test_india_1947_saturn_mercury_antar() -> None:
 
 def test_mutual_6_8_and_2_12_are_penalised() -> None:
     k = _india()
-    # Mars in Mithuna (2nd from lagna), Jupiter in Tula: Tula is 5th from Mithuna (trikona).
-    # Mars and Sun: Sun Karka is 2nd from Mars Mithuna -> 2/12.
+    # Mars in Mithuna, Sun in Karka: the Sun is 2nd from Mars (Mars 12th from the Sun) -> 2/12.
     j = judge_period(k, (Graha.MARS, Graha.SUN))
     assert "mutual:dvirdvadasha_shashtashtaka" in [r.code for r in j.reasons]
     mutual = [r for r in j.reasons if r.code.startswith("mutual:")]

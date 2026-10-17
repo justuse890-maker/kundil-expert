@@ -14,9 +14,13 @@ kendra) +10; 3/11 adds nothing (Phaladeepika Ch 20 vv. 29, 42). The result is ro
 "challenging", otherwise "mixed".
 
 Activated ``areas`` are the houses each lord owns and occupies (Rahu and Ketu own none).
-``Reason.delta`` is each rule's nominal contribution to that lord's score; strength factor
-reasons carry half the factor's weight, matching the ``/ 2`` scaling (when the 0-100 clamp of the
-strength score binds, they sum to more than the applied strength term).
+
+``Reason.delta`` is per lord: each rule's nominal contribution to *that lord's* score, not to the
+period score. The period score is the mean of the lords' scores plus the pair (mutual) terms, so
+with two lords a role reason of +40 moves the period score by +20, while a ``mutual:*`` reason's
+delta is added to the period score as is. ``strength:<factor>`` reasons break the ``strength``
+reason down: each carries half its factor's weight, matching the ``/ 2`` scaling (when the 0-100
+clamp of the strength score binds they sum to more than the applied strength term).
 """
 
 from dataclasses import dataclass
@@ -83,7 +87,7 @@ def _lord_reasons(k: ChartFacts, g: Graha) -> tuple[float, list[Reason], set[int
         Reason(
             code=f"role:{role.role.value}",
             text=role.text,
-            why=f"{role.why} (rule: {role.rule})",
+            why=f"{role.why}; decided by: {role.source}" + (f"; {role.note}" if role.note else ""),
             delta=ROLE_BASE[role.role],
             ref=role.ref,
         )
@@ -92,7 +96,8 @@ def _lord_reasons(k: ChartFacts, g: Graha) -> tuple[float, list[Reason], set[int
         reasons.append(Reason("node_note", role.node_note, role.why, 0, role.ref))
     score: float = ROLE_BASE[role.role]
     if Role.MARAKA in role.roles:
-        assert role.maraka_ref is not None
+        if role.maraka_ref is None:
+            raise ValueError(f"{g.value} has the maraka role without a maraka_ref")
         rule = load_data("grahas")["rules"]["maraka"]
         reasons.append(Reason("role:maraka", rule["text"], role.why, MARAKA_EXTRA, role.maraka_ref))
         score += MARAKA_EXTRA

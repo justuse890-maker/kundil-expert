@@ -1,0 +1,169 @@
+{
+  "_source": "Brihat Parasara Hora Sastra, tr. R. Santhanam, Vol. 1 (Ranjan Publications, New Delhi, 1992), Ch 34 'Yoga Karakas', verses 19-44: Parasara's per-lagna lists. Read in the archive.org full text of item heag_brihat-parasara-hora-sastra-vol-1-by-maharshi-parasara-commentary-editor-tr; the Libra and Scorpio verses were also checked on the page images (leaves n356, n357). Pages are the printed page numbers from the running heads; the English translation of each verse starts on the first page given.",
+  "_schema": "Lists hold lowercase graha keys exactly as the verse names them. 'benefic' = called auspicious; 'malefic' = called malefic or inauspicious; 'neutral' = called neutral, mixed or 'according to association'; 'yogakaraka' = named as causing (raja)yoga by itself; 'maraka' = named as killer. A planet the verse does not classify is absent: functional.py then uses the generic Ch 34 rules for it (source 'rule'). Notes paraphrase conditions the verse attaches.",
+  "lagnas": {
+    "mesha": {
+      "verses": "19-22",
+      "pages": "347-348",
+      "benefic": ["jupiter", "sun", "mars"],
+      "malefic": ["saturn", "mercury", "venus"],
+      "neutral": [],
+      "yogakaraka": [],
+      "maraka": ["venus"],
+      "notes": {
+        "mars": "Though lord of the 8th, Mars helps the other auspicious planets.",
+        "jupiter": "A mere Saturn-Jupiter conjunction gives no auspicious result; Jupiter under a malefic's control turns inauspicious.",
+        "venus": "Venus is a direct (independent) killer; Saturn and others kill if associated with him.",
+        "moon": "Not discussed in the verse."
+      }
+    },
+    "vrishabha": {
+      "verses": "23-24",
+      "pages": "348-349",
+      "benefic": ["saturn", "sun", "mercury"],
+      "malefic": ["jupiter", "venus", "moon"],
+      "neutral": [],
+      "yogakaraka": ["saturn"],
+      "maraka": ["jupiter", "venus", "moon", "mars"],
+      "notes": {
+        "mercury": "Called 'somewhat auspicious'.",
+        "maraka": "'Jupiter etc. and Mars will inflict death'; Santhanam reads 'Jupiter etc.' as Jupiter, the Moon and Venus."
+      }
+    },
+    "mithuna": {
+      "verses": "25-26",
+      "pages": "349",
+      "benefic": ["venus"],
+      "malefic": ["mars", "jupiter", "sun"],
+      "neutral": [],
+      "yogakaraka": [],
+      "maraka": ["moon"],
+      "notes": {
+        "venus": "Called the only auspicious planet.",
+        "saturn": "No classification in the verse (Santhanam: 'there is no hint on Saturn'); a Saturn-Jupiter conjunction gives no yoga, as for Mesha.",
+        "moon": "The prime killer, depending on her association.",
+        "mercury": "The lagna lord is not classified in the verse."
+      }
+    },
+    "karka": {
+      "verses": "27-28",
+      "pages": "350",
+      "benefic": ["mars", "jupiter", "moon"],
+      "malefic": ["venus", "mercury"],
+      "neutral": [],
+      "yogakaraka": ["mars"],
+      "maraka": ["saturn", "sun"],
+      "notes": {
+        "saturn": "Killer, giving effects according to association.",
+        "sun": "Killer, giving effects according to association."
+      }
+    },
+    "simha": {
+      "verses": "29-30",
+      "pages": "351",
+      "benefic": ["mars", "jupiter", "sun"],
+      "malefic": ["mercury", "venus", "saturn"],
+      "neutral": [],
+      "yogakaraka": [],
+      "maraka": ["saturn", "moon"],
+      "notes": {
+        "jupiter": "A Jupiter-Venus conjunction (kendra and kona lords) gives no auspicious result.",
+        "moon": "Killer according to association."
+      }
+    },
+    "kanya": {
+      "verses": "31-32",
+      "pages": "352",
+      "benefic": ["mercury", "venus"],
+      "malefic": ["mars", "jupiter", "moon"],
+      "neutral": ["sun"],
+      "yogakaraka": [],
+      "maraka": ["venus"],
+      "notes": {
+        "venus": "A Venus-Mercury conjunction produces yoga; Venus is also a killer.",
+        "sun": "His role depends on his association.",
+        "saturn": "Not classified in the verse."
+      }
+    },
+    "tula": {
+      "verses": "33-34",
+      "pages": "352-353",
+      "benefic": ["saturn", "mercury"],
+      "malefic": ["jupiter", "sun", "mars"],
+      "neutral": ["venus"],
+      "yogakaraka": ["moon", "mercury"],
+      "maraka": ["mars"],
+      "notes": {
+        "moon": "The Moon and Mercury ('chandra-tat-sutau', page image checked) cause rajayoga.",
+        "venus": "The lagna lord is called neutral (he also owns the 8th).",
+        "mars": "Mars kills; Jupiter and the other malefics acquire maraka qualities."
+      }
+    },
+    "vrishchika": {
+      "verses": "35-36",
+      "pages": "353",
+      "benefic": ["jupiter", "moon"],
+      "malefic": ["venus", "mercury", "saturn"],
+      "neutral": ["mars"],
+      "yogakaraka": ["sun", "moon"],
+      "maraka": ["venus"],
+      "notes": {
+        "mars": "The lagna lord is called neutral (he also owns the 6th, his moolatrikona); page image checked.",
+        "maraka": "Venus and the other malefics acquire maraka qualities."
+      }
+    },
+    "dhanu": {
+      "verses": "37-38",
+      "pages": "354",
+      "benefic": ["mars", "sun"],
+      "malefic": ["venus"],
+      "neutral": ["jupiter"],
+      "yogakaraka": ["sun", "mercury"],
+      "maraka": ["saturn", "venus"],
+      "notes": {
+        "venus": "The only inauspicious planet; he also acquires killing powers.",
+        "jupiter": "The lagna lord is called neutral.",
+        "moon": "Not classified in the verse."
+      }
+    },
+    "makara": {
+      "verses": "39-40",
+      "pages": "354-355",
+      "benefic": ["venus", "mercury"],
+      "malefic": ["mars", "jupiter", "moon"],
+      "neutral": ["sun"],
+      "yogakaraka": ["venus"],
+      "maraka": ["mars"],
+      "notes": {
+        "saturn": "The lagna lord is not a killer of his own; otherwise not classified.",
+        "venus": "Only Venus causes a superior yoga.",
+        "maraka": "Mars and the other malefics inflict death."
+      }
+    },
+    "kumbha": {
+      "verses": "41-42",
+      "pages": "355",
+      "benefic": ["venus", "saturn"],
+      "malefic": ["jupiter", "moon", "mars"],
+      "neutral": ["mercury"],
+      "yogakaraka": ["venus"],
+      "maraka": ["jupiter", "sun", "mars"],
+      "notes": {
+        "venus": "The only rajayoga-causing planet.",
+        "mercury": "Gives 'meddling' (mixed) effects."
+      }
+    },
+    "meena": {
+      "verses": "43-44",
+      "pages": "356",
+      "benefic": ["mars", "moon"],
+      "malefic": ["saturn", "venus", "sun", "mercury"],
+      "neutral": [],
+      "yogakaraka": ["mars", "jupiter"],
+      "maraka": ["mars", "saturn", "mercury"],
+      "notes": {
+        "mars": "A killer who will not kill the native independently."
+      }
+    }
+  }
+}
