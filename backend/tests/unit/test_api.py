@@ -781,7 +781,8 @@ def test_analysis_default_is_lean_and_full_mode_has_every_reason(
     client: TestClient, analysis_body: Any
 ) -> None:
     r = client.post("/api/v1/analysis", json={**INDIA_1947, "now_utc": NOW_UTC})
-    assert len(r.content) < 80_000, len(r.content)
+    # 100 KB is a budget (ruling U13), not a hard property of the data
+    assert len(r.content) < 100_000, len(r.content)
     lean = analysis_body["periods"]
     for item in lean["timeline"]:
         j = item["judgement"]
@@ -867,3 +868,27 @@ def test_daily_london_dst_horas(client: TestClient, today: str, first: str, last
     assert horas[-1]["end_local"].endswith(last)
     for a, b in itertools.pairwise(horas):
         assert a["end_utc"] == b["start_utc"]
+
+
+@pytest.mark.parametrize("detail", ["summary", "full"])
+@pytest.mark.parametrize("time_known", [True, False])
+def test_analysis_ids_resolve(client: TestClient, detail: str, time_known: bool) -> None:
+    birth = (
+        dict(INDIA_1947)
+        if time_known
+        else {**{k: v for k, v in INDIA_1947.items() if k != "time"}, "time_known": False}
+    )
+    r = client.post("/api/v1/analysis", json={**birth, "now_utc": NOW_UTC, "detail": detail})
+    assert r.status_code == 200, r.text
+    p = r.json()["periods"]
+    reason_ids = set(p["reasons"])
+    judgements = [c["judgement"] for c in p["current"].values()]
+    judgements += [i["judgement"] for i in p["timeline"]]
+    assert len(judgements) == 3 + len(p["timeline"])
+    for j in judgements:
+        assert j["reasons"] and set(j["reasons"]) <= reason_ids
+    sources = {i["id"] for i in p["timeline"]} | {t["id"] for t in p["transits"]}
+    assert len(sources) == len(p["timeline"]) + len(p["transits"])  # ids are unique
+    for m in (*p["months"], *p["best_windows"], *p["challenging_windows"]):
+        assert m["reasons"] and {x["source"] for x in m["reasons"]} <= sources
+    assert {i["advice_key"] for i in p["timeline"]} <= set(p["advice"])
