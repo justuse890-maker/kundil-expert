@@ -1,0 +1,33 @@
+{
+  "_source": "Decision guidance from the current antar's judgement (Phaladeepika Ch 20 vv. 29, 41, 42 via judge_period) and the houses its lords rule and occupy. House indications per BPHS Ch 11 vv. 2-13 (2nd wealth, 4th home and vehicles, 5th children and learning, 7th spouse, 9th fortune and long journeys, 10th work, 11th gains, 12th expense and foreign lands). Grouping houses into decision categories and areas is interpretive; every statement says so in its ref.",
+  "area_houses": {
+    "personality": [1],
+    "career": [10],
+    "income": [2, 10, 11],
+    "marriage": [7],
+    "health": [1, 6, 8],
+    "wealth": [2, 5, 9, 11],
+    "children": [5],
+    "education": [4, 5]
+  },
+  "categories": {
+    "investments": {"houses": [2, 11], "label": {"en": "investments", "hi": "निवेश"}},
+    "marriage": {"houses": [7], "label": {"en": "marriage and partnerships", "hi": "विवाह और साझेदारी"}},
+    "career": {"houses": [10], "label": {"en": "career moves", "hi": "करियर से जुड़े कदम"}},
+    "travel": {"houses": [3, 9, 12], "label": {"en": "travel", "hi": "यात्रा"}},
+    "property": {"houses": [4], "label": {"en": "property and vehicles", "hi": "संपत्ति और वाहन"}},
+    "education": {"houses": [5], "label": {"en": "studies", "hi": "पढ़ाई"}}
+  },
+  "kinds": {
+    "favourable": {"en": "Good for {category}: the current period activates this area and is judged favourable.", "hi": "{category} के लिए अच्छा समय: वर्तमान अवधि इस क्षेत्र को सक्रिय करती है और अनुकूल मानी गई है।"},
+    "mixed": {"en": "Review {category} carefully: the current period activates this area with mixed indications.", "hi": "{category} पर सोच-समझकर निर्णय लें: वर्तमान अवधि इस क्षेत्र को मिश्रित संकेतों के साथ सक्रिय करती है।"},
+    "challenging": {"en": "Caution with {category}: the current period activates this area and is judged challenging.", "hi": "{category} में सावधानी रखें: वर्तमान अवधि इस क्षेत्र को सक्रिय करती है और चुनौतीपूर्ण मानी गई है।"}
+  },
+  "none": {"en": "The current period does not particularly activate investments, marriage, career, travel, property or studies; routine decisions can proceed as usual.", "hi": "वर्तमान अवधि निवेश, विवाह, करियर, यात्रा, संपत्ति या पढ़ाई को विशेष रूप से सक्रिय नहीं करती; सामान्य निर्णय सामान्य रूप से लिए जा सकते हैं।"},
+  "ref": "Phaladeepika Ch 20 vv. 29, 41, 42 (period judgement); BPHS Ch 11 vv. 2-13 (house indications); grouping into decisions: interpretive",
+  "advice": {
+    "favourable": {"en": "A supportive period: a reasonable time to start planned work in the activated areas.", "hi": "सहायक अवधि: सक्रिय क्षेत्रों में योजनाबद्ध काम शुरू करने का उचित समय।"},
+    "mixed": {"en": "A mixed period: proceed step by step and review commitments before making them.", "hi": "मिश्रित अवधि: कदम-दर-कदम आगे बढ़ें और प्रतिबद्धता से पहले समीक्षा करें।"},
+    "challenging": {"en": "A demanding period: favour consolidation, patience and careful checks over big new risks.", "hi": "कठिन अवधि: बड़े नए जोखिमों के बजाय स्थिरता, धैर्य और सावधानीपूर्ण जाँच को प्राथमिकता दें।"}
+  }
+}

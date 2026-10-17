@@ -1,0 +1,85 @@
+{
+  "body_language": [
+    {
+      "ref": "str",
+      "text_en": "str",
+      "text_hi": "str",
+      "why": [
+        "str"
+      ]
+    }
+  ],
+  "colour_avoid": {
+    "colour_en": "str",
+    "colour_hi": "str",
+    "graha": "str",
+    "ref": "str",
+    "source": "str",
+    "text_en": "str",
+    "text_hi": "str",
+    "why": [
+      "str"
+    ]
+  },
+  "colour_today": {
+    "colour_en": "str",
+    "colour_hi": "str",
+    "graha": "str",
+    "ref": "str",
+    "source": "str",
+    "text_en": "str",
+    "text_hi": "str",
+    "why": [
+      "str"
+    ]
+  },
+  "date": "str",
+  "decisions": [
+    {
+      "category": "str",
+      "kind": "str",
+      "ref": "str",
+      "text_en": "str",
+      "text_hi": "str",
+      "why": [
+        "str"
+      ]
+    }
+  ],
+  "disclaimer_en": "str",
+  "disclaimer_hi": "str",
+  "horas": [
+    {
+      "avoid": "bool",
+      "colour_en": "str",
+      "colour_hi": "str",
+      "colour_source": "str",
+      "end_local": "str",
+      "end_utc": "str",
+      "favourable": "bool",
+      "index": "int",
+      "lord": "str",
+      "ref": "str",
+      "start_local": "str",
+      "start_utc": "str",
+      "text_en": "str",
+      "text_hi": "str",
+      "why": [
+        "str"
+      ]
+    }
+  ],
+  "next_sunrise_local": "str",
+  "next_sunrise_utc": "str",
+  "place": {
+    "lat": "float",
+    "lon": "float"
+  },
+  "sunrise_local": "str",
+  "sunrise_utc": "str",
+  "sunset_local": "str",
+  "sunset_utc": "str",
+  "tz": "str",
+  "vaar": "str",
+  "vaar_lord": "str"
+}

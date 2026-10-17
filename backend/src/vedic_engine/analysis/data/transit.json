@@ -1,0 +1,27 @@
+{
+  "_source": "Gochara (transits) per Phaladeepika (tr. V. Subrahmanya Sastri, 2nd ed. 1950) Adhyaya 26, checked against the cached archive.org text: v. 1 (transits are judged from the natal Moon sign), v. 2 (Jupiter good in the 7th, 9th, 2nd and 5th; Saturn, like Mars, in the 6th and 3rd; all planets in the 11th), v. 5 (Saturn in the 3rd, 11th and 6th, subject to vedha), v. 7 (Jupiter in the 2nd, 11th, 9th, 5th and 7th, subject to vedha), vv. 18-20 (Jupiter's results house by house; v. 18 is partly illegible in the scan), vv. 22-23 (Saturn's results house by house). Vedha (obstruction) is not modelled. Sade Sati (Saturn in the 12th, 1st and 2nd from the Moon) and Dhaiya (4th and 8th) are the engine's phases; the names are later tradition, while the houses' results are Ph Ch 26 vv. 22-23. The deltas added to the monthly rating are this app's interpretive weights, not classical numbers.",
+  "deltas": {"jupiter_good": 10, "jupiter_other": -5, "saturn_good": 10, "saturn_phase": -10, "saturn_other": -5},
+  "rules": {
+    "jupiter_good": {"en": "Jupiter transits the {house} house from your Moon sign, a supportive position in gochara.", "hi": "गुरु आपकी चंद्र राशि से {house} भाव में गोचर कर रहे हैं, जो गोचर में सहायक स्थिति है।", "ref": "Phaladeepika Ch 26 vv. 1, 2, 7, 19-20"},
+    "jupiter_other": {"en": "Jupiter transits the {house} house from your Moon sign, a less supportive position in gochara.", "hi": "गुरु आपकी चंद्र राशि से {house} भाव में गोचर कर रहे हैं, जो गोचर में कम सहायक स्थिति है।", "ref": "Phaladeepika Ch 26 vv. 1, 2, 18-20"},
+    "saturn_good": {"en": "Saturn transits the {house} house from your Moon sign, one of its supportive positions in gochara.", "hi": "शनि आपकी चंद्र राशि से {house} भाव में गोचर कर रहे हैं, जो गोचर में उनकी सहायक स्थितियों में से एक है।", "ref": "Phaladeepika Ch 26 vv. 1, 2, 5, 22-23"},
+    "saturn_other": {"en": "Saturn transits the {house} house from your Moon sign, a position that tends to ask for patience.", "hi": "शनि आपकी चंद्र राशि से {house} भाव में गोचर कर रहे हैं, यह स्थिति प्रायः धैर्य माँगती है।", "ref": "Phaladeepika Ch 26 vv. 1, 2, 22-23"},
+    "sade_sati_rising": {"en": "Sade Sati, rising phase: Saturn in the 12th from your Moon sign; expenses and effort may need watching.", "hi": "साढ़ेसाती का आरंभिक चरण: शनि आपकी चंद्र राशि से 12वें भाव में; खर्च और परिश्रम पर ध्यान देना उचित रहेगा।", "ref": "Phaladeepika Ch 26 vv. 1, 23 (12th house); Sade Sati: later tradition"},
+    "sade_sati_peak": {"en": "Sade Sati, peak phase: Saturn over your Moon sign; health and steady routines deserve care.", "hi": "साढ़ेसाती का मध्य चरण: शनि आपकी चंद्र राशि पर; स्वास्थ्य और नियमित दिनचर्या पर ध्यान दें।", "ref": "Phaladeepika Ch 26 vv. 1, 22 (Janma rasi); Sade Sati: later tradition"},
+    "sade_sati_setting": {"en": "Sade Sati, setting phase: Saturn in the 2nd from your Moon sign; family finances may need care.", "hi": "साढ़ेसाती का अंतिम चरण: शनि आपकी चंद्र राशि से दूसरे भाव में; पारिवारिक धन पर ध्यान देना उचित रहेगा।", "ref": "Phaladeepika Ch 26 vv. 1, 22 (2nd house); Sade Sati: later tradition"},
+    "dhaiya_4th": {"en": "Saturn's Dhaiya (4th from your Moon sign): home and relatives may need attention.", "hi": "शनि की ढैया (चंद्र राशि से चौथा भाव): घर और संबंधियों पर ध्यान देना उचित रहेगा।", "ref": "Phaladeepika Ch 26 vv. 1, 22 (4th house); Dhaiya: later tradition"},
+    "dhaiya_8th": {"en": "Saturn's Dhaiya (8th from your Moon sign): a time to go carefully with health and money.", "hi": "शनि की ढैया (चंद्र राशि से आठवाँ भाव): स्वास्थ्य और धन के मामलों में सावधानी का समय।", "ref": "Phaladeepika Ch 26 vv. 1, 22 (8th house); Dhaiya: later tradition"}
+  },
+  "dasha": {"en": "Dasha period {lords}: score {score} ({nature}).", "hi": "दशा अवधि {lords}: अंक {score} ({nature})।", "ref": "Phaladeepika Ch 20 vv. 29, 41, 42 (period judged from its lords' nature, strength and mutual position)"},
+  "natures": {
+    "favourable": {"en": "favourable", "hi": "अनुकूल"},
+    "mixed": {"en": "mixed", "hi": "मिश्रित"},
+    "challenging": {"en": "challenging", "hi": "चुनौतीपूर्ण"}
+  },
+  "ordinals": {
+    "1": {"en": "1st", "hi": "पहले"}, "2": {"en": "2nd", "hi": "दूसरे"}, "3": {"en": "3rd", "hi": "तीसरे"},
+    "4": {"en": "4th", "hi": "चौथे"}, "5": {"en": "5th", "hi": "पाँचवें"}, "6": {"en": "6th", "hi": "छठे"},
+    "7": {"en": "7th", "hi": "सातवें"}, "8": {"en": "8th", "hi": "आठवें"}, "9": {"en": "9th", "hi": "नौवें"},
+    "10": {"en": "10th", "hi": "दसवें"}, "11": {"en": "11th", "hi": "ग्यारहवें"}, "12": {"en": "12th", "hi": "बारहवें"}
+  }
+}

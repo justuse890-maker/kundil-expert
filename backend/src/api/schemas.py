@@ -159,3 +159,34 @@ class TransitRequest(Request):
     settings: SettingsIn | None = Field(
         None, description="Defaults to natal.settings if natal is given, else the defaults"
     )
+
+
+class AnalysisRequest(KundliRequest):
+    """The `/kundli` body plus the analysis options."""
+
+    gender: Literal["male", "female"] | None = Field(
+        None, description="Used only for the marriage karaka (Venus male, Jupiter female)"
+    )
+    now_utc: AwareDatetime | None = Field(
+        None, description="Start of the 24-month timeline; defaults to the current time"
+    )
+
+
+class DailyRequest(KundliRequest):
+    """The `/kundli` body (the birth chart) plus the day and, optionally, where the user is now.
+
+    `today` is a local civil date at the current place. `current_lat`/`current_lon` default to
+    the birth place (give both or neither); `current_tz` (IANA) defaults to the birth zone (for
+    an LMT birth, local mean time at the current longitude).
+    """
+
+    today: dt.date
+    current_lat: float | None = Field(None, ge=-90.0, le=90.0)
+    current_lon: float | None = Field(None, ge=-180.0, le=180.0)
+    current_tz: str | None = Field(None, min_length=1, description="IANA zone, e.g. Asia/Dubai")
+
+    @model_validator(mode="after")
+    def _both_coordinates(self) -> Self:
+        if (self.current_lat is None) != (self.current_lon is None):
+            raise ValueError("give both current_lat and current_lon, or neither")
+        return self

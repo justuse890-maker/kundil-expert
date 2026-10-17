@@ -1,0 +1,553 @@
+{
+  "areas": {
+    "career": {
+      "score": "int",
+      "statements": [
+        {
+          "ref": "str",
+          "text_en": "str",
+          "text_hi": "str",
+          "why": [
+            "str"
+          ]
+        }
+      ],
+      "summary_en": "str",
+      "summary_hi": "str",
+      "summary_key": "str"
+    },
+    "children": {
+      "score": "int",
+      "statements": [
+        {
+          "ref": "str",
+          "text_en": "str",
+          "text_hi": "str",
+          "why": [
+            "str"
+          ]
+        }
+      ],
+      "summary_en": "str",
+      "summary_hi": "str",
+      "summary_key": "str"
+    },
+    "education": {
+      "score": "int",
+      "statements": [
+        {
+          "ref": "str",
+          "text_en": "str",
+          "text_hi": "str",
+          "why": [
+            "str"
+          ]
+        }
+      ],
+      "summary_en": "str",
+      "summary_hi": "str",
+      "summary_key": "str"
+    },
+    "health": {
+      "score": "int",
+      "statements": [
+        {
+          "ref": "str",
+          "text_en": "str",
+          "text_hi": "str",
+          "why": [
+            "str"
+          ]
+        }
+      ],
+      "summary_en": "str",
+      "summary_hi": "str",
+      "summary_key": "str"
+    },
+    "income": {
+      "score": "int",
+      "statements": [
+        {
+          "ref": "str",
+          "text_en": "str",
+          "text_hi": "str",
+          "why": [
+            "str"
+          ]
+        }
+      ],
+      "summary_en": "str",
+      "summary_hi": "str",
+      "summary_key": "str"
+    },
+    "marriage": {
+      "score": "int",
+      "statements": [
+        {
+          "ref": "str",
+          "text_en": "str",
+          "text_hi": "str",
+          "why": [
+            "str"
+          ]
+        }
+      ],
+      "summary_en": "str",
+      "summary_hi": "str",
+      "summary_key": "str"
+    },
+    "personality": {
+      "score": "int",
+      "statements": [
+        {
+          "ref": "str",
+          "text_en": "str",
+          "text_hi": "str",
+          "why": [
+            "str"
+          ]
+        }
+      ],
+      "summary_en": "str",
+      "summary_hi": "str",
+      "summary_key": "str"
+    },
+    "wealth": {
+      "score": "int",
+      "statements": [
+        {
+          "ref": "str",
+          "text_en": "str",
+          "text_hi": "str",
+          "why": [
+            "str"
+          ]
+        }
+      ],
+      "summary_en": "str",
+      "summary_hi": "str",
+      "summary_key": "str"
+    }
+  },
+  "disclaimer_en": "str",
+  "disclaimer_hi": "str",
+  "functional_roles": {
+    "jupiter": {
+      "houses": [
+        "int"
+      ],
+      "maraka_ref": "null",
+      "node_note": "null",
+      "note": "null",
+      "ref": "str",
+      "role": "str",
+      "roles": [
+        "str"
+      ],
+      "source": "str",
+      "text": "str",
+      "why": [
+        "str"
+      ]
+    },
+    "ketu": {
+      "houses": [
+        null
+      ],
+      "maraka_ref": "null",
+      "node_note": "str",
+      "note": "null",
+      "ref": "str",
+      "role": "str",
+      "roles": [
+        "str"
+      ],
+      "source": "str",
+      "text": "str",
+      "why": [
+        "str"
+      ]
+    },
+    "mars": {
+      "houses": [
+        "int"
+      ],
+      "maraka_ref": "null",
+      "node_note": "null",
+      "note": "null",
+      "ref": "str",
+      "role": "str",
+      "roles": [
+        "str"
+      ],
+      "source": "str",
+      "text": "str",
+      "why": [
+        "str"
+      ]
+    },
+    "mercury": {
+      "houses": [
+        "int"
+      ],
+      "maraka_ref": "null",
+      "node_note": "null",
+      "note": "null",
+      "ref": "str",
+      "role": "str",
+      "roles": [
+        "str"
+      ],
+      "source": "str",
+      "text": "str",
+      "why": [
+        "str"
+      ]
+    },
+    "moon": {
+      "houses": [
+        "int"
+      ],
+      "maraka_ref": "null",
+      "node_note": "null",
+      "note": "null",
+      "ref": "str",
+      "role": "str",
+      "roles": [
+        "str"
+      ],
+      "source": "str",
+      "text": "str",
+      "why": [
+        "str"
+      ]
+    },
+    "rahu": {
+      "houses": [
+        null
+      ],
+      "maraka_ref": "null",
+      "node_note": "str",
+      "note": "null",
+      "ref": "str",
+      "role": "str",
+      "roles": [
+        "str"
+      ],
+      "source": "str",
+      "text": "str",
+      "why": [
+        "str"
+      ]
+    },
+    "saturn": {
+      "houses": [
+        "int"
+      ],
+      "maraka_ref": "str",
+      "node_note": "null",
+      "note": "str",
+      "ref": "str",
+      "role": "str",
+      "roles": [
+        "str"
+      ],
+      "source": "str",
+      "text": "str",
+      "why": [
+        "str"
+      ]
+    },
+    "sun": {
+      "houses": [
+        "int"
+      ],
+      "maraka_ref": "str",
+      "node_note": "null",
+      "note": "str",
+      "ref": "str",
+      "role": "str",
+      "roles": [
+        "str"
+      ],
+      "source": "str",
+      "text": "str",
+      "why": [
+        "str"
+      ]
+    },
+    "venus": {
+      "houses": [
+        "int"
+      ],
+      "maraka_ref": "null",
+      "node_note": "null",
+      "note": "null",
+      "ref": "str",
+      "role": "str",
+      "roles": [
+        "str"
+      ],
+      "source": "str",
+      "text": "str",
+      "why": [
+        "str"
+      ]
+    }
+  },
+  "income_sources": [
+    {
+      "label_en": "str",
+      "label_hi": "str",
+      "planet": "str",
+      "rank": "int",
+      "ref": "str",
+      "roles": [
+        "str"
+      ],
+      "score": "int",
+      "type": "str",
+      "why": [
+        "str"
+      ]
+    }
+  ],
+  "lucky": [
+    {
+      "bases": [
+        "str"
+      ],
+      "graha": "str",
+      "items": [
+        {
+          "kind": "str",
+          "label": "str",
+          "label_hi": "str",
+          "source": "str",
+          "value_en": "str",
+          "value_hi": "str"
+        }
+      ]
+    }
+  ],
+  "meta": {
+    "gender": "null",
+    "lagna_basis": "str",
+    "time_known": "bool",
+    "tz": "str"
+  },
+  "periods": {
+    "best_windows": [
+      {
+        "dasha_score": "float",
+        "end_local": "str",
+        "end_utc": "str",
+        "nature": "str",
+        "reasons": [
+          {
+            "code": "str",
+            "ref": "str",
+            "text_en": "str",
+            "text_hi": "str",
+            "why": [
+              "str"
+            ]
+          }
+        ],
+        "score": "int",
+        "start_local": "str",
+        "start_utc": "str",
+        "transit_score": "float"
+      }
+    ],
+    "challenging_windows": [
+      {
+        "dasha_score": "float",
+        "end_local": "str",
+        "end_utc": "str",
+        "nature": "str",
+        "reasons": [
+          {
+            "code": "str",
+            "ref": "str",
+            "text_en": "str",
+            "text_hi": "str",
+            "why": [
+              "str"
+            ]
+          }
+        ],
+        "score": "int",
+        "start_local": "str",
+        "start_utc": "str",
+        "transit_score": "float"
+      }
+    ],
+    "current": {
+      "antar": {
+        "end_local": "str",
+        "end_utc": "str",
+        "judgement": {
+          "houses": [
+            "int"
+          ],
+          "nature": "str",
+          "reasons": [
+            {
+              "code": "str",
+              "delta": "float",
+              "ref": "str",
+              "text": "str",
+              "why": [
+                "str"
+              ]
+            }
+          ],
+          "score": "int"
+        },
+        "lord": "str",
+        "start_local": "str",
+        "start_utc": "str"
+      },
+      "maha": {
+        "end_local": "str",
+        "end_utc": "str",
+        "judgement": {
+          "houses": [
+            "int"
+          ],
+          "nature": "str",
+          "reasons": [
+            {
+              "code": "str",
+              "delta": "float",
+              "ref": "str",
+              "text": "str",
+              "why": [
+                "str"
+              ]
+            }
+          ],
+          "score": "int"
+        },
+        "lord": "str",
+        "start_local": "str",
+        "start_utc": "str"
+      },
+      "pratyantar": {
+        "end_local": "str",
+        "end_utc": "str",
+        "judgement": {
+          "houses": [
+            "int"
+          ],
+          "nature": "str",
+          "reasons": [
+            {
+              "code": "str",
+              "delta": "float",
+              "ref": "str",
+              "text": "str",
+              "why": [
+                "str"
+              ]
+            }
+          ],
+          "score": "int"
+        },
+        "lord": "str",
+        "start_local": "str",
+        "start_utc": "str"
+      }
+    },
+    "months": [
+      {
+        "dasha_score": "float",
+        "end_local": "str",
+        "end_utc": "str",
+        "nature": "str",
+        "reasons": [
+          {
+            "code": "str",
+            "ref": "str",
+            "text_en": "str",
+            "text_hi": "str",
+            "why": [
+              "str"
+            ]
+          }
+        ],
+        "score": "int",
+        "start_local": "str",
+        "start_utc": "str",
+        "transit_score": "float"
+      }
+    ],
+    "now_local": "str",
+    "now_utc": "str",
+    "timeline": [
+      {
+        "advice_en": "str",
+        "advice_hi": "str",
+        "advice_key": "str",
+        "areas": [
+          "str"
+        ],
+        "end_local": "str",
+        "end_utc": "str",
+        "judgement": {
+          "houses": [
+            "int"
+          ],
+          "nature": "str",
+          "reasons": [
+            {
+              "code": "str",
+              "delta": "float",
+              "ref": "str",
+              "text": "str",
+              "why": [
+                "str"
+              ]
+            }
+          ],
+          "score": "int"
+        },
+        "level": "str",
+        "lords": [
+          "str"
+        ],
+        "nature": "str",
+        "ref": "str",
+        "score": "int",
+        "start_local": "str",
+        "start_utc": "str",
+        "why": [
+          "str"
+        ]
+      }
+    ],
+    "transits": [
+      {
+        "code": "str",
+        "delta": "int",
+        "end_local": "str",
+        "end_utc": "str",
+        "graha": "str",
+        "house_from_moon": "int",
+        "rashi": "int",
+        "rashi_key": "str",
+        "ref": "str",
+        "start_local": "str",
+        "start_utc": "str",
+        "text_en": "str",
+        "text_hi": "str",
+        "why": [
+          "str"
+        ]
+      }
+    ],
+    "window_end_local": "str",
+    "window_end_utc": "str"
+  }
+}
