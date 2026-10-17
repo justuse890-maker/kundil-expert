@@ -413,6 +413,33 @@
     .notes-line { font-size: 11px; color: #888; margin-top: 12px; }
     .analysis-pending { padding: 18px; text-align: center; font-size: 13px; color: rgba(30,41,59,0.55);
       background: rgba(212,175,55,0.07); border: 1px dashed rgba(212,175,55,0.5); border-radius: 12px; }
+    .chip { overflow-wrap: anywhere; max-width: 100%; }
+    .ref-badge { overflow-wrap: anywhere; max-width: 100%; white-space: normal; }
+    .sub-head { font-size: 11px; color: var(--maroon); font-weight: 600; margin: 12px 0 4px; }
+    .area-summary { font-size: 12px; color: rgba(30,41,59,0.7); margin: 6px 0; }
+    .score-row { display: flex; align-items: center; gap: 10px; margin: 4px 0 8px; }
+    .score-bar { flex: 1; min-width: 0; height: 10px; border-radius: 999px; background: rgba(30,41,59,0.08); overflow: hidden; }
+    .score-fill { display: block; height: 100%; border-radius: 999px; }
+    .score-fill.green { background: var(--emerald); } .score-fill.amber { background: var(--amber); } .score-fill.red { background: var(--red); }
+    .score-num { font-size: 12px; font-weight: 700; color: var(--navy); white-space: nowrap; }
+    .chandra-note { background: rgba(245,158,11,0.1); border-radius: 10px; padding: 6px; }
+    .reasons { margin-top: 8px; display: grid; gap: 6px; }
+    .reason { padding: 6px 8px; border-left: 3px solid var(--gold); background: rgba(212,175,55,0.06); border-radius: 0 8px 8px 0; min-width: 0; overflow-wrap: anywhere; }
+    .advice { font-size: 12px; margin: 6px 0 0; overflow-wrap: anywhere; }
+    .period-path { font-size: 18px; font-weight: 800; color: var(--maroon); margin: 0 0 8px; }
+    .period-level { padding: 8px 0; border-bottom: 1px solid rgba(30,41,59,0.08); }
+    .period-level:last-child { border-bottom: none; }
+    .scoring-note { font-size: 11px; font-style: italic; color: rgba(30,41,59,0.65); margin: 0 0 10px; overflow-wrap: anywhere; }
+    .month-strip { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 4px; margin-bottom: 10px; }
+    .month { border: 2px solid transparent; border-radius: 8px; padding: 8px 2px; font-size: 11px; font-weight: 600; cursor: pointer; color: var(--navy); min-width: 0; }
+    .month.favourable { background: rgba(16,185,129,0.25); } .month.mixed { background: rgba(245,158,11,0.25); } .month.challenging { background: rgba(239,68,68,0.25); }
+    .month.sel { border-color: var(--maroon); }
+    .month-detail { padding: 10px; border-radius: 12px; background: rgba(30,41,59,0.04); margin-bottom: 8px; min-width: 0; }
+    .hora-table td, .hora-table th { vertical-align: top; }
+    .hora-table tr.hora-now td { background: rgba(212,175,55,0.25); }
+    .hora-text { font-size: 12px; margin-top: 4px; overflow-wrap: anywhere; }
+    .hora-table details summary { font-size: 11px; cursor: pointer; color: var(--maroon); }
+    .table-wrap { overflow-x: auto; max-width: 100%; }
     .chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
     .chip { font-size: 10px; padding: 2px 8px; border-radius: 999px; background: rgba(30,41,59,0.06); color: rgba(30,41,59,0.7); }
     .honesty-line { text-align: center; font-size: 12px; font-style: italic; color: rgba(30,41,59,0.6); padding: 12px 16px 0; }

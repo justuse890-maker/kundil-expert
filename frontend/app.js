@@ -154,132 +154,242 @@ function generateKundliSVG(k) {
 }
 
 // ---- analysis rendering (contract: /analysis and /daily) ------------------
-const PENDING_HTML = '<div class="analysis-pending" data-pending="1">Detailed analysis is being prepared</div>';
+// Every sentence shown below comes from the API response; this file only lays it out.
+// Reasons are id-based: judgements carry ids into periods.reasons, month/window reasons carry
+// {source, share} pointers to timeline/transit ids, advice texts live in periods.advice.
 
-function pendingOrError(state) {
+const FORCED_NOW = (() => {   // test determinism only: ?now=<ISO instant> is forwarded as now_utc
+  const raw = new URLSearchParams(location.search).get('now');
+  return raw && !isNaN(Date.parse(raw)) ? raw : null;
+})();
+function nowMs() { return FORCED_NOW ? Date.parse(FORCED_NOW) : Date.now(); }
+
+const AREA_ORDER = [
+  ['personality', '🧬', 'gold', 'Personality & Self', '🌟'],
+  ['career', '💼', 'emerald', 'Career', '🎯'],
+  ['income', '💰', 'gold', 'Income', '💵'],
+  ['marriage', '💍', 'purple', 'Marriage & Relationships', '💑'],
+  ['health', '❤️', 'emerald', 'Health', '💪'],
+  ['wealth', '💎', 'amber', 'Wealth & Finance', '📈'],
+  ['children', '👶', 'gold', 'Children', '🧸'],
+  ['education', '📚', 'blue', 'Education', '📖'],
+];
+const NATURE_BADGE = { favourable: 'green', mixed: 'amber', challenging: 'red' };
+let selectedMonth = 0;
+
+/** Text from an object carrying `en` / `hi`. */
+function enhi(o) { return (lang === 'hi' && o.hi) || o.en || ''; }
+
+function statusHtml(state) {
   if (state.status === 'error') {
-    return `<div class="analysis-pending" data-pending="1">Detailed analysis is unavailable right now (${esc(state.message)})</div>`;
+    return `<div class="analysis-pending" data-state="error">Analysis is unavailable right now (${esc(state.message)})</div>`;
   }
-  return PENDING_HTML;
-}
-
-function whyText(w) {
-  if (w == null) return '';
-  if (typeof w === 'string' || typeof w === 'number') return String(w);
-  return loc(w, 'text') || loc(w, 'label') || w.fact || w.name || '';
+  return '<div class="analysis-pending" data-state="loading">Loading…</div>';
 }
 
 function chipsHtml(why, ref) {
-  const chips = (Array.isArray(why) ? why : (why ? [why] : [])).map(whyText).filter(Boolean)
+  const chips = (Array.isArray(why) ? why : (why ? [why] : [])).filter(w => w != null && w !== '')
     .map(t => `<span class="chip">${esc(t)}</span>`).join('');
-  const badge = ref ? `<span class="badge purple" title="Source">📖 ${esc(ref)}</span>` : '';
+  const badge = ref ? `<span class="badge purple ref-badge" title="Source">📖 ${esc(ref)}</span>` : '';
   return chips || badge ? `<div class="chips">${chips}${badge}</div>` : '';
 }
 
-function statementHtml(st, icon) {
-  const text = typeof st === 'string' ? st : loc(st, 'text');
+function statementHtml(st, icon, extraCls) {
+  const text = loc(st, 'text');
   if (!text) return '';
-  return `<div class="life-item"><div class="life-item-icon">${icon || '✦'}</div><div class="life-item-content">
-    <div class="life-item-desc">${esc(text)}</div>${typeof st === 'object' ? chipsHtml(st.why, st.ref) : ''}</div></div>`;
+  return `<div class="life-item ${extraCls || ''}"><div class="life-item-icon">${icon || '✦'}</div><div class="life-item-content">
+    <div class="life-item-desc">${esc(text)}</div>${chipsHtml(st.why, st.ref)}</div></div>`;
 }
 
-function areaBody(area, icon) {
-  if (!area) return '';
-  const scoreRow = area.score != null
-    ? `<div class="data-row"><span class="data-label">Score</span><span class="data-value">${esc(area.score)}</span></div>` : '';
-  const sts = (area.statements || []).map(s => statementHtml(s, icon)).join('');
-  return scoreRow + sts;
+function natureBadge(nature) {
+  return `<span class="badge ${NATURE_BADGE[nature] || 'gold'}">${pretty(nature)}</span>`;
 }
 
-function analysisCardBody(areaKeys, icon) {
-  if (analysisState.status !== 'ok') return pendingOrError(analysisState);
-  const areas = analysisState.data.areas || {};
-  const html = areaKeys.map(k => areaBody(areas[k], icon)).join('');
-  return html || PENDING_HTML;
+function signed(n) { return esc((Number(n) > 0 ? '+' : '') + n); }
+
+function scoreBarHtml(score) {
+  const pct = Math.max(0, Math.min(100, Number(score) || 0));
+  const tone = pct >= 60 ? 'green' : pct >= 40 ? 'amber' : 'red';
+  return `<div class="score-row"><div class="score-bar" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${esc(pct)}"><span class="score-fill ${tone}" style="width:${pct}%"></span></div><span class="score-num">${esc(score)}/100</span></div>`;
+}
+
+function areaCard(key, icon, cls, title, stIcon, delay) {
+  if (analysisState.status !== 'ok') return card(icon, cls, title, statusHtml(analysisState), '', delay, key);
+  const a = (analysisState.data.areas || {})[key];
+  if (!a) return '';
+  const moon = (analysisState.data.meta || {}).lagna_basis === 'moon';
+  const sts = (a.statements || []).map((s, i) =>
+    statementHtml(s, stIcon, moon && i === 0 ? 'chandra-note' : '')).join('');
+  const body = scoreBarHtml(a.score) + (loc(a, 'summary') ? `<p class="area-summary">${esc(loc(a, 'summary'))}</p>` : '') + sts +
+    (key === 'income' ? incomeSourcesHtml() : '');
+  return card(icon, cls, title, body, '', delay, key);
 }
 
 function incomeSourcesHtml() {
-  if (analysisState.status !== 'ok') return '';
   const src = analysisState.data.income_sources || [];
   if (!src.length) return '';
-  return `<p style="font-size:11px;color:var(--maroon);font-weight:600;margin:12px 0 4px">Income sources</p>` + src.map(s => `
-    <div class="life-item"><div class="life-item-icon">💰</div><div class="life-item-content">
-      <div class="life-item-title">${loc(s, 'label') ? esc(loc(s, 'label')) : pretty(s.type)}${s.score != null ? ` <span class="badge gold">${esc(s.score)}</span>` : ''}</div>
-      ${chipsHtml(s.why, s.ref)}</div></div>`).join('');
+  return `<p class="sub-head">Income sources (ranked)</p><div data-testid="income-sources">` + src.map(s => `
+    <div class="life-item"><div class="life-item-icon">${esc(s.rank)}</div><div class="life-item-content">
+      <div class="life-item-title">${esc(loc(s, 'label'))} <span class="badge gold">${esc(s.score)}</span> <span class="badge blue">${grahaName(s.planet)}</span></div>
+      ${chipsHtml(s.why, s.ref)}</div></div>`).join('') + '</div>';
 }
 
 function luckyHtml() {
-  if (analysisState.status !== 'ok') return pendingOrError(analysisState);
-  const items = analysisState.data.lucky || [];
-  if (!items.length) return PENDING_HTML;
-  return items.map(it => {
-    if (typeof it === 'string') return `<div class="data-row"><span class="data-value">${esc(it)}</span></div>`;
-    const label = pretty(it.type || it.kind || '');  // already escaped
-    const val = loc(it, 'label') || loc(it, 'text') || loc(it, 'value') || (Array.isArray(it.values) ? it.values.join(', ') : '');
-    return `<div class="data-row"><span class="data-label">${label}</span><span class="data-value">${esc(val)}</span></div>${chipsHtml(it.why, it.ref)}`;
-  }).join('');
+  if (analysisState.status !== 'ok') return statusHtml(analysisState);
+  const groups = analysisState.data.lucky || [];
+  return groups.map(g => `<div class="lucky-group"><p class="sub-head">${grahaName(g.graha)} <small>(${(g.bases || []).map(pretty).join(', ')})</small></p>` +
+    (g.items || []).map(it => `<div class="data-row"><span class="data-label">${pretty(it.kind)}</span>
+      <span class="data-value">${esc(loc(it, 'value'))}</span></div>
+      <div class="chips"><span class="chip">${esc(loc(it, 'label'))}</span><span class="badge purple ref-badge">📖 ${esc(it.source)}</span></div>`).join('') +
+    '</div>').join('');
 }
 
-function windowHtml(w, tone) {
-  if (!w || typeof w !== 'object') return '';
-  const rawTitle = loc(w, 'label') || loc(w, 'title');
-  const title = rawTitle ? esc(rawTitle) : [w.maha, w.antar].filter(Boolean).map(grahaName).join(' – ') || (w.lord ? grahaName(w.lord) : '');
-  const start = w.start_local || w.start_utc, end = w.end_local || w.end_utc;
-  const dates = start ? `${localDate(start)}${end ? ' → ' + localDate(end) : ''}` : '';
-  const text = loc(w, 'text') || loc(w, 'advice');
-  const cls = tone === 'good' ? 'safe' : tone === 'bad' ? 'danger' : 'warning';
-  const ind = tone === 'good' ? '🟢' : tone === 'bad' ? '🔴' : '🟡';
-  const stmts = Array.isArray(w.statements) ? w.statements.map(s => statementHtml(s)).join('') : '';
-  return `<div class="dosha-card ${cls}"><div class="dosha-indicator">${ind}</div><div>
-    <div class="dosha-name">${title}</div>
-    <div class="dosha-detail">${esc(dates)}${text ? '<br>' + esc(text) : ''}${stmts}${chipsHtml(w.why, w.ref)}</div></div></div>`;
+// ---- id resolution ----------------------------------------------------------
+function reasonTable() { return ((analysisState.data || {}).periods || {}).reasons || {}; }
+function adviceFor(key) {
+  const a = (((analysisState.data || {}).periods || {}).advice || {})[key];
+  return a ? enhi(a) : '';
+}
+function sourceIndex() {
+  const p = (analysisState.data || {}).periods || {};
+  const idx = {};
+  (p.timeline || []).forEach(t => { idx[t.id] = { kind: 'timeline', item: t }; });
+  (p.transits || []).forEach(t => { idx[t.id] = { kind: 'transit', item: t }; });
+  return idx;
+}
+function lordsTitle(lords) { return (lords || []).map(grahaName).join(' › '); }
+
+/** Top reasons of a judgement: ids -> {text, delta, why, ref} from periods.reasons. */
+function judgementReasonsHtml(j) {
+  const table = reasonTable();
+  const rows = ((j || {}).reasons || []).map(id => table[id]).filter(Boolean).map(r =>
+    `<div class="reason"><div class="life-item-desc">${esc(r.text)} <span class="badge ${r.delta >= 0 ? 'green' : 'red'}">${signed(r.delta)}</span></div>${chipsHtml(r.why, r.ref)}</div>`).join('');
+  return rows ? `<div class="reasons">${rows}</div>` : '';
+}
+
+/** A month/window reason {source, share} resolved through timeline and transit ids. */
+function sourceReasonHtml(r, idx) {
+  const hit = idx[r.source];
+  if (!hit) return '';
+  const it = hit.item;
+  const share = `<span class="badge gold">${esc(Math.round((r.share || 0) * 100))}%</span>`;
+  if (hit.kind === 'transit') {
+    return `<div class="reason"><div class="life-item-desc"><b>${grahaName(it.graha)} transit</b> ${share} ${esc(loc(it, 'text'))}</div>${chipsHtml(it.why, it.ref)}</div>`;
+  }
+  return `<div class="reason"><div class="life-item-desc"><b>${pretty(it.level)} ${lordsTitle(it.lords)}</b> ${natureBadge(it.nature)} ${share}</div>
+    ${judgementReasonsHtml(it.judgement)}${chipsHtml(it.why, it.ref)}</div>`;
+}
+function monthReasonsHtml(m, idx) {
+  return (m.reasons || []).map(r => sourceReasonHtml(r, idx)).join('');
+}
+
+// ---- current period ---------------------------------------------------------
+function periodLevelHtml(label, lv) {
+  if (!lv) return '';
+  const adv = adviceFor('advice.' + lv.judgement.nature);
+  return `<div class="period-level" data-level="${esc(label.toLowerCase())}">
+    <div class="data-row"><span class="data-label">${esc(label)}</span>
+      <span class="data-value">${grahaName(lv.lord)} ${natureBadge(lv.judgement.nature)} <span class="badge gold">${signed(lv.judgement.score)}</span></span></div>
+    <div class="dosha-detail">${esc(localDate(lv.start_local))} → ${esc(localDate(lv.end_local))}</div>
+    ${judgementReasonsHtml(lv.judgement)}
+    ${adv ? `<p class="advice">💡 ${esc(adv)}</p>` : ''}</div>`;
 }
 
 function periodCurrentHtml() {
-  if (analysisState.status !== 'ok') return pendingOrError(analysisState);
+  if (analysisState.status !== 'ok') return statusHtml(analysisState);
   const cur = (analysisState.data.periods || {}).current;
-  if (!cur || typeof cur !== 'object') return PENDING_HTML;
-  let h = '';
-  if (cur.maha) h += `<div class="data-row"><span class="data-label">Mahadasha</span><span class="data-value" style="font-size:16px">${grahaName(cur.maha)}</span></div>`;
-  if (cur.antar) h += `<div class="data-row"><span class="data-label">Antardasha</span><span class="data-value">${grahaName(cur.antar)}</span></div>`;
-  if (cur.end_local || cur.end_utc) h += `<div class="data-row"><span class="data-label">Period Ends</span><span class="data-value">${esc(localDate(cur.end_local || cur.end_utc))}</span></div>`;
-  const text = loc(cur, 'text');
-  const sts = (cur.statements || []).map(s => statementHtml(s)).join('');
-  if (text || sts) h += `<div class="prediction-section"><div class="prediction-title">🔮 Period Effect</div>${text ? `<p class="prediction-text">${esc(text)}</p>` : ''}${sts}</div>`;
-  return h || PENDING_HTML;
+  if (!cur) return '';
+  return `<p class="period-path" data-testid="period-path">${[cur.maha, cur.antar, cur.pratyantar].filter(Boolean).map(l => grahaName(l.lord)).join(' › ')}</p>` +
+    periodLevelHtml('Mahadasha', cur.maha) + periodLevelHtml('Antardasha', cur.antar) + periodLevelHtml('Pratyantar', cur.pratyantar);
 }
 
-function upcomingHtml() {
-  if (analysisState.status !== 'ok') return pendingOrError(analysisState);
+// ---- 24-month timeline -------------------------------------------------------
+function monthLabel(m) {
+  const mm = /^(\d{4})-(\d{2})/.exec(m.start_local || '');
+  const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return mm ? `${MON[Number(mm[2]) - 1]} ${mm[1].slice(2)}` : '';
+}
+
+function monthDetailHtml(i) {
+  const m = (analysisState.data.periods.months || [])[i];
+  if (!m) return '';
+  return `<div class="month-detail" data-testid="month-detail">
+    <div class="data-row"><span class="data-label">${esc(localDate(m.start_local))} → ${esc(localDate(m.end_local))}</span>
+      <span class="data-value">${natureBadge(m.nature)} <span class="badge gold">${signed(m.score)}</span></span></div>
+    <div class="dosha-detail">Dasha ${signed(m.dasha_score)} · Transit ${signed(m.transit_score)}</div>
+    <div class="reasons">${monthReasonsHtml(m, sourceIndex())}</div></div>`;
+}
+
+function windowHtml(w, tone, idx) {
+  const cls = tone === 'good' ? 'safe' : 'danger';
+  const ind = tone === 'good' ? '🟢' : '🔴';
+  return `<div class="dosha-card ${cls}"><div class="dosha-indicator">${ind}</div><div>
+    <div class="dosha-name">${esc(localDate(w.start_local))} → ${esc(localDate(w.end_local))} ${natureBadge(w.nature)} <span class="badge gold">${signed(w.score)}</span></div>
+    <details class="win-why"><summary>Why</summary><div class="reasons">${monthReasonsHtml(w, idx)}</div></details></div></div>`;
+}
+
+function timelineHtml() {
+  if (analysisState.status !== 'ok') return statusHtml(analysisState);
   const p = analysisState.data.periods || {};
-  const best = (p.best_windows || []).map(w => windowHtml(w, 'good')).join('');
-  const hard = (p.challenging_windows || []).map(w => windowHtml(w, 'bad')).join('');
-  const rest = best || hard ? '' : (p.timeline || []).map(w => windowHtml(w, 'mid')).join('');
-  return (best + hard + rest) || PENDING_HTML;
+  const idx = sourceIndex();
+  const sn = p.scoring_note;
+  const note = sn ? `<p class="scoring-note" data-testid="scoring-note">${esc(enhi(sn))}${sn.ref ? ` <span class="badge purple ref-badge">📖 ${esc(sn.ref)}</span>` : ''}</p>` : '';
+  const strip = (p.months || []).map((m, i) =>
+    `<button type="button" class="month ${esc(m.nature)}${i === selectedMonth ? ' sel' : ''}" data-i="${i}" data-nature="${esc(m.nature)}" aria-pressed="${i === selectedMonth}" title="${esc(m.nature)} ${esc(m.score)}">${esc(monthLabel(m))}</button>`).join('');
+  return `${note}<div class="month-strip" data-testid="month-strip">${strip}</div>
+    <div id="monthDetail">${monthDetailHtml(selectedMonth)}</div>
+    <p class="sub-head">Best windows</p>${(p.best_windows || []).map(w => windowHtml(w, 'good', idx)).join('')}
+    <p class="sub-head">Challenging windows</p>${(p.challenging_windows || []).map(w => windowHtml(w, 'bad', idx)).join('')}`;
+}
+
+// ---- today's guidance (/daily) -----------------------------------------------
+function horaTableHtml(d) {
+  const now = nowMs();
+  const rows = (d.horas || []).map(h => {
+    const cur = now >= ms(h.start_utc) && now < ms(h.end_utc);
+    const flag = h.favourable ? '<span class="badge green">Favourable</span>' : h.avoid ? '<span class="badge red">Avoid</span>' : '<span class="badge gold">Neutral</span>';
+    return `<tr class="${cur ? 'hora-now' : ''}" data-current="${cur}"><td>${esc(h.index)}</td>
+      <td>${grahaName(h.lord)}${cur ? ' <span class="badge blue">Now</span>' : ''}</td>
+      <td>${esc(localTime(h.start_local))}–${esc(localTime(h.end_local))}</td>
+      <td>${flag}<div class="hora-text">${esc(loc(h, 'text'))}</div>
+      <details><summary>Why</summary>${chipsHtml(h.why, h.ref)}<div class="chips"><span class="chip">${esc(loc(h, 'colour'))}</span></div></details></td></tr>`;
+  }).join('');
+  return `<div class="table-wrap"><table class="house-table hora-table" data-testid="hora-table"><thead><tr><th>#</th><th>Hora</th><th>Time</th><th>Guidance</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+function todayHtml() {
+  if (dailyState.status !== 'ok') return statusHtml(dailyState);
+  const d = dailyState.data;
+  return `<div class="data-row"><span class="data-label">Vaar</span><span class="data-value" data-testid="vaar">${VAAR_NAMES[d.vaar] ? esc(VAAR_NAMES[d.vaar]) + ' (' + pretty(d.vaar) + ')' : pretty(d.vaar)}</span></div>
+    <div class="dosha-detail">Sunrise ${esc(localTime(d.sunrise_local))} · Sunset ${esc(localTime(d.sunset_local))} · ${esc(d.tz)}</div>
+    ${horaTableHtml(d)}`;
+}
+
+function colourBlock(c, icon, title) {
+  if (!c) return '';
+  return `<div class="life-item"><div class="life-item-icon">${icon}</div><div class="life-item-content">
+    <div class="life-item-title">${title}: ${esc(loc(c, 'colour'))}</div>
+    <div class="life-item-desc">${esc(loc(c, 'text'))}</div>${chipsHtml(c.why, c.ref)}</div></div>`;
 }
 
 function dailyColourHtml() {
-  if (dailyState.status !== 'ok') return pendingOrError(dailyState);
+  if (dailyState.status !== 'ok') return statusHtml(dailyState);
   const d = dailyState.data;
-  let h = '';
-  if (d.vaar) h += `<div class="data-row"><span class="data-label">Vaar</span><span class="data-value">${VAAR_NAMES[d.vaar] || pretty(d.vaar)}</span></div>`;
-  const colour = v => (v && typeof v === 'object') ? loc(v, 'label') || loc(v, 'name') || loc(v, 'colour') : v;
-  if (d.colour_today) h += `<div class="life-item"><div class="life-item-icon">🎨</div><div class="life-item-content"><div class="life-item-title">Colour Today</div><div class="life-item-desc">${esc(Array.isArray(d.colour_today) ? d.colour_today.map(colour).join(', ') : colour(d.colour_today))}</div></div></div>`;
-  if (d.colour_avoid) h += `<div class="life-item"><div class="life-item-icon">🚫</div><div class="life-item-content"><div class="life-item-title">Avoid</div><div class="life-item-desc">${esc(Array.isArray(d.colour_avoid) ? d.colour_avoid.map(colour).join(', ') : colour(d.colour_avoid))}</div></div></div>`;
-  (d.horas || []).forEach(hr => {
-    h += `<div class="data-row"><span class="data-label">${grahaName(hr.lord)} hora ${esc(localTime(hr.start_local))}–${esc(localTime(hr.end_local))}</span>
-      <span class="data-value"><span class="badge ${hr.favourable ? 'green' : 'amber'}">${esc(loc(hr, 'colour'))}</span></span></div>`;
-  });
-  (d.body_language || []).forEach(b => { h += statementHtml(b, '🤝'); });
-  return h || PENDING_HTML;
+  return colourBlock(d.colour_today, '🎨', 'Colour today') + colourBlock(d.colour_avoid, '🚫', 'Colour to avoid') +
+    (d.body_language || []).map(b => statementHtml(b, '🤝')).join('');
 }
 
 function decisionsHtml() {
-  if (dailyState.status !== 'ok') return pendingOrError(dailyState);
-  const ds = dailyState.data.decisions || [];
-  if (!ds.length) return PENDING_HTML;
-  return ds.map(d => `<div class="life-section"><h4>📌 ${esc(loc(d, 'area') || loc(d, 'title')) || pretty(d.type || '')}</h4>
-    <p class="prediction-text">${esc(loc(d, 'text') || loc(d, 'advice'))}</p>${chipsHtml(d.why, d.ref)}</div>`).join('');
+  if (dailyState.status !== 'ok') return statusHtml(dailyState);
+  return (dailyState.data.decisions || []).map(d => `<div class="life-section"><h4>📌 ${pretty(d.category)} ${natureBadge(d.kind)}</h4>
+    <p class="prediction-text">${esc(loc(d, 'text'))}</p>${chipsHtml(d.why, d.ref)}</div>`).join('');
+}
+
+function renderHonesty() {
+  const src = analysisState.status === 'ok' ? analysisState.data : dailyState.status === 'ok' ? dailyState.data : null;
+  if (!src) return;
+  const el = document.getElementById('honesty');
+  el.textContent = lang === 'hi' ? src.disclaimer_hi : src.disclaimer_en;
 }
 
 // ---- render ----------------------------------------------------------------
@@ -298,7 +408,7 @@ function renderBanner(k) {
 function renderResults() {
   if (!kundliData) return;
   const k = kundliData;
-  const now = Date.now();
+  const now = nowMs();
   const m = birthMeta;
 
   ['navOverview', 'navHouses', 'navDasha', 'navDoshas', 'navPredictions', 'tabOverview', 'tabHouses', 'tabDasha', 'tabPred'].forEach(id => {
@@ -403,7 +513,6 @@ function renderResults() {
   document.getElementById('overviewContent').innerHTML = overviewHTML;
 
   // ---- HOUSES ----
-  const housePending = analysisState.status === 'ok' ? '' : pendingOrError(analysisState);
   const housesHTML = `<div class="dashboard-grid">
     <div class="result-card span-3">
       <div class="card-header">
@@ -440,10 +549,6 @@ function renderResults() {
         <div class="data-row"><span class="data-label">Occupants</span><span class="data-value">${b.occupants.length ? b.occupants.map(grahaName).join(', ') : 'None'}</span></div>
         <div class="data-row"><span class="data-label">Aspected By</span><span class="data-value">${b.aspected_by.length ? b.aspected_by.map(grahaName).join(', ') : 'None'}</span></div>
         <div class="data-row"><span class="data-label">Karaka</span><span class="data-value">${b.karakas.map(grahaName).join(' / ')}</span></div>
-        <div class="prediction-section">
-          <div class="prediction-title">📖 House ${esc(b.house)} Reading</div>
-          ${housePending || houseReadingHtml(b.house)}
-        </div>
       </div>`;
     }).join('')}
   </div>`;
@@ -463,7 +568,7 @@ function renderResults() {
         return `<div class="dasha-period ${isActive ? 'active-period' : ''}" data-testid="maha-row" style="opacity:${isPast ? '0.6' : '1'}">
           <div class="dasha-dot" style="background:${isActive ? 'var(--emerald)' : isPast ? '#ccc' : 'var(--gold)'}"></div>
           <div class="dasha-lord">${grahaName(d.lord)}</div>
-          <div class="dasha-dates">${localDate(d.start_local)} → ${localDate(d.end_local)} (${yearsBetween(d.start_utc, d.end_utc).toFixed(1)} yrs)</div>
+          <div class="dasha-dates">${esc(localDate(d.start_local))} → ${esc(localDate(d.end_local))} (${yearsBetween(d.start_utc, d.end_utc).toFixed(1)} yrs)</div>
           <div class="dasha-status" style="color:${isActive ? 'var(--emerald)' : isPast ? '#999' : 'var(--gold)'}">${isActive ? '● ACTIVE' : isPast ? 'Past' : 'Upcoming'}</div>
         </div>
         ${isActive && d.children ? `<div style="margin-left:24px;margin-bottom:12px">
@@ -473,7 +578,7 @@ function renderResults() {
             return `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;font-size:12px;border-radius:8px;margin:4px 0;background:${adActive ? 'rgba(16,185,129,0.08)' : 'transparent'}">
               <span style="width:6px;height:6px;border-radius:50%;background:${adActive ? 'var(--emerald)' : '#ddd'};flex-shrink:0"></span>
               <span style="font-weight:600;min-width:60px">${grahaName(ad.lord)}</span>
-              <span style="color:#888;flex:1">${localDate(ad.start_local)} → ${localDate(ad.end_local)}</span>
+              <span style="color:#888;flex:1">${esc(localDate(ad.start_local))} → ${esc(localDate(ad.end_local))}</span>
               ${adActive ? '<span style="color:var(--emerald);font-weight:700;font-size:10px">● NOW</span>' : ''}
             </div>`;
           }).join('')}
@@ -497,13 +602,6 @@ function renderResults() {
 
   // ---- LIFE ANALYSIS ----
   renderPredictions();
-}
-
-function houseReadingHtml(house) {
-  const byHouse = (analysisState.data && analysisState.data.houses) || {};
-  const entry = byHouse[house] || byHouse[String(house)];
-  if (entry) return (entry.statements || []).map(s => statementHtml(s)).join('') || PENDING_HTML;
-  return PENDING_HTML;
 }
 
 function doshasHtml(k, now) {
@@ -545,8 +643,8 @@ function doshasHtml(k, now) {
         <div>
           <div class="dosha-name">Sade Sati / Dhaiya — ${activeSS ? pretty(activeSS.kind) : 'Not active now'}</div>
           <div class="dosha-detail">
-            ${activeSS ? `Active ${localDate(activeSS.start_local)} → ${localDate(activeSS.end_local)}${ssIsSade ? ". Saturn's 7.5 year transit over natal Moon." : '.'}` : 'Saturn is not currently in a Sade Sati or Dhaiya phase for this chart.'}
-            ${nextSS.length ? '<br>Upcoming: ' + nextSS.map(p => `${pretty(p.kind)} (${localDate(p.start_local)} → ${localDate(p.end_local)})`).join('; ') : ''}
+            ${activeSS ? `Active ${esc(localDate(activeSS.start_local))} → ${esc(localDate(activeSS.end_local))}${ssIsSade ? ". Saturn's 7.5 year transit over natal Moon." : '.'}` : 'Saturn is not currently in a Sade Sati or Dhaiya phase for this chart.'}
+            ${nextSS.length ? '<br>Upcoming: ' + nextSS.map(p => `${pretty(p.kind)} (${esc(localDate(p.start_local))} → ${esc(localDate(p.end_local))})`).join('; ') : ''}
           </div>
         </div>
       </div>
@@ -571,42 +669,37 @@ function doshasHtml(k, now) {
   </div>`;
 }
 
-function card(icon, cls, title, body, extra, delay) {
-  return `<div class="result-card ${extra || ''}" style="animation-delay:${delay}s">
+function card(icon, cls, title, body, extra, delay, key) {
+  return `<div class="result-card ${extra || ''}" style="animation-delay:${delay}s"${key ? ` data-area="${esc(key)}"` : ''}>
     <div class="card-header"><div class="card-icon ${cls}">${icon}</div><div><div class="card-title">${title}</div></div></div>
     <div data-analysis="${esc(title)}">${body}</div></div>`;
 }
 
 function renderPredictions() {
   if (!kundliData) return;
+  const areaCards = AREA_ORDER.map(([key, icon, cls, title, stIcon], i) => areaCard(key, icon, cls, title, stIcon, 0.1 + i * 0.05)).join('');
   const html = `<div class="dashboard-grid">
-    ${card('🧬', 'gold', 'Personality & Self', analysisCardBody(['personality'], '🌟'), '', 0.1)}
-    ${card('💼', 'emerald', 'Career & Income', analysisCardBody(['career', 'income'], '🎯') + incomeSourcesHtml(), '', 0.2)}
-    ${card('💍', 'purple', 'Marriage & Relationships', analysisCardBody(['marriage'], '💑'), '', 0.3)}
-    ${card('💎', 'amber', 'Wealth & Finance', analysisCardBody(['wealth'], '📈'), '', 0.4)}
-    ${card('❤️', 'emerald', 'Health Analysis', analysisCardBody(['health'], '💪'), '', 0.5)}
-    ${card('👶', 'gold', 'Children', analysisCardBody(['children'], '🧸'), '', 0.55)}
-    ${card('📚', 'blue', 'Education', analysisCardBody(['education'], '📖'), '', 0.58)}
-    ${card('🍀', 'gold', 'Lucky Elements', luckyHtml(), '', 0.6)}
-    ${card('🎨', 'blue', 'Color & Body Language Guide', dailyColourHtml(), '', 0.7)}
-    <div class="result-card span-2" style="animation-delay:0.8s">
-      <div class="card-header">
-        <div class="card-icon maroon">🎯</div>
-        <div><div class="card-title">Decision Making Guidance</div><div class="card-subtitle">What decisions to take and when based on your current planetary period</div></div>
-      </div>
-      <div data-analysis="Decision Making Guidance">${decisionsHtml()}</div>
+    <div class="result-card span-3" style="animation-delay:0.05s" data-testid="current-period">
+      <div class="card-header"><div class="card-icon emerald">🎯</div><div><div class="card-title">Current Period</div><div class="card-subtitle">Mahadasha › Antardasha › Pratyantar</div></div></div>
+      <div data-analysis="Current Period">${periodCurrentHtml()}</div>
     </div>
-    <div class="result-card span-3" style="animation-delay:0.9s">
-      <div class="card-header">
-        <div class="card-icon purple">🔮</div>
-        <div><div class="card-title">Upcoming Life Periods — Best & Challenging Times</div><div class="card-subtitle">Prepare in advance based on planetary periods</div></div>
-      </div>
-      <div data-analysis="Upcoming Life Periods">${upcomingHtml()}</div>
+    ${areaCards}
+    ${card('🍀', 'gold', 'Lucky Elements', luckyHtml(), 'span-3', 0.6)}
+    <div class="result-card span-3" style="animation-delay:0.7s" data-testid="timeline-card">
+      <div class="card-header"><div class="card-icon purple">🔮</div><div><div class="card-title">24-Month Timeline</div><div class="card-subtitle">Tap a month to see why</div></div></div>
+      <div data-analysis="Timeline">${timelineHtml()}</div>
     </div>
+    <div class="result-card span-3" style="animation-delay:0.8s" data-testid="today-card">
+      <div class="card-header"><div class="card-icon amber">🕐</div><div><div class="card-title">Today's Guidance</div><div class="card-subtitle">Vaar and the 24 horas</div></div></div>
+      <div data-analysis="Today">${todayHtml()}</div>
+    </div>
+    ${card('🎨', 'blue', 'Colour & Body Language', dailyColourHtml(), '', 0.9)}
+    ${card('🎯', 'maroon', 'Decision Guidance', decisionsHtml(), '', 1.0)}
   </div>`;
   document.getElementById('predictionsContent').innerHTML = html;
   const pc = document.getElementById('periodCurrent');
   if (pc) pc.innerHTML = periodCurrentHtml();
+  renderHonesty();
 }
 
 function rerenderAll() {
@@ -645,7 +738,7 @@ async function loadSecondary(path, payload, setState) {
   try {
     setState({ status: 'ok', data: await postJson(path, payload) });
   } catch (e) {
-    setState(e.status === 501 ? { status: 'pending' } : { status: 'error', message: e.message });
+    setState({ status: 'error', message: e.message });
   }
 }
 
@@ -709,10 +802,10 @@ document.getElementById('birthForm').addEventListener('submit', async function (
     showSection('overview');
     // Interpretation endpoints: rendered independently so the chart never waits on them.
     const gender = document.getElementById('gender').value;
-    const analysisBody = { ...payload, now_utc: new Date().toISOString() };
+    const analysisBody = { ...payload, now_utc: FORCED_NOW || new Date().toISOString() };
     if (gender === 'male' || gender === 'female') analysisBody.gender = gender;
     // The kundli body already uses `date` for the birth date, so the user's local today goes in `today`.
-    const d = new Date();
+    const d = new Date(nowMs());
     const pad = n => String(n).padStart(2, '0');
     const dailyBody = { ...payload, today: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}` };
     Promise.all([
@@ -797,4 +890,16 @@ document.getElementById('langBtn').addEventListener('click', () => {
   document.getElementById('langBtn').textContent = lang === 'en' ? '🌐 EN' : '🌐 हिं';
   document.documentElement.lang = lang;
   rerenderAll();
+});
+
+document.getElementById('predictionsContent').addEventListener('click', ev => {
+  const b = ev.target.closest('button.month');
+  if (!b || analysisState.status !== 'ok') return;
+  selectedMonth = Number(b.dataset.i);
+  document.querySelectorAll('#predictionsContent button.month').forEach(x => {
+    const on = x === b;
+    x.classList.toggle('sel', on);
+    x.setAttribute('aria-pressed', String(on));
+  });
+  document.getElementById('monthDetail').innerHTML = monthDetailHtml(selectedMonth);
 });
