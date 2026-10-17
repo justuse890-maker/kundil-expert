@@ -34,7 +34,6 @@ Traditional Jyotish interpretation: guidance, not certainty.
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, replace
 from itertools import combinations
-from math import floor
 from statistics import fmean
 from typing import Any, Literal, Protocol, cast
 
@@ -46,6 +45,7 @@ from vedic_engine.analysis.strength import (
     Strength,
     d9_dignity,
     planet_strength,
+    round_half_up,
 )
 from vedic_engine.angles import nak_of, sign_of
 from vedic_engine.bhava import BhavaFact, drishti
@@ -933,7 +933,7 @@ def life_areas(k: AreaFacts, gender: str | None = None) -> dict[str, AreaReading
         )
     out: dict[str, AreaReading] = {}
     for area in AREAS:
-        score = floor(fmean(c.score(p) for p in _key_planets(c, area, g)) + 0.5)  # half up
+        score = round_half_up(fmean(c.score(p) for p in _key_planets(c, area, g)))
         out[area] = AreaReading(
             score=score,
             summary_key=f"{area}.{_band_key(score)}",

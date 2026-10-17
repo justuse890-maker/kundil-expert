@@ -24,6 +24,16 @@
             "title": "Date",
             "type": "string"
           },
+          "detail": {
+            "default": "summary",
+            "description": "summary: each timeline item keeps its top 3 judgement reasons by |delta|; full: all reasons",
+            "enum": [
+              "summary",
+              "full"
+            ],
+            "title": "Detail",
+            "type": "string"
+          },
           "fold": {
             "anyOf": [
               {
@@ -172,7 +182,7 @@
       },
       "DailyRequest": {
         "additionalProperties": false,
-        "description": "The `/kundli` body (the birth chart) plus the day and, optionally, where the user is now.\n\n`today` is a local civil date at the current place. `current_lat`/`current_lon` default to\nthe birth place (give both or neither); `current_tz` (IANA) defaults to the birth zone (for\nan LMT birth, local mean time at the current longitude).",
+        "description": "The `/kundli` body (the birth chart) plus the day and, optionally, where the user is now.\n\n`today` is a local civil date at the current place. The current place is `current_lat`,\n`current_lon` and `current_tz` (IANA), given all together or not at all; without them the\nbirth place and birth zone are used (for an LMT birth, local mean time at the birth\nlongitude).",
         "properties": {
           "alt": {
             "default": 0.0,

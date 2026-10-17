@@ -2,8 +2,8 @@
 
 ``daily(k, date, tz, lat, lon)``:
 
-* ``vaar``: the Vedic weekday at sunrise of ``date`` (panchang ``vaar``: the day runs from
-  sunrise); its lord rules the first hora.
+* ``vaar``: the weekday of the civil ``date`` (``civil_vaar``): the Vedic day that starts at
+  that date's sunrise; its lord rules the first hora.
 * ``horas``: 24 planetary hours from sunrise to the next sunrise. The 12 day horas each last
   (sunset - sunrise) / 12 and the 12 night horas (next sunrise - sunset) / 12; sunrise and
   sunset are the engine's (``day_panchang``, the sunrise convention in ``Settings``). Lords
@@ -31,9 +31,10 @@ from vedic_engine.analysis.functional import FunctionalRole, Role, functional_ro
 from vedic_engine.analysis.strength import planet_strength
 from vedic_engine.analysis.timeline import current_periods, lords_text, settings_of
 from vedic_engine.angles import sign_of
-from vedic_engine.constants import RASHIS, Graha
+from vedic_engine.constants import RASHIS, VAARS, Graha
 from vedic_engine.kundli import Kundli
-from vedic_engine.panchang import day_panchang
+from vedic_engine.models import InputError, Settings
+from vedic_engine.panchang import DayPanchang, day_panchang
 
 CHALDEAN: tuple[Graha, ...] = (
     Graha.SATURN, Graha.JUPITER, Graha.MARS, Graha.SUN, Graha.VENUS, Graha.MERCURY, Graha.MOON,
@@ -118,6 +119,32 @@ def vaar_lord(vaar: str) -> Graha:
     return VAAR_LORD[vaar]
 
 
+def civil_vaar(day: date) -> str:
+    """Weekday of the civil date ``day``. Its sunrise (in the given zone) falls on that date,
+    so the Vedic day that starts at that sunrise has this weekday. ``panchang._vaar`` (the
+    weekday at an instant, by local mean time, as used for birth) is deliberately not used:
+    where the zone is far from local mean time (Kiritimati, UTC+14) the two dates differ."""
+    return VAARS[day.weekday()]
+
+
+def role_scope(k: Kundli) -> str:
+    """How a functional role is qualified in ``why``: the lagna, or the Moon-based chart."""
+    return "for this chart (Moon-based)" if k.meta["lagna_basis"] == "moon" else "for this lagna"
+
+
+def _day(
+    day: date, tz: str, lat: float, lon: float, alt: float, settings: Settings, purpose: str
+) -> DayPanchang:
+    try:
+        return day_panchang(day, tz, lat, lon, alt, settings)
+    except InputError as exc:
+        if type(exc) is not InputError:  # unknown zone, date out of range: not a polar day
+            raise
+        raise InputError(
+            f"no sunrise or sunset on {day.isoformat()} at latitude {lat}, needed {purpose}"
+        ) from exc
+
+
 def _label(g: Graha) -> tuple[str, str]:
     node = load_data("areas")["labels"]["grahas"][g.value]
     return node["en"], node["hi"]
@@ -140,6 +167,7 @@ def _horas(
     sset: datetime,
     next_rise: datetime,
     roles: Mapping[Graha, FunctionalRole],
+    scope: str,
 ) -> tuple[Hora, ...]:
     data = load_data("hora")
     edges = _boundaries(rise, sset) + _boundaries(sset, next_rise)[1:]
@@ -167,7 +195,7 @@ def _horas(
                         f"{'day' if i < 12 else 'night'} hora {i % 12 + 1} of {day.isoformat()}; "
                         f"day starts with the {lord0.value} hora"
                     ),
-                    f"{g.value} is {role.role.value} for this lagna: {role.why}",
+                    f"{g.value} is {role.role.value} {scope}: {role.why}",
                 ),
                 ref=f"{data['order_ref']}; role: {role.ref}",
             )
@@ -175,7 +203,9 @@ def _horas(
     return tuple(out)
 
 
-def _pick(kind: str, g: Graha, roles: Mapping[Graha, FunctionalRole], basis: str) -> ColourPick:
+def _pick(
+    kind: str, g: Graha, roles: Mapping[Graha, FunctionalRole], basis: str, scope: str
+) -> ColourPick:
     data = load_data("hora")
     c = _colour(g)
     en, hi = _label(g)
@@ -187,7 +217,7 @@ def _pick(kind: str, g: Graha, roles: Mapping[Graha, FunctionalRole], basis: str
         source=c.source,
         text_en=tpl["en"].format(colour=c.en, graha=en),
         text_hi=tpl["hi"].format(colour=c.hi, graha=hi),
-        why=(basis, f"{g.value} is {roles[g].role.value} for this lagna: {roles[g].why}"),
+        why=(basis, f"{g.value} is {roles[g].role.value} {scope}: {roles[g].why}"),
         ref=f"colour: {c.source}; role: {roles[g].ref}",
     )
 
@@ -195,6 +225,7 @@ def _pick(kind: str, g: Graha, roles: Mapping[Graha, FunctionalRole], basis: str
 def _colours(
     k: Kundli, lord0: Graha, roles: Mapping[Graha, FunctionalRole]
 ) -> tuple[ColourPick, ColourPick | None]:
+    scope = role_scope(k)
     good = [g for g in CHALDEAN if roles[g].role in _GOOD]
     bad = [g for g in CHALDEAN if roles[g].role == Role.MALEFIC]
     order = {g: i for i, g in enumerate(Graha)}
@@ -221,7 +252,11 @@ def _colours(
     avoid: ColourPick | None = None
     if lord0 in bad:
         avoid = _pick(
-            "colour_avoid", lord0, roles, f"weekday lord {lord0.value} is a functional malefic"
+            "colour_avoid",
+            lord0,
+            roles,
+            f"weekday lord {lord0.value} is a functional malefic",
+            scope,
         )
     elif bad:
         g = min(bad, key=lambda g: (planet_strength(k, g).score, order[g]))
@@ -230,19 +265,23 @@ def _colours(
             g,
             roles,
             f"{g.value} is the weakest functional malefic (strength {planet_strength(k, g).score}/100)",
+            scope,
         )
-    return _pick("colour_today", today, roles, basis), avoid
+    return _pick("colour_today", today, roles, basis, scope), avoid
 
 
 def daily(k: Kundli, day: date, tz: str, lat: float, lon: float, alt: float = 0.0) -> DailyGuidance:
     """Guidance for the local civil ``day`` at a place (see module docstring)."""
     settings = settings_of(k)
-    p = day_panchang(day, tz, lat, lon, alt, settings)
-    nxt = day_panchang(day + timedelta(days=1), tz, lat, lon, alt, settings)
-    lord0 = vaar_lord(p.at_sunrise.vaar)
+    p = _day(day, tz, lat, lon, alt, settings, f"to begin {day.isoformat()}'s horas")
+    nxt = _day(
+        day + timedelta(days=1), tz, lat, lon, alt, settings, f"to end {day.isoformat()}'s horas"
+    )
+    vaar = civil_vaar(day)
+    lord0 = vaar_lord(vaar)
     lagna = sign_of(k.lagna_lon)
     roles = functional_roles(lagna, moon_waxing(k))
-    horas = _horas(day, lord0, p.sunrise_utc, p.sunset_utc, nxt.sunrise_utc, roles)
+    horas = _horas(day, lord0, p.sunrise_utc, p.sunset_utc, nxt.sunrise_utc, roles, role_scope(k))
     colour_today, colour_avoid = _colours(k, lord0, roles)
 
     maha, antar, _ = current_periods(k, p.sunrise_utc)
@@ -309,7 +348,7 @@ def daily(k: Kundli, day: date, tz: str, lat: float, lon: float, alt: float = 0.
     return DailyGuidance(
         date=day,
         tz=tz,
-        vaar=p.at_sunrise.vaar,
+        vaar=vaar,
         vaar_lord=lord0,
         sunrise_utc=p.sunrise_utc,
         sunset_utc=p.sunset_utc,

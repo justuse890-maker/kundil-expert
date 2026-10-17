@@ -337,6 +337,20 @@
     "tz": "str"
   },
   "periods": {
+    "advice": {
+      "advice.challenging": {
+        "en": "str",
+        "hi": "str"
+      },
+      "advice.favourable": {
+        "en": "str",
+        "hi": "str"
+      },
+      "advice.mixed": {
+        "en": "str",
+        "hi": "str"
+      }
+    },
     "best_windows": [
       {
         "dasha_score": "float",
@@ -345,13 +359,8 @@
         "nature": "str",
         "reasons": [
           {
-            "code": "str",
-            "ref": "str",
-            "text_en": "str",
-            "text_hi": "str",
-            "why": [
-              "str"
-            ]
+            "share": "float",
+            "source": "str"
           }
         ],
         "score": "int",
@@ -368,13 +377,8 @@
         "nature": "str",
         "reasons": [
           {
-            "code": "str",
-            "ref": "str",
-            "text_en": "str",
-            "text_hi": "str",
-            "why": [
-              "str"
-            ]
+            "share": "float",
+            "source": "str"
           }
         ],
         "score": "int",
@@ -393,16 +397,9 @@
           ],
           "nature": "str",
           "reasons": [
-            {
-              "code": "str",
-              "delta": "float",
-              "ref": "str",
-              "text": "str",
-              "why": [
-                "str"
-              ]
-            }
+            "str"
           ],
+          "reasons_total": "int",
           "score": "int"
         },
         "lord": "str",
@@ -418,16 +415,9 @@
           ],
           "nature": "str",
           "reasons": [
-            {
-              "code": "str",
-              "delta": "float",
-              "ref": "str",
-              "text": "str",
-              "why": [
-                "str"
-              ]
-            }
+            "str"
           ],
+          "reasons_total": "int",
           "score": "int"
         },
         "lord": "str",
@@ -443,16 +433,9 @@
           ],
           "nature": "str",
           "reasons": [
-            {
-              "code": "str",
-              "delta": "float",
-              "ref": "str",
-              "text": "str",
-              "why": [
-                "str"
-              ]
-            }
+            "str"
           ],
+          "reasons_total": "int",
           "score": "int"
         },
         "lord": "str",
@@ -468,13 +451,8 @@
         "nature": "str",
         "reasons": [
           {
-            "code": "str",
-            "ref": "str",
-            "text_en": "str",
-            "text_hi": "str",
-            "why": [
-              "str"
-            ]
+            "share": "float",
+            "source": "str"
           }
         ],
         "score": "int",
@@ -485,33 +463,129 @@
     ],
     "now_local": "str",
     "now_utc": "str",
+    "reasons": {
+      "r1": {
+        "code": "str",
+        "delta": "float",
+        "ref": "str",
+        "text": "str",
+        "why": [
+          "str"
+        ]
+      },
+      "r10": {
+        "code": "str",
+        "delta": "float",
+        "ref": "str",
+        "text": "str",
+        "why": [
+          "str"
+        ]
+      },
+      "r11": {
+        "code": "str",
+        "delta": "float",
+        "ref": "str",
+        "text": "str",
+        "why": [
+          "str"
+        ]
+      },
+      "r2": {
+        "code": "str",
+        "delta": "float",
+        "ref": "str",
+        "text": "str",
+        "why": [
+          "str"
+        ]
+      },
+      "r3": {
+        "code": "str",
+        "delta": "float",
+        "ref": "str",
+        "text": "str",
+        "why": [
+          "str"
+        ]
+      },
+      "r4": {
+        "code": "str",
+        "delta": "float",
+        "ref": "str",
+        "text": "str",
+        "why": [
+          "str"
+        ]
+      },
+      "r5": {
+        "code": "str",
+        "delta": "float",
+        "ref": "str",
+        "text": "str",
+        "why": [
+          "str"
+        ]
+      },
+      "r6": {
+        "code": "str",
+        "delta": "float",
+        "ref": "str",
+        "text": "str",
+        "why": [
+          "str"
+        ]
+      },
+      "r7": {
+        "code": "str",
+        "delta": "float",
+        "ref": "str",
+        "text": "str",
+        "why": [
+          "str"
+        ]
+      },
+      "r8": {
+        "code": "str",
+        "delta": "float",
+        "ref": "str",
+        "text": "str",
+        "why": [
+          "str"
+        ]
+      },
+      "r9": {
+        "code": "str",
+        "delta": "float",
+        "ref": "str",
+        "text": "str",
+        "why": [
+          "str"
+        ]
+      }
+    },
+    "scoring_note": {
+      "en": "str",
+      "hi": "str",
+      "ref": "str"
+    },
     "timeline": [
       {
-        "advice_en": "str",
-        "advice_hi": "str",
         "advice_key": "str",
         "areas": [
           "str"
         ],
         "end_local": "str",
         "end_utc": "str",
+        "id": "str",
         "judgement": {
           "houses": [
             "int"
           ],
-          "nature": "str",
           "reasons": [
-            {
-              "code": "str",
-              "delta": "float",
-              "ref": "str",
-              "text": "str",
-              "why": [
-                "str"
-              ]
-            }
+            "str"
           ],
-          "score": "int"
+          "reasons_total": "int"
         },
         "level": "str",
         "lords": [
@@ -535,6 +609,7 @@
         "end_utc": "str",
         "graha": "str",
         "house_from_moon": "int",
+        "id": "str",
         "rashi": "int",
         "rashi_key": "str",
         "ref": "str",

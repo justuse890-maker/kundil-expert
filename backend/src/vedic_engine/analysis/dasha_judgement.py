@@ -10,7 +10,7 @@ The period score is the mean of the lords' contributions plus, for each consecut
 (maha-antar, antar-pratyantar, ...), the mutual position of the two lords counted sign to sign:
 6/8 or 2/12 from each other -15; kendra or trikona from each other (same sign counts as
 kendra) +10; 3/11 adds nothing (Phaladeepika Ch 20 vv. 29, 42). The result is rounded
-(``round``, half to even) and clamped to -100..100. Nature: score > 20 "favourable", < -20
+(``strength.round_half_up``) and clamped to -100..100. Nature: score > 20 "favourable", < -20
 "challenging", otherwise "mixed".
 
 Activated ``areas`` are the houses each lord owns and occupies (Rahu and Ketu own none).
@@ -28,7 +28,7 @@ from itertools import pairwise
 from typing import Literal
 
 from vedic_engine.analysis.functional import Role, functional_roles, load_data
-from vedic_engine.analysis.strength import ChartFacts, graha_house, planet_strength
+from vedic_engine.analysis.strength import ChartFacts, graha_house, planet_strength, round_half_up
 from vedic_engine.angles import sign_of
 from vedic_engine.constants import Graha
 
@@ -67,6 +67,16 @@ class PeriodJudgement:
     nature: Nature
     areas: tuple[int, ...]
     reasons: tuple[Reason, ...]
+
+
+def nature_of(score: float) -> Nature:
+    """Nature of a score: > ``FAVOURABLE_ABOVE`` favourable, < ``CHALLENGING_BELOW``
+    challenging, otherwise mixed (shared by period judgements and month ratings)."""
+    if score > FAVOURABLE_ABOVE:
+        return "favourable"
+    if score < CHALLENGING_BELOW:
+        return "challenging"
+    return "mixed"
 
 
 def moon_waxing(k: ChartFacts) -> bool:
@@ -182,14 +192,7 @@ def judge_period(k: ChartFacts, lords: tuple[Graha, ...]) -> PeriodJudgement:
         if mutual is not None:
             reasons.append(mutual)
             total += mutual.delta
-    score = max(-100, min(100, round(total)))
-    nature: Nature = (
-        "favourable"
-        if score > FAVOURABLE_ABOVE
-        else "challenging"
-        if score < CHALLENGING_BELOW
-        else "mixed"
-    )
+    score = max(-100, min(100, round_half_up(total)))
     return PeriodJudgement(
-        score=score, nature=nature, areas=tuple(sorted(areas)), reasons=tuple(reasons)
+        score=score, nature=nature_of(score), areas=tuple(sorted(areas)), reasons=tuple(reasons)
     )

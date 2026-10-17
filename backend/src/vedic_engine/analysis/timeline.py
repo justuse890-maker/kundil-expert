@@ -13,7 +13,8 @@ day clamped to the month's length):
   ``deltas`` are interpretive. Vedha is not modelled.
 * ``months``: one ``MonthRating`` per calendar month from ``now``. Its score is the time-weighted
   mean of the overlapping pratyantars' judgement scores plus the time-weighted transit deltas,
-  rounded half up and clamped to -100..100; nature uses the ``judge_period`` thresholds.
+  rounded half up (``strength.round_half_up``) and clamped to -100..100; nature is
+  ``dasha_judgement.nature_of``. Transit and month-reason refs end with "weights: interpretive".
 * ``best_windows`` / ``challenging_windows``: the 3 highest / lowest rated months, ties broken
   by the earlier start, so the choice is deterministic. "Challenging" is relative: a window
   keeps its own ``nature``, which may still be "mixed" or "favourable".
@@ -25,18 +26,12 @@ import calendar
 from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import datetime
-from math import floor
 
 from vedic_engine import ephemeris
 from vedic_engine.analysis.areas import AREAS
-from vedic_engine.analysis.dasha_judgement import (
-    CHALLENGING_BELOW,
-    FAVOURABLE_ABOVE,
-    Nature,
-    PeriodJudgement,
-    judge_period,
-)
+from vedic_engine.analysis.dasha_judgement import Nature, PeriodJudgement, judge_period, nature_of
 from vedic_engine.analysis.functional import load_data
+from vedic_engine.analysis.strength import round_half_up
 from vedic_engine.angles import sign_of
 from vedic_engine.constants import RASHIS, Graha
 from vedic_engine.dasha import DashaPeriod
@@ -50,12 +45,16 @@ from vedic_engine.transit import sign_ingresses
 JUPITER_GOOD = frozenset({2, 5, 7, 9, 11})
 SATURN_GOOD = frozenset({3, 6, 11})
 WINDOWS = 3
+WEIGHTS_LABEL = "weights: interpretive"
 
 
 @dataclass(frozen=True, slots=True)
 class TransitOverlay:
-    """Saturn or Jupiter in one sign over ``[start_utc, end_utc)`` (clipped to the window)."""
+    """Saturn or Jupiter in one sign over ``[start_utc, end_utc)`` (clipped to the window).
 
+    ``id`` is ``"<graha>:<n>"``, n counting that graha's segments from 0."""
+
+    id: str
     graha: Graha
     sign: int  # 0-11
     house: int  # 1-12 from the natal Moon sign
@@ -71,6 +70,7 @@ class TransitOverlay:
 
 @dataclass(frozen=True, slots=True)
 class TimelineItem:
+    id: str  # "<level>:<maha>-<antar>[-<pratyantar>]", unique within a timeline
     level: str  # "antar" | "pratyantar"
     lords: tuple[str, ...]  # maha, antar[, pratyantar]
     start_utc: datetime
@@ -84,7 +84,12 @@ class TimelineItem:
 
 @dataclass(frozen=True, slots=True)
 class WindowReason:
+    """``source`` is the id of the timeline item or transit overlay it summarises; ``share``
+    the fraction of the month it covers."""
+
     code: str
+    source: str
+    share: float
     text_en: str
     text_hi: str
     why: tuple[str, ...]
@@ -122,14 +127,6 @@ def add_months(dt: datetime, n: int) -> datetime:
 
 def settings_of(k: Kundli) -> Settings:
     return Settings(**k.meta["settings"])
-
-
-def nature_of(score: float) -> Nature:
-    if score > FAVOURABLE_ABOVE:
-        return "favourable"
-    if score < CHALLENGING_BELOW:
-        return "challenging"
-    return "mixed"
 
 
 def _containing(periods: Sequence[DashaPeriod], at: datetime, what: str) -> DashaPeriod:
@@ -176,6 +173,7 @@ def _item(k: Kundli, level: str, chain: tuple[DashaPeriod, ...]) -> TimelineItem
     j = judge_period(k, tuple(Graha(x) for x in lords))
     last = chain[-1]
     return TimelineItem(
+        id=f"{level}:{'-'.join(lords)}",
         level=level,
         lords=lords,
         start_utc=last.start_utc,
@@ -185,7 +183,6 @@ def _item(k: Kundli, level: str, chain: tuple[DashaPeriod, ...]) -> TimelineItem
         advice_key=f"advice.{j.nature}",
         why=(
             f"{level} {'-'.join(lords)}: {last.start_utc:%Y-%m-%d} to {last.end_utc:%Y-%m-%d}",
-            f"judge_period score {j.score} ({j.nature})",
             f"lords rule or occupy houses {', '.join(map(str, j.areas))}",
         ),
         ref=load_data("transit")["dasha"]["ref"],
@@ -212,7 +209,7 @@ def _dasha_items(k: Kundli, now: datetime, end: datetime) -> tuple[TimelineItem,
 
 
 def _overlay(
-    g: Graha, sign: int, house: int, start: datetime, end: datetime, phase: str | None
+    n: int, g: Graha, sign: int, house: int, start: datetime, end: datetime, phase: str | None
 ) -> TransitOverlay:
     data = load_data("transit")
     if g == Graha.JUPITER:
@@ -227,6 +224,7 @@ def _overlay(
     rule = data["rules"][code]
     ordinal = data["ordinals"][str(house)]
     return TransitOverlay(
+        id=f"{g.value}:{n}",
         graha=g,
         sign=sign,
         house=house,
@@ -241,7 +239,7 @@ def _overlay(
             f"house {house} from the natal Moon sign"
             + (f"; engine phase {phase}" if phase else ""),
         ),
-        ref=rule["ref"],
+        ref=f"{rule['ref']}; {WEIGHTS_LABEL}",
     )
 
 
@@ -263,12 +261,8 @@ def transits(k: Kundli, now: datetime, end: datetime) -> tuple[TransitOverlay, .
                 mid = start + (seg_end - start) / 2
                 phase = next((p.kind for p in phases if p.start_utc <= mid < p.end_utc), None)
             house = (sign - moon_sign) % 12 + 1
-            out.append(_overlay(g, sign, house, start, seg_end, phase))
+            out.append(_overlay(i, g, sign, house, start, seg_end, phase))
     return tuple(out)
-
-
-def _round_half_up(x: float) -> int:
-    return floor(x + 0.5)
 
 
 def _month(
@@ -294,10 +288,12 @@ def _month(
                 s,
                 WindowReason(
                     code=f"dasha:{'-'.join(p.lords)}",
+                    source=p.id,
+                    share=s / total,
                     text_en=tpl["en"].format(lords=en, score=p.judgement.score, nature=nat["en"]),
                     text_hi=tpl["hi"].format(lords=hi, score=p.judgement.score, nature=nat["hi"]),
                     why=(*p.why, f"covers {s / total:.0%} of the month"),
-                    ref=p.ref,
+                    ref=f"{p.ref}; {WEIGHTS_LABEL}",
                 ),
             )
         )
@@ -312,6 +308,8 @@ def _month(
                 s,
                 WindowReason(
                     code=f"transit:{t.code}",
+                    source=t.id,
+                    share=s / total,
                     text_en=t.text_en,
                     text_hi=t.text_hi,
                     why=(*t.why, f"weight {t.delta:+d}, covers {s / total:.0%} of the month"),
@@ -319,7 +317,7 @@ def _month(
                 ),
             )
         )
-    score = max(-100, min(100, _round_half_up(dasha + transit)))
+    score = max(-100, min(100, round_half_up(dasha + transit)))
     ordered = sorted(enumerate(reasons), key=lambda x: (-x[1][0], x[0]))  # stable by overlap
     return MonthRating(
         start_utc=start,

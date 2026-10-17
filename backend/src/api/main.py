@@ -345,7 +345,7 @@ def analysis(req: AnalysisRequest) -> dict[str, Any]:
         income_sources(k),
         lucky_elements(k),
         functional_roles(sign_of(k.lagna_lon), moon_waxing(k)),
-        analysis_out.periods(current, tl, tz),
+        analysis_out.periods(current, tl, tz, full=req.detail == "full"),
         {
             "time_known": k.meta["time_known"],
             "lagna_basis": k.meta["lagna_basis"],

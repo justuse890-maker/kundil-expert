@@ -294,3 +294,90 @@ def test_generated_text_has_no_certainty_words() -> None:
     for t in texts:
         assert not _CERTAIN.search(t), t
         assert "{" not in t, t
+
+
+# --- fix round 1 ------------------------------------------------------------------------------
+
+
+@cache
+def _moon_chart(day: int) -> Kundli:
+    """Delhi, 1990-01-<day> 12:00 IST: Moon in Kumbha (2), Meena (4), Mesha (6), Simha (14),
+    Dhanu (24); checked against the engine below."""
+    return build_kundli(BirthInput(datetime(1990, 1, day, 12, 0), TZ, *DELHI))
+
+
+@pytest.mark.parametrize(
+    ("day", "moon", "codes"),
+    [
+        (2, "kumbha", {"sade_sati_setting"}),  # Saturn in Meena: 2nd from Kumbha
+        (4, "meena", {"sade_sati_peak", "sade_sati_setting"}),
+        (6, "mesha", {"sade_sati_rising", "sade_sati_peak"}),
+        (14, "simha", {"dhaiya_8th"}),
+        (24, "dhanu", {"dhaiya_4th"}),
+    ],
+)
+def test_saturn_phase_overlays_equal_the_engine(day: int, moon: str, codes: set[str]) -> None:
+    from vedic_engine.constants import RASHIS
+    from vedic_engine.doshas import sade_sati
+    from vedic_engine.models import Settings
+    from vedic_engine.timeutil import jd_from_utc
+
+    k = _moon_chart(day)
+    moon_lon = k.grahas[Graha.MOON].lon
+    assert RASHIS[sign_of(moon_lon)] == moon
+    tl = timeline(k, NOW)
+    phased = [t for t in tl.transits if t.graha == Graha.SATURN and t.delta == -10]
+    assert {t.code for t in phased} == codes
+    phases, _ = sade_sati(moon_lon, jd_from_utc(NOW), Settings(), years=3)
+    for t in phased:
+        match = [p for p in phases if p.kind == t.code and p.start_utc < t.end_utc
+                 and p.end_utc > t.start_utc]  # fmt: skip
+        assert len(match) == 1
+        # a phase running at NOW starts at utc_from_jd(jd_from_utc(NOW)): a JD round trip
+        # (13 us here), so the clipped start is compared to 1 ms; ingress ends are exact
+        assert abs(t.start_utc - max(match[0].start_utc, NOW)) < timedelta(milliseconds=1)
+        assert t.end_utc == min(match[0].end_utc, tl.end_utc)
+    # every engine phase inside the window is represented
+    in_window = [p for p in phases if p.start_utc < tl.end_utc]
+    assert len(in_window) == len(phased)
+
+
+def test_interpretive_weights_are_labelled() -> None:
+    tl = _tl()
+    assert all(t.ref.endswith("weights: interpretive") for t in tl.transits)
+    for m in tl.months:
+        assert all(r.ref.endswith("weights: interpretive") for r in m.reasons)
+    note = load_data("transit")["scoring_note"]
+    assert "interpretive" in note["en"] and "interpretive" in note["ref"]
+
+
+def test_moon_based_chart_roles_are_not_called_lagna() -> None:
+    g = _daily(DAY, False)
+    whys = [w for h in g.horas for w in h.why] + list(g.colour_today.why)
+    assert any("for this chart (Moon-based)" in w for w in whys)
+    assert not any("for this lagna" in w for w in whys)
+    assert any("for this lagna" in w for w in _daily().horas[0].why)
+
+
+def test_vaar_follows_the_civil_date_kiritimati() -> None:
+    from vedic_engine.models import Settings
+    from vedic_engine.panchang import day_panchang
+
+    place = ("Pacific/Kiritimati", 1.8721, -157.4278)
+    p = day_panchang(DAY, *place, 0.0, Settings())
+    assert p.at_sunrise.vaar == "shukra"  # LMT-dated weekday (birth-time semantics) differs
+    g = daily(_india(), DAY, *place)
+    assert g.vaar == "shani" and g.horas[0].lord == Graha.SATURN  # civil Saturday
+
+
+def test_polar_message_names_the_failing_date() -> None:
+    from vedic_engine.models import InputError
+
+    with pytest.raises(InputError, match=r"on 2026-05-16 .*to end 2026-05-15's horas"):
+        daily(_india(), date(2026, 5, 15), "Europe/Oslo", 69.6492, 18.9553)
+
+
+def test_one_rounding_rule() -> None:
+    from vedic_engine.analysis.strength import round_half_up
+
+    assert [round_half_up(x) for x in (2.5, -2.5, 0.5, -0.5, 1.49)] == [3, -2, 1, 0, 1]

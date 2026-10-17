@@ -170,14 +170,20 @@ class AnalysisRequest(KundliRequest):
     now_utc: AwareDatetime | None = Field(
         None, description="Start of the 24-month timeline; defaults to the current time"
     )
+    detail: Literal["summary", "full"] = Field(
+        "summary",
+        description="summary: each timeline item keeps its top 3 judgement reasons by |delta|; "
+        "full: all reasons",
+    )
 
 
 class DailyRequest(KundliRequest):
     """The `/kundli` body (the birth chart) plus the day and, optionally, where the user is now.
 
-    `today` is a local civil date at the current place. `current_lat`/`current_lon` default to
-    the birth place (give both or neither); `current_tz` (IANA) defaults to the birth zone (for
-    an LMT birth, local mean time at the current longitude).
+    `today` is a local civil date at the current place. The current place is `current_lat`,
+    `current_lon` and `current_tz` (IANA), given all together or not at all; without them the
+    birth place and birth zone are used (for an LMT birth, local mean time at the birth
+    longitude).
     """
 
     today: dt.date
@@ -187,6 +193,8 @@ class DailyRequest(KundliRequest):
 
     @model_validator(mode="after")
     def _both_coordinates(self) -> Self:
-        if (self.current_lat is None) != (self.current_lon is None):
-            raise ValueError("give both current_lat and current_lon, or neither")
+        given = [self.current_lat is not None, self.current_lon is not None,
+                 self.current_tz is not None]  # fmt: skip
+        if any(given) and not all(given):
+            raise ValueError("give current_lat, current_lon and current_tz together, or none")
         return self

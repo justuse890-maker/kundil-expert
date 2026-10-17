@@ -19,6 +19,7 @@ probability.
 
 from collections.abc import Mapping
 from dataclasses import dataclass
+from math import floor
 from typing import Protocol
 
 from vedic_engine.analysis.functional import KENDRAS, TRIKONAS, load_data
@@ -26,6 +27,14 @@ from vedic_engine.angles import sign_of
 from vedic_engine.constants import RASHI_LORD, RASHIS, Graha
 from vedic_engine.dignity import EXALT_SIGN, NODE_DIGNITY_SCHOOL, Dignity
 from vedic_engine.lagna import house_of
+
+
+def round_half_up(x: float) -> int:
+    """The one rounding rule of the analysis package: to the nearest integer, halves toward
+    +infinity (``floor(x + 0.5)``: 2.5 -> 3, -2.5 -> -2). Used for area, period and month
+    scores so equal inputs always round the same way."""
+    return floor(x + 0.5)
+
 
 BASE = 50
 DIGNITY_DELTA: dict[Dignity, int] = {

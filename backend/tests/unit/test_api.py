@@ -772,3 +772,98 @@ def test_analysis_time_unknown_shape_snapshot(
     r = client.post("/api/v1/analysis", json={**birth, "time_known": False, "now_utc": NOW_UTC})
     assert r.status_code == 200, r.text
     _check_shape("analysis_time_unknown_shape.json", r.json(), request)
+
+
+# ---- Task 5 fix round 1
+
+
+def test_analysis_default_is_lean_and_full_mode_has_every_reason(
+    client: TestClient, analysis_body: Any
+) -> None:
+    r = client.post("/api/v1/analysis", json={**INDIA_1947, "now_utc": NOW_UTC})
+    assert len(r.content) < 80_000, len(r.content)
+    lean = analysis_body["periods"]
+    for item in lean["timeline"]:
+        j = item["judgement"]
+        assert len(j["reasons"]) == min(3, j["reasons_total"])
+        assert all(rid in lean["reasons"] for rid in j["reasons"])
+    for m in lean["months"]:  # pointers into the timeline and transits
+        ids = {i["id"] for i in lean["timeline"]} | {t["id"] for t in lean["transits"]}
+        assert all(x["source"] in ids for x in m["reasons"])
+    full = client.post(
+        "/api/v1/analysis", json={**INDIA_1947, "now_utc": NOW_UTC, "detail": "full"}
+    )
+    assert full.status_code == 200 and len(full.content) > len(r.content)
+    fp = full.json()["periods"]
+    for small, item in zip(lean["timeline"], fp["timeline"], strict=True):
+        j = item["judgement"]
+        assert len(j["reasons"]) == j["reasons_total"] > 3
+        deltas = sorted((abs(fp["reasons"][x]["delta"]) for x in j["reasons"]), reverse=True)
+        kept = sorted((abs(lean["reasons"][x]["delta"]) for x in small["judgement"]["reasons"]),
+                      reverse=True)  # fmt: skip
+        assert kept == deltas[:3]
+    for m in fp["months"]:
+        assert all(x["why"] and x["ref"] for x in m["reasons"])
+    bad = client.post("/api/v1/analysis", json={**INDIA_1947, "detail": "all"})
+    assert bad.status_code == 422 and bad.json()["detail"][0]["loc"] == ["body", "detail"]
+
+
+def test_analysis_labels_interpretive_weights(client: TestClient, analysis_body: Any) -> None:
+    p = analysis_body["periods"]
+    assert "interpretive" in p["scoring_note"]["en"] and p["scoring_note"]["hi"]
+    assert "weights: interpretive" in p["scoring_note"]["ref"]
+    assert all(t["ref"].endswith("weights: interpretive") for t in p["transits"])
+    full = client.post(
+        "/api/v1/analysis", json={**INDIA_1947, "now_utc": NOW_UTC, "detail": "full"}
+    ).json()["periods"]
+    for m in (*full["months"], *full["best_windows"], *full["challenging_windows"]):
+        assert all(r["ref"].endswith("weights: interpretive") for r in m["reasons"])
+
+
+@pytest.mark.parametrize(
+    "extra",
+    [
+        {"current_tz": "Asia/Dubai"},
+        {"current_lat": 25.2, "current_lon": 55.27},
+        {"current_lon": 55.27, "current_tz": "Asia/Dubai"},
+    ],
+)
+def test_daily_current_place_is_all_or_nothing(client: TestClient, extra: dict[str, Any]) -> None:
+    r = client.post("/api/v1/daily", json={**INDIA_1947, "today": "2026-10-17", **extra})
+    assert r.status_code == 422, r.text
+
+
+def test_daily_polar_day_is_422_naming_the_date(client: TestClient) -> None:
+    body = {**INDIA_1947, "today": "2026-05-15", "current_lat": 69.6492,
+            "current_lon": 18.9553, "current_tz": "Europe/Oslo"}  # fmt: skip
+    r = client.post("/api/v1/daily", json=body)
+    assert r.status_code == 422
+    d = r.json()["detail"][0]
+    assert d["loc"] == ["body", "today"]
+    assert "2026-05-16" in d["msg"] and "end 2026-05-15's horas" in d["msg"]
+
+
+def test_daily_lmt_birth(client: TestClient) -> None:
+    body = {k: v for k, v in INDIA_1947.items() if k != "tz"}
+    r = client.post("/api/v1/daily", json={**body, "lmt": True, "today": "2026-10-17"})
+    assert r.status_code == 200, r.text
+    b = r.json()
+    assert b["tz"].startswith("UTC+05:08")  # LMT at 77.209 E
+    assert b["horas"][0]["start_local"].endswith("+05:09") and b["vaar"] == "shani"
+
+
+@pytest.mark.parametrize(
+    ("today", "first", "last"),
+    [("2026-03-29", "+01:00", "+01:00"), ("2026-10-24", "+01:00", "+00:00")],
+)
+def test_daily_london_dst_horas(client: TestClient, today: str, first: str, last: str) -> None:
+    body = {**INDIA_1947, "today": today, "current_lat": 51.5074, "current_lon": -0.1278,
+            "current_tz": "Europe/London"}  # fmt: skip
+    r = client.post("/api/v1/daily", json=body)
+    assert r.status_code == 200, r.text
+    horas = r.json()["horas"]
+    assert len(horas) == 24
+    assert horas[0]["start_local"].startswith(today) and horas[0]["start_local"].endswith(first)
+    assert horas[-1]["end_local"].endswith(last)
+    for a, b in itertools.pairwise(horas):
+        assert a["end_utc"] == b["start_utc"]
