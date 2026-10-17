@@ -436,10 +436,23 @@
     .month.sel { border-color: var(--maroon); }
     .month-detail { padding: 10px; border-radius: 12px; background: rgba(30,41,59,0.04); margin-bottom: 8px; min-width: 0; }
     .hora-table td, .hora-table th { vertical-align: top; }
+    .hora-table td:nth-child(3) { white-space: nowrap; }
     .hora-table tr.hora-now td { background: rgba(212,175,55,0.25); }
     .hora-text { font-size: 12px; margin-top: 4px; overflow-wrap: anywhere; }
     .hora-table details summary { font-size: 11px; cursor: pointer; color: var(--maroon); }
     .table-wrap { overflow-x: auto; max-width: 100%; }
+    details > summary { cursor: pointer; color: var(--maroon); font-size: 12px; font-weight: 600; padding: 4px 0; }
+    details.fold > summary, details.period-level > summary { font-size: 13px; }
+    details.period-level { padding: 6px 0; border-bottom: 1px solid rgba(30,41,59,0.08); }
+    details.period-level > summary { overflow-wrap: anywhere; }
+    .pl-label { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: rgba(30,41,59,0.6); }
+    .pl-dates { display: block; font-size: 11px; font-weight: 400; color: rgba(30,41,59,0.6); margin-top: 2px; }
+    .why-d, .more, .calc, .win-why { margin-top: 4px; min-width: 0; }
+    .why-d > summary, .calc > summary, .win-why > summary { font-size: 11px; font-weight: 500; }
+    .calc-line { font-size: 10px; color: rgba(30,41,59,0.55); font-family: ui-monospace, monospace; overflow-wrap: anywhere; padding: 2px 0; }
+    .top-note { font-size: 11px; color: rgba(30,41,59,0.6); margin: 4px 0; }
+    .link-btn { background: none; border: 1px solid var(--gold); color: var(--maroon); border-radius: 999px; padding: 6px 14px; font-size: 12px; cursor: pointer; margin-top: 8px; }
+    .hora-table.collapsed .hora-extra { display: none; }
     .chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
     .chip { font-size: 10px; padding: 2px 8px; border-radius: 999px; background: rgba(30,41,59,0.06); color: rgba(30,41,59,0.7); }
     .honesty-line { text-align: center; font-size: 12px; font-style: italic; color: rgba(30,41,59,0.6); padding: 12px 16px 0; }

@@ -23,7 +23,7 @@ reason down: each carries half its factor's weight, matching the ``/ 2`` scaling
 clamp of the strength score binds they sum to more than the applied strength term).
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from itertools import pairwise
 from typing import Literal
 
@@ -47,6 +47,8 @@ CHALLENGING_BELOW = -20
 _MUTUAL_BAD = frozenset({2, 6, 8, 12})
 _MUTUAL_GOOD = frozenset({1, 4, 5, 7, 9, 10})
 
+LEVEL_NAMES = ("mahadasha", "antardasha", "pratyantar")
+
 Nature = Literal["favourable", "mixed", "challenging"]
 
 
@@ -59,6 +61,8 @@ class Reason:
     why: str
     delta: float
     ref: str
+    lord: str = ""  # graha key the reason is about ("" for pair reasons)
+    level: str = ""  # "mahadasha" | "antardasha" | "pratyantar": the level that graha rules
 
 
 @dataclass(frozen=True, slots=True)
@@ -181,10 +185,11 @@ def judge_period(k: ChartFacts, lords: tuple[Graha, ...]) -> PeriodJudgement:
     reasons: list[Reason] = []
     areas: set[int] = set()
     contributions: list[float] = []
-    for g in lords:
+    for i, g in enumerate(lords):
         score, lord_reasons, lord_areas = _lord_reasons(k, g)
         contributions.append(score)
-        reasons.extend(lord_reasons)
+        level = LEVEL_NAMES[min(i, len(LEVEL_NAMES) - 1)]
+        reasons.extend(replace(r, lord=g.value, level=level) for r in lord_reasons)
         areas |= lord_areas
     total = sum(contributions) / len(contributions)
     for a, b in pairwise(lords):

@@ -187,18 +187,19 @@ function statusHtml(state) {
   return '<div class="analysis-pending" data-state="loading">Loading…</div>';
 }
 
-function chipsHtml(why, ref) {
+function chipsHtml(why, ref, detail) {
   const chips = (Array.isArray(why) ? why : (why ? [why] : [])).filter(w => w != null && w !== '')
     .map(t => `<span class="chip">${esc(t)}</span>`).join('');
   const badge = ref ? `<span class="badge purple ref-badge" title="Source">📖 ${esc(ref)}</span>` : '';
-  return chips || badge ? `<div class="chips">${chips}${badge}</div>` : '';
+  const calc = Array.isArray(detail) && detail.length
+    ? `<details class="calc"><summary>Calculation details</summary>${detail.map(d => `<div class="calc-line">${esc(d)}</div>`).join('')}</details>` : '';
+  return chips || badge || calc ? `<div class="chips">${chips}${badge}</div>${calc}` : '';
 }
-
 function statementHtml(st, icon, extraCls) {
   const text = loc(st, 'text');
   if (!text) return '';
   return `<div class="life-item ${extraCls || ''}"><div class="life-item-icon">${icon || '✦'}</div><div class="life-item-content">
-    <div class="life-item-desc">${esc(text)}</div>${chipsHtml(st.why, st.ref)}</div></div>`;
+    <div class="life-item-desc">${esc(text)}</div>${chipsHtml(st.why, st.ref, st.detail)}</div></div>`;
 }
 
 function natureBadge(nature) {
@@ -218,22 +219,22 @@ function areaCard(key, icon, cls, title, stIcon, delay) {
   const a = (analysisState.data.areas || {})[key];
   if (!a) return '';
   const moon = (analysisState.data.meta || {}).lagna_basis === 'moon';
-  const sts = (a.statements || []).map((s, i) =>
-    statementHtml(s, stIcon, moon && i === 0 ? 'chandra-note' : '')).join('');
+  // Income: the ranked sources below carry the same indications with why and ref, so the
+  // per-source statements are not repeated here (a Chandra-kundli note, if any, still is).
+  const sts = moreBlock((a.statements || []).map((s, i) => [s, i]).filter(([, i]) => key !== 'income' || (moon && i === 0)).map(([s, i]) =>
+    statementHtml(s, stIcon, moon && i === 0 ? 'chandra-note' : '')).filter(Boolean), 2);
   const body = scoreBarHtml(a.score) + (loc(a, 'summary') ? `<p class="area-summary">${esc(loc(a, 'summary'))}</p>` : '') + sts +
     (key === 'income' ? incomeSourcesHtml() : '');
   return card(icon, cls, title, body, '', delay, key);
 }
-
 function incomeSourcesHtml() {
   const src = analysisState.data.income_sources || [];
   if (!src.length) return '';
   return `<p class="sub-head">Income sources (ranked)</p><div data-testid="income-sources">` + src.map(s => `
     <div class="life-item"><div class="life-item-icon">${esc(s.rank)}</div><div class="life-item-content">
       <div class="life-item-title">${esc(loc(s, 'label'))} <span class="badge gold">${esc(s.score)}</span> <span class="badge blue">${grahaName(s.planet)}</span></div>
-      ${chipsHtml(s.why, s.ref)}</div></div>`).join('') + '</div>';
+      ${chipsHtml(s.why, s.ref, s.detail)}</div></div>`).join('') + '</div>';
 }
-
 function luckyHtml() {
   if (analysisState.status !== 'ok') return statusHtml(analysisState);
   const groups = analysisState.data.lucky || [];
@@ -243,7 +244,6 @@ function luckyHtml() {
       <div class="chips"><span class="chip">${esc(loc(it, 'label'))}</span><span class="badge purple ref-badge">📖 ${esc(it.source)}</span></div>`).join('') +
     '</div>').join('');
 }
-
 // ---- id resolution ----------------------------------------------------------
 function reasonTable() { return ((analysisState.data || {}).periods || {}).reasons || {}; }
 function adviceFor(key) {
@@ -260,41 +260,52 @@ function sourceIndex() {
 function lordsTitle(lords) { return (lords || []).map(grahaName).join(' › '); }
 
 /** Top reasons of a judgement: ids -> {text, delta, why, ref} from periods.reasons. */
-function judgementReasonsHtml(j) {
-  const table = reasonTable();
-  const rows = ((j || {}).reasons || []).map(id => table[id]).filter(Boolean).map(r =>
-    `<div class="reason"><div class="life-item-desc">${esc(r.text)} <span class="badge ${r.delta >= 0 ? 'green' : 'red'}">${signed(r.delta)}</span></div>${chipsHtml(r.why, r.ref)}</div>`).join('');
-  return rows ? `<div class="reasons">${rows}</div>` : '';
+/** First 3 of `items` visible, the rest behind "Show N more". */
+function moreBlock(items, n = 3) {
+  const rest = items.slice(n);
+  return items.slice(0, n).join('') +
+    (rest.length ? `<details class="more"><summary>Show ${rest.length} more</summary>${rest.join('')}</details>` : '');
 }
 
-/** A month/window reason {source, share} resolved through timeline and transit ids. */
+/** Top reasons of a judgement: ids -> {text, delta, why, ref} from periods.reasons. */
+function judgementReasonsHtml(j) {
+  const table = reasonTable();
+  const items = ((j || {}).reasons || []).map(id => table[id]).filter(Boolean).map(r =>
+    `<div class="reason"><div class="life-item-desc">${esc(r.text)} <span class="badge ${r.delta >= 0 ? 'green' : 'red'}">${signed(r.delta)}</span></div>
+      <details class="why-d"><summary>Why</summary>${chipsHtml(r.why, r.ref, r.detail)}</details></div>`);
+  if (!items.length) return '';
+  const total = (j || {}).reasons_total || items.length;
+  const topNote = total > items.length ? `<p class="top-note" data-testid="top-note">Top ${items.length} of ${esc(total)} reasons</p>` : '';
+  return `<div class="reasons">${topNote}${moreBlock(items)}</div>`;
+}
 function sourceReasonHtml(r, idx) {
   const hit = idx[r.source];
   if (!hit) return '';
   const it = hit.item;
   const share = `<span class="badge gold">${esc(Math.round((r.share || 0) * 100))}%</span>`;
   if (hit.kind === 'transit') {
-    return `<div class="reason"><div class="life-item-desc"><b>${grahaName(it.graha)} transit</b> ${share} ${esc(loc(it, 'text'))}</div>${chipsHtml(it.why, it.ref)}</div>`;
+    return `<div class="reason"><div class="life-item-desc"><b>${grahaName(it.graha)} transit</b> ${share} ${esc(loc(it, 'text'))}</div>
+      <details class="why-d"><summary>Why</summary>${chipsHtml(it.why, it.ref, it.detail)}</details></div>`;
   }
   return `<div class="reason"><div class="life-item-desc"><b>${pretty(it.level)} ${lordsTitle(it.lords)}</b> ${natureBadge(it.nature)} ${share}</div>
-    ${judgementReasonsHtml(it.judgement)}${chipsHtml(it.why, it.ref)}</div>`;
+    <details class="why-d"><summary>Why</summary>${judgementReasonsHtml(it.judgement)}${chipsHtml(it.why, it.ref, it.detail)}</details></div>`;
 }
 function monthReasonsHtml(m, idx) {
-  return (m.reasons || []).map(r => sourceReasonHtml(r, idx)).join('');
+  const items = (m.reasons || []).slice().sort((a, b) => (b.share || 0) - (a.share || 0))
+    .map(r => sourceReasonHtml(r, idx)).filter(Boolean);
+  const note = items.length > 3 ? `<p class="top-note">Top 3 of ${items.length} sources</p>` : '';
+  return note + moreBlock(items);
 }
-
 // ---- current period ---------------------------------------------------------
 function periodLevelHtml(label, lv) {
   if (!lv) return '';
   const adv = adviceFor('advice.' + lv.judgement.nature);
-  return `<div class="period-level" data-level="${esc(label.toLowerCase())}">
-    <div class="data-row"><span class="data-label">${esc(label)}</span>
-      <span class="data-value">${grahaName(lv.lord)} ${natureBadge(lv.judgement.nature)} <span class="badge gold">${signed(lv.judgement.score)}</span></span></div>
-    <div class="dosha-detail">${esc(localDate(lv.start_local))} → ${esc(localDate(lv.end_local))}</div>
+  return `<details class="period-level" data-level="${esc(label.toLowerCase())}">
+    <summary><span class="pl-label">${esc(label)}</span> <b>${grahaName(lv.lord)}</b> ${natureBadge(lv.judgement.nature)} <span class="badge gold">${signed(lv.judgement.score)}</span>
+      <span class="pl-dates">${esc(localDate(lv.start_local))} → ${esc(localDate(lv.end_local))}</span></summary>
     ${judgementReasonsHtml(lv.judgement)}
-    ${adv ? `<p class="advice">💡 ${esc(adv)}</p>` : ''}</div>`;
+    ${adv ? `<p class="advice">💡 ${esc(adv)}</p>` : ''}</details>`;
 }
-
 function periodCurrentHtml() {
   if (analysisState.status !== 'ok') return statusHtml(analysisState);
   const cur = (analysisState.data.periods || {}).current;
@@ -325,9 +336,8 @@ function windowHtml(w, tone, idx) {
   const ind = tone === 'good' ? '🟢' : '🔴';
   return `<div class="dosha-card ${cls}"><div class="dosha-indicator">${ind}</div><div>
     <div class="dosha-name">${esc(localDate(w.start_local))} → ${esc(localDate(w.end_local))} ${natureBadge(w.nature)} <span class="badge gold">${signed(w.score)}</span></div>
-    <details class="win-why"><summary>Why</summary><div class="reasons">${monthReasonsHtml(w, idx)}</div></details></div></div>`;
+    <details class="win-why"><summary>Why</summary>${monthReasonsHtml(w, idx)}</details></div></div>`;
 }
-
 function timelineHtml() {
   if (analysisState.status !== 'ok') return statusHtml(analysisState);
   const p = analysisState.data.periods || {};
@@ -345,44 +355,48 @@ function timelineHtml() {
 // ---- today's guidance (/daily) -----------------------------------------------
 function horaTableHtml(d) {
   const now = nowMs();
-  const rows = (d.horas || []).map(h => {
-    const cur = now >= ms(h.start_utc) && now < ms(h.end_utc);
+  const horas = d.horas || [];
+  let curIdx = horas.findIndex(h => now >= ms(h.start_utc) && now < ms(h.end_utc));
+  // Window around the current hora (one before, four after); the rest sits behind "Show all 24".
+  const from = curIdx < 0 ? 0 : Math.max(0, Math.min(curIdx - 1, horas.length - 6));
+  const rows = horas.map((h, i) => {
+    const cur = i === curIdx;
     const flag = h.favourable ? '<span class="badge green">Favourable</span>' : h.avoid ? '<span class="badge red">Avoid</span>' : '<span class="badge gold">Neutral</span>';
-    return `<tr class="${cur ? 'hora-now' : ''}" data-current="${cur}"><td>${esc(h.index)}</td>
+    const hidden = i < from || i >= from + 6;
+    return `<tr class="${cur ? 'hora-now' : ''}${hidden ? ' hora-extra' : ''}" data-current="${cur}"><td>${esc(h.index)}</td>
       <td>${grahaName(h.lord)}${cur ? ' <span class="badge blue">Now</span>' : ''}</td>
       <td>${esc(localTime(h.start_local))}–${esc(localTime(h.end_local))}</td>
       <td>${flag}<div class="hora-text">${esc(loc(h, 'text'))}</div>
-      <details><summary>Why</summary>${chipsHtml(h.why, h.ref)}<div class="chips"><span class="chip">${esc(loc(h, 'colour'))}</span></div></details></td></tr>`;
+      <details class="why-d"><summary>Why</summary>${chipsHtml(h.why, h.ref, h.detail)}<div class="chips"><span class="chip">${esc(loc(h, 'colour'))}</span></div></details></td></tr>`;
   }).join('');
-  return `<div class="table-wrap"><table class="house-table hora-table" data-testid="hora-table"><thead><tr><th>#</th><th>Hora</th><th>Time</th><th>Guidance</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  return `<div class="table-wrap"><table class="house-table hora-table collapsed" data-testid="hora-table"><thead><tr><th>#</th><th>Hora</th><th>Time</th><th>Guidance</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <button type="button" class="link-btn" id="horaToggle" data-testid="hora-toggle">Show all 24</button>`;
 }
-
 function todayHtml() {
   if (dailyState.status !== 'ok') return statusHtml(dailyState);
   const d = dailyState.data;
+  const note = dailyState.beforeSunrise ? `<p class="top-note" data-testid="before-sunrise-note">It is before sunrise here, so this is still yesterday's Vedic day (${esc(d.date)}).</p>` : '';
   return `<div class="data-row"><span class="data-label">Vaar</span><span class="data-value" data-testid="vaar">${VAAR_NAMES[d.vaar] ? esc(VAAR_NAMES[d.vaar]) + ' (' + pretty(d.vaar) + ')' : pretty(d.vaar)}</span></div>
-    <div class="dosha-detail">Sunrise ${esc(localTime(d.sunrise_local))} · Sunset ${esc(localTime(d.sunset_local))} · ${esc(d.tz)}</div>
+    ${note}<div class="dosha-detail">Sunrise ${esc(localTime(d.sunrise_local))} · Sunset ${esc(localTime(d.sunset_local))} · ${esc(d.tz)}</div>
     ${horaTableHtml(d)}`;
 }
-
 function colourBlock(c, icon, title) {
   if (!c) return '';
   return `<div class="life-item"><div class="life-item-icon">${icon}</div><div class="life-item-content">
     <div class="life-item-title">${title}: ${esc(loc(c, 'colour'))}</div>
-    <div class="life-item-desc">${esc(loc(c, 'text'))}</div>${chipsHtml(c.why, c.ref)}</div></div>`;
+    <div class="life-item-desc">${esc(loc(c, 'text'))}</div>${chipsHtml(c.why, c.ref, c.detail)}</div></div>`;
 }
-
 function dailyColourHtml() {
   if (dailyState.status !== 'ok') return statusHtml(dailyState);
   const d = dailyState.data;
   return colourBlock(d.colour_today, '🎨', 'Colour today') + colourBlock(d.colour_avoid, '🚫', 'Colour to avoid') +
-    (d.body_language || []).map(b => statementHtml(b, '🤝')).join('');
+    moreBlock((d.body_language || []).map(b => statementHtml(b, '🤝')).filter(Boolean));
 }
 
 function decisionsHtml() {
   if (dailyState.status !== 'ok') return statusHtml(dailyState);
-  return (dailyState.data.decisions || []).map(d => `<div class="life-section"><h4>📌 ${pretty(d.category)} ${natureBadge(d.kind)}</h4>
-    <p class="prediction-text">${esc(loc(d, 'text'))}</p>${chipsHtml(d.why, d.ref)}</div>`).join('');
+  return moreBlock((dailyState.data.decisions || []).map(d => `<div class="life-section"><h4>📌 ${pretty(d.category)} ${natureBadge(d.kind)}</h4>
+    <p class="prediction-text">${esc(loc(d, 'text'))}</p><details class="why-d"><summary>Why</summary>${chipsHtml(d.why, d.ref, d.detail)}</details></div>`));
 }
 
 function renderHonesty() {
@@ -675,6 +689,12 @@ function card(icon, cls, title, body, extra, delay, key) {
     <div data-analysis="${esc(title)}">${body}</div></div>`;
 }
 
+function luckyDetails() {
+  const n = analysisState.status === 'ok' ? (analysisState.data.lucky || []).length : 0;
+  if (!n) return luckyHtml();
+  return `<details class="fold" data-testid="lucky"><summary>Colour, gem, day, number, direction, deity and metal (${n} planets)</summary>${luckyHtml()}</details>`;
+}
+
 function renderPredictions() {
   if (!kundliData) return;
   const areaCards = AREA_ORDER.map(([key, icon, cls, title, stIcon], i) => areaCard(key, icon, cls, title, stIcon, 0.1 + i * 0.05)).join('');
@@ -684,7 +704,7 @@ function renderPredictions() {
       <div data-analysis="Current Period">${periodCurrentHtml()}</div>
     </div>
     ${areaCards}
-    ${card('🍀', 'gold', 'Lucky Elements', luckyHtml(), 'span-3', 0.6)}
+    ${card('🍀', 'gold', 'Lucky Elements', luckyDetails(), 'span-3', 0.6)}
     <div class="result-card span-3" style="animation-delay:0.7s" data-testid="timeline-card">
       <div class="card-header"><div class="card-icon purple">🔮</div><div><div class="card-title">24-Month Timeline</div><div class="card-subtitle">Tap a month to see why</div></div></div>
       <div data-analysis="Timeline">${timelineHtml()}</div>
@@ -700,6 +720,7 @@ function renderPredictions() {
   const pc = document.getElementById('periodCurrent');
   if (pc) pc.innerHTML = periodCurrentHtml();
   renderHonesty();
+  translateDom(document.body);
 }
 
 function rerenderAll() {
@@ -732,6 +753,37 @@ async function postJson(path, payload) {
   try { body = await res.json(); } catch (_) { /* non-JSON body */ }
   if (!res.ok) throw Object.assign(new Error(formatApiError(res.status, body)), { status: res.status });
   return body;
+}
+
+/** Calendar date (YYYY-MM-DD) of an instant in the chart's own zone (IANA name or fixed offset). */
+function chartDate(payload, atMs) {
+  try {
+    if (payload.tz) {
+      return new Intl.DateTimeFormat('en-CA', { timeZone: payload.tz, year: 'numeric', month: '2-digit', day: '2-digit' }).format(atMs);
+    }
+    const m = /^([+-])(\d\d):(\d\d)$/.exec(payload.utc_offset || '');
+    if (m) return new Date(atMs + (m[1] === '-' ? -1 : 1) * (Number(m[2]) * 60 + Number(m[3])) * 60000).toISOString().slice(0, 10);
+  } catch (_) { /* fall through to the browser's date */ }
+  return new Date(atMs).toISOString().slice(0, 10);
+}
+function previousDate(ymd) {
+  const [y, m, d] = ymd.split('-').map(Number);
+  return new Date(Date.UTC(y, m - 1, d - 1)).toISOString().slice(0, 10);
+}
+/** Today's guidance for the chart's place; before local sunrise the Vedic day is still yesterday's. */
+async function loadDaily(payload, setState) {
+  try {
+    const today = chartDate(payload, nowMs());
+    let data = await postJson('/daily', { ...payload, today });
+    let beforeSunrise = false;
+    if (nowMs() < ms(data.sunrise_utc)) {
+      data = await postJson('/daily', { ...payload, today: previousDate(today) });
+      beforeSunrise = true;
+    }
+    setState({ status: 'ok', data, beforeSunrise });
+  } catch (e) {
+    setState({ status: 'error', message: e.message });
+  }
 }
 
 async function loadSecondary(path, payload, setState) {
@@ -804,13 +856,9 @@ document.getElementById('birthForm').addEventListener('submit', async function (
     const gender = document.getElementById('gender').value;
     const analysisBody = { ...payload, now_utc: FORCED_NOW || new Date().toISOString() };
     if (gender === 'male' || gender === 'female') analysisBody.gender = gender;
-    // The kundli body already uses `date` for the birth date, so the user's local today goes in `today`.
-    const d = new Date(nowMs());
-    const pad = n => String(n).padStart(2, '0');
-    const dailyBody = { ...payload, today: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}` };
     Promise.all([
       loadSecondary('/analysis', analysisBody, s => { analysisState = s; }),
-      loadSecondary('/daily', dailyBody, s => { dailyState = s; }),
+      loadDaily(payload, s => { dailyState = s; }),
     ]).then(rerenderAll);
   } catch (err) {
     showFormError(err.message || 'Something went wrong computing the Kundli.');
@@ -878,6 +926,68 @@ document.getElementById('birthForm').addEventListener('submit', async function (
   document.addEventListener('click', ev => { if (!ev.target.closest('.place-wrap')) close(); });
 })();
 
+// ---- Hindi labels (UI chrome only; analysis text comes from the API as text_hi) -------------
+const HI = {
+  'Birth Data': 'जन्म विवरण', 'Overview': 'सारांश', 'Houses': 'भाव', 'Dasha': 'दशा', 'Doshas': 'दोष',
+  'Life Analysis': 'जीवन विश्लेषण', 'Input': 'इनपुट', 'Chart': 'कुंडली', 'Life': 'जीवन',
+  'Enter Birth Details': 'जन्म विवरण दर्ज करें', 'Full Name': 'पूरा नाम', 'Date of Birth': 'जन्म तिथि',
+  'Time of Birth': 'जन्म समय', 'Birth time unknown': 'जन्म समय अज्ञात', 'Birth City / Place': 'जन्म स्थान',
+  'Gender': 'लिंग', 'Male': 'पुरुष', 'Female': 'महिला', 'Other': 'अन्य', 'Latitude': 'अक्षांश', 'Longitude': 'देशांतर',
+  'Timezone': 'समय क्षेत्र', 'Ayanamsa': 'अयनांश',
+  'Birth Chart (Kundli)': 'जन्म कुंडली', 'Birth Details': 'जन्म विवरण', 'Panchang': 'पंचांग',
+  'Planetary Positions (Graha Sthiti)': 'ग्रह स्थिति', 'Twelve Houses (Bhava Analysis)': 'द्वादश भाव विश्लेषण',
+  'Vimshottari Mahadasha Timeline': 'विंशोत्तरी महादशा समयरेखा', 'Current Period Analysis': 'वर्तमान अवधि विश्लेषण',
+  'Dosha Analysis': 'दोष विश्लेषण', 'Sarvashtakavarga': 'सर्वाष्टकवर्ग',
+  'Current Period': 'वर्तमान अवधि', 'Mahadasha › Antardasha › Pratyantar': 'महादशा › अंतर्दशा › प्रत्यंतर',
+  'Mahadasha': 'महादशा', 'Antardasha': 'अंतर्दशा', 'Pratyantar': 'प्रत्यंतर',
+  '24-Month Timeline': '24 माह की समयरेखा', 'Tap a month to see why': 'कारण देखने के लिए माह चुनें',
+  "Today's Guidance": 'आज का मार्गदर्शन', 'Vaar and the 24 horas': 'वार और 24 होरा',
+  'Best windows': 'श्रेष्ठ अवधियाँ', 'Challenging windows': 'कठिन अवधियाँ', 'Why': 'क्यों',
+  'Calculation details': 'गणना विवरण', 'Favourable': 'अनुकूल', 'Mixed': 'मिश्रित', 'Challenging': 'कठिन',
+  'Avoid': 'बचें', 'Neutral': 'सामान्य', 'Now': 'अभी', 'Lucky Elements': 'शुभ तत्व',
+  'Colour & Body Language': 'रंग और हाव-भाव', 'Decision Guidance': 'निर्णय मार्गदर्शन',
+  'Personality & Self': 'व्यक्तित्व', 'Career': 'करियर', 'Income': 'आय', 'Marriage & Relationships': 'विवाह व संबंध',
+  'Health': 'स्वास्थ्य', 'Wealth & Finance': 'धन व वित्त', 'Children': 'संतान', 'Education': 'शिक्षा',
+  'Income sources (ranked)': 'आय के स्रोत (क्रमानुसार)', 'Show all 24': 'सभी 24 दिखाएँ', 'Show fewer': 'कम दिखाएँ',
+  'Hora': 'होरा', 'Time': 'समय', 'Guidance': 'मार्गदर्शन', 'Vaar': 'वार', 'Sunrise': 'सूर्योदय', 'Sunset': 'सूर्यास्त',
+  'Colour today': 'आज का रंग', 'Colour to avoid': 'बचने का रंग', 'Loading…': 'लोड हो रहा है…',
+  'Graha': 'ग्रह', 'Longitude ': 'देशांतर', 'Rashi': 'राशि', 'Nakshatra': 'नक्षत्र', 'House': 'भाव', 'Dignity': 'गरिमा',
+  'Status': 'स्थिति', 'Lord': 'स्वामी', 'Lord In': 'स्वामी की स्थिति', 'Occupants': 'स्थित ग्रह', 'Karaka': 'कारक',
+  'Signification': 'कारकत्व', 'Running now': 'अभी चल रही', 'Period Ends': 'अवधि समाप्ति',
+};
+const HI_PATTERNS = [
+  [/^Show (\d+) more$/, (m) => `और ${m[1]} दिखाएँ`],
+  [/^Top (\d+) of (\d+) reasons$/, (m) => `${m[2]} में से शीर्ष ${m[1]} कारण`],
+  [/^Top 3 of (\d+) sources$/, (m) => `${m[1]} में से शीर्ष 3 स्रोत`],
+];
+function toHindi(text) {
+  const m = /^([^A-Za-z0-9(]*)([\s\S]*?)(\s*)$/.exec(text);
+  const core = m[2];
+  if (!core) return text;
+  let out = HI[core];
+  if (out === undefined) {
+    for (const [re, fn] of HI_PATTERNS) { const x = re.exec(core); if (x) { out = fn(x); break; } }
+  }
+  if (out === undefined) {   // "Colour today: black" -> translate the head only
+    const i = core.indexOf(': ');
+    if (i > 0 && HI[core.slice(0, i)]) out = HI[core.slice(0, i)] + core.slice(i);
+  }
+  return out === undefined ? text : m[1] + out + m[3];
+}
+/** Switch UI chrome text nodes under `root` to the current language (originals are remembered). */
+function translateDom(root) {
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+    acceptNode: n => (n.parentElement && !n.parentElement.closest('script,style,textarea,#langBtn,[data-api-text]')) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT,
+  });
+  const nodes = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+  nodes.forEach(n => {
+    if (n.__en === undefined) n.__en = n.nodeValue;
+    const want = lang === 'hi' ? toHindi(n.__en) : n.__en;
+    if (n.nodeValue !== want) n.nodeValue = want;
+  });
+}
+
 // ---- birth time unknown + language ------------------------------------------------
 document.getElementById('timeUnknown').addEventListener('change', function () {
   const tob = document.getElementById('tob');
@@ -890,9 +1000,18 @@ document.getElementById('langBtn').addEventListener('click', () => {
   document.getElementById('langBtn').textContent = lang === 'en' ? '🌐 EN' : '🌐 हिं';
   document.documentElement.lang = lang;
   rerenderAll();
+  translateDom(document.body);
 });
 
 document.getElementById('predictionsContent').addEventListener('click', ev => {
+  const tg = ev.target.closest('#horaToggle');
+  if (tg) {
+    const tbl = document.querySelector('#predictionsContent .hora-table');
+    const open = tbl.classList.toggle('collapsed');
+    tg.textContent = open ? 'Show all 24' : 'Show fewer';
+    translateDom(tg.parentElement);
+    return;
+  }
   const b = ev.target.closest('button.month');
   if (!b || analysisState.status !== 'ok') return;
   selectedMonth = Number(b.dataset.i);
@@ -902,4 +1021,5 @@ document.getElementById('predictionsContent').addEventListener('click', ev => {
     x.setAttribute('aria-pressed', String(on));
   });
   document.getElementById('monthDetail').innerHTML = monthDetailHtml(selectedMonth);
+  translateDom(document.getElementById('monthDetail'));
 });

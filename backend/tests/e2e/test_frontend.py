@@ -16,6 +16,7 @@ from pathlib import Path
 import pytest
 from playwright.sync_api import Page, Route, expect, sync_playwright
 
+PREDICTIONS_BUDGET_PX = 10000  # whole Life tab at 390 px
 REPO = Path(__file__).resolve().parents[3]
 FRONTEND = REPO / "frontend"
 
@@ -104,7 +105,8 @@ def base_url() -> Iterator[str]:
 def page(base_url: str) -> Iterator[Page]:
     with sync_playwright() as pw:
         browser = pw.chromium.launch()
-        pg = browser.new_page()
+        # A browser zone far from the chart's zone: 'today' must follow the chart's place.
+        pg = browser.new_context(timezone_id="America/Los_Angeles").new_page()
 
         # Keep the test hermetic: the page links Google Fonts, which we never fetch.
         def stub_fonts(route: Route) -> None:
@@ -166,9 +168,8 @@ def test_india_1947_end_to_end(page: Page, base_url: str) -> None:
     career = page.locator('#predictionsContent [data-area="career"]')
     expect(career.locator(".chip", has_text="10th lord Saturn").first).to_be_visible()
     assert page.locator('[data-testid="income-sources"] .life-item').count() >= 1
-    lucky = page.locator(
-        '[data-analysis="Lucky Elements"], .result-card:has-text("Lucky Elements")'
-    )
+    lucky = page.locator('.result-card:has-text("Lucky Elements")')
+    page.get_by_test_id("lucky").locator("summary").click()
     for kind in ("Colour", "Gemstone", "Day", "Number", "Direction", "Deity", "Metal"):
         expect(lucky.first.locator(".data-label", has_text=kind).first).to_be_visible()
     expect(lucky.first).to_contain_text("traditional association")
@@ -176,8 +177,14 @@ def test_india_1947_end_to_end(page: Page, base_url: str) -> None:
     cur = page.locator('[data-testid="current-period"]')
     expect(cur.get_by_test_id("period-path")).to_contain_text("Mars › Rahu")
     assert cur.locator(".period-level").count() == 3
+    assert cur.locator(".period-level > summary").count() == 3  # summary line always visible
     assert cur.locator(".period-level .reason").count() >= 3
     assert cur.locator(".period-level .advice").count() == 3
+    cur.locator(".period-level").nth(2).locator(":scope > summary").click()
+    top = cur.locator(".period-level").nth(2).get_by_test_id("top-note")
+    expect(top).to_contain_text("Top 3 of")
+    lord_prefixed = cur.locator(".period-level").nth(2).locator(".reason", has_text="lord)")
+    assert lord_prefixed.count() >= 1
 
     months = page.locator('[data-testid="month-strip"] button.month')
     assert months.count() == 24
@@ -193,6 +200,13 @@ def test_india_1947_end_to_end(page: Page, base_url: str) -> None:
 
     hora_rows = page.locator('[data-testid="hora-table"] tbody tr')
     assert hora_rows.count() == 24
+    visible = page.locator('[data-testid="hora-table"] tbody tr:visible')
+    assert visible.count() == 6  # a window around the current hora
+    expect(page.locator("tr.hora-now")).to_be_visible()
+    page.get_by_test_id("hora-toggle").click()
+    assert visible.count() == 24
+    page.get_by_test_id("hora-toggle").click()
+    assert visible.count() == 6
     assert page.locator("tr.hora-now").count() == 1
     expect(page.locator("tr.hora-now")).to_contain_text("Now")
     assert page.locator('[data-testid="hora-table"] .badge.green').count() >= 1
@@ -201,12 +215,24 @@ def test_india_1947_end_to_end(page: Page, base_url: str) -> None:
     today = page.locator('.result-card:has-text("Colour & Body Language")').first
     expect(today).to_contain_text("Colour today")
     expect(today).to_contain_text("Colour to avoid")
-    expect(page.locator('.result-card:has-text("Decision Guidance") .chip').first).to_be_visible()
+    assert page.locator('.result-card:has-text("Decision Guidance") .chip').count() >= 1
 
-    # Hindi toggle swaps API text (text_hi) in place.
+    # No internal notation or lowercase names in anything a person can see.
+    text = page.locator("#predictionsContent").inner_text()
+    for bad in ("->", "decided by", "judge_period", "(85 - 50)"):
+        assert bad not in text, bad
+    assert not re.search(r"\b(mars|rahu|saturn|jupiter|venus|mercury) (rules|is|strength)\b", text)
+
+    # Hindi toggle swaps API text (text_hi) and the UI labels in place.
     page.click("#langBtn")
     expect(career.locator(".life-item-desc").first).to_contain_text("दशमेश")
+    expect(page.locator("#navPredictions")).to_contain_text("जीवन विश्लेषण")
+    expect(page.get_by_test_id("timeline-card")).to_contain_text("24 माह की समयरेखा")
+    expect(page.get_by_test_id("today-card")).to_contain_text("आज का मार्गदर्शन")
+    expect(cur).to_contain_text("महादशा")
+    expect(page.locator("#honesty")).to_contain_text("पारंपरिक ज्योतिष")
     page.click("#langBtn")
+    expect(page.locator("#navPredictions")).to_contain_text("Life Analysis")
 
     expect(page.locator("#honesty")).to_be_visible()
     expect(page.locator("#honesty")).to_have_text(
@@ -282,10 +308,36 @@ def test_no_horizontal_overflow_on_mobile(page: Page, base_url: str) -> None:
         expect(page.get_by_test_id("lagna")).to_have_text("Vrishabha")
         page.evaluate("showSection('predictions')")
         expect(page.locator('[data-testid="hora-table"]')).to_be_visible()
-        page.get_by_test_id("month-strip").locator("button").nth(3).click()
+        # Compact on mobile: every month's explanation keeps the timeline card short.
+        strip = page.get_by_test_id("month-strip").locator("button")
+        for i in range(24):
+            strip.nth(i).click()
+            height = page.evaluate(
+                "document.querySelector('[data-testid=timeline-card]').offsetHeight"
+            )
+            assert height <= 2500, f"month {i}: timeline card {height}px"
+        total = page.evaluate("document.getElementById('predictionsContent').offsetHeight")
+        assert total <= PREDICTIONS_BUDGET_PX, f"Life tab is {total}px"
         for section in ("overview", "houses", "dasha", "doshas", "predictions"):
             page.evaluate(f"showSection('{section}')")
             width = page.evaluate("document.documentElement.scrollWidth")
             assert width <= 390, f"{section}: scrollWidth {width}"
     finally:
         page.set_viewport_size({"width": 1280, "height": 720})
+
+
+@pytest.mark.e2e
+def test_before_sunrise_shows_yesterdays_vedic_day(page: Page, base_url: str) -> None:
+    """00:30 UTC is 06:00 in Delhi, before sunrise: the Vedic day is still Friday (shukra)."""
+    page.goto(base_url + "/?now=2026-10-17T00:30:00Z")
+    page.fill("#name", "India 1947")
+    page.fill("#dob", "1947-08-15")
+    page.fill("#tob", "00:00")
+    page.fill("#birthPlace", "New Delhi")
+    page.locator("#placeList li", has_text="New Delhi").first.click()
+    page.click("#submitBtn")
+    expect(page.get_by_test_id("lagna")).to_have_text("Vrishabha")
+    page.click("#navPredictions")
+    expect(page.get_by_test_id("before-sunrise-note")).to_be_visible()
+    expect(page.get_by_test_id("vaar")).to_contain_text("Friday")
+    assert page.locator("tr.hora-now").count() == 1

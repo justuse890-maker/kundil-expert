@@ -24,6 +24,7 @@ from vedic_engine.analysis import (
     WindowReason,
 )
 from vedic_engine.analysis.daily import ColourPick, Decision, Hora
+from vedic_engine.analysis.friendly import cap_names, with_why
 from vedic_engine.analysis.functional import load_data
 from vedic_engine.constants import RASHIS, Graha
 from vedic_engine.dasha import DashaPeriod
@@ -37,12 +38,28 @@ DISCLAIMER_EN = "Traditional Jyotish interpretation — guidance, not certainty.
 DISCLAIMER_HI = "पारंपरिक ज्योतिष व्याख्या — मार्गदर्शन, निश्चितता नहीं।"
 
 
+def friendly_tree(o: object) -> None:
+    """Rewrite every ``why`` list in ``o`` in place: friendly sentences, raw facts to ``detail``."""
+    if isinstance(o, dict):
+        raw = o.get("why")
+        if isinstance(raw, list) and all(isinstance(x, str) for x in raw):
+            had = o.get("detail")
+            with_why(o, raw)
+            if had and "detail" not in o:
+                o["detail"] = had
+        for v in o.values():
+            friendly_tree(v)
+    elif isinstance(o, list):
+        for v in o:
+            friendly_tree(v)
+
+
 def disclaimer() -> Json:
     return {"disclaimer_en": DISCLAIMER_EN, "disclaimer_hi": DISCLAIMER_HI}
 
 
 def statement(s: Statement) -> Json:
-    return {"text_en": s.text_en, "text_hi": s.text_hi, "why": list(s.why), "ref": s.ref}
+    return with_why({"text_en": s.text_en, "text_hi": s.text_hi, "ref": s.ref}, s.why)
 
 
 def area(key: str, a: AreaReading) -> Json:
@@ -62,7 +79,7 @@ def income_source(s: IncomeSource) -> Json:
     return {
         "rank": s.rank,
         "type": s.type,
-        "label_en": s.label_en,
+        "label_en": s.label_en[:1].upper() + s.label_en[1:],
         "label_hi": s.label_hi,
         "score": s.score,
         "planet": s.planet.value,
@@ -118,10 +135,17 @@ class ReasonTable:
         entry: Json = {
             "code": r.code,
             "text": r.text,
-            "why": [r.why],
             "delta": float(r.delta),
             "ref": r.ref,
         }
+        with_why(entry, [r.why])
+        if r.lord and r.level:
+            # name whose period this is about: "Rahu (antardasha lord) is strong (85/100)"
+            name = cap_names(r.lord)
+            why = entry["why"]
+            assert isinstance(why, list)
+            if why and why[0].startswith(name):
+                why[0] = f"{name} ({r.level} lord){why[0][len(name) :]}"
         key = json.dumps(entry, sort_keys=True, ensure_ascii=False)
         if key not in self._ids:
             self._ids[key] = f"r{len(self._ids) + 1}"
@@ -266,7 +290,7 @@ def analysis(
     periods_json: Json,
     meta: Json,
 ) -> Json:
-    return {
+    out: Json = {
         "meta": meta,
         "areas": {k: area(k, a) for k, a in areas.items()},
         "income_sources": [income_source(s) for s in income],
@@ -275,6 +299,8 @@ def analysis(
         "periods": periods_json,
         **disclaimer(),
     }
+    friendly_tree(out)
+    return out
 
 
 def _colour_pick(c: ColourPick | None) -> Json | None:
@@ -323,7 +349,7 @@ def _decision(d: Decision) -> Json:
 
 def daily(g: DailyGuidance, lat: float, lon: float) -> Json:
     tz = g.tz
-    return {
+    out: Json = {
         "date": g.date.isoformat(),
         "tz": tz,
         "place": {"lat": lat, "lon": lon},
@@ -339,3 +365,5 @@ def daily(g: DailyGuidance, lat: float, lon: float) -> Json:
         "decisions": [_decision(d) for d in g.decisions],
         **disclaimer(),
     }
+    friendly_tree(out)
+    return out

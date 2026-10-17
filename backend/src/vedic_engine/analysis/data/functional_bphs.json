@@ -13,7 +13,7 @@
       "notes": {
         "mars": "Though lord of the 8th, Mars helps the other auspicious planets.",
         "jupiter": "A mere Saturn-Jupiter conjunction gives no auspicious result; Jupiter under a malefic's control turns inauspicious.",
-        "venus": "Venus is a direct (independent) killer; Saturn and others kill if associated with him.",
+        "venus": "Venus is a direct (independent) maraka planet; Saturn and others act as maraka if associated with him.",
         "moon": "Not discussed in the verse."
       }
     },
@@ -27,7 +27,7 @@
       "maraka": ["jupiter", "venus", "moon", "mars"],
       "notes": {
         "mercury": "Called 'somewhat auspicious'.",
-        "maraka": "'Jupiter etc. and Mars will inflict death'; Santhanam reads 'Jupiter etc.' as Jupiter, the Moon and Venus."
+        "maraka": "Jupiter, the Moon, Venus and Mars carry maraka (health-sensitive) effects; Santhanam reads 'Jupiter etc.' as Jupiter, the Moon and Venus."
       }
     },
     "mithuna": {
@@ -41,7 +41,7 @@
       "notes": {
         "venus": "Called the only auspicious planet.",
         "saturn": "No classification in the verse (Santhanam: 'there is no hint on Saturn'); a Saturn-Jupiter conjunction gives no yoga, as for Mesha.",
-        "moon": "The prime killer, depending on her association.",
+        "moon": "The prime maraka planet, depending on her association.",
         "mercury": "The lagna lord is not classified in the verse."
       }
     },
@@ -54,8 +54,8 @@
       "yogakaraka": ["mars"],
       "maraka": ["saturn", "sun"],
       "notes": {
-        "saturn": "Killer, giving effects according to association.",
-        "sun": "Killer, giving effects according to association."
+        "saturn": "Maraka planet, giving effects according to association.",
+        "sun": "Maraka planet, giving effects according to association."
       }
     },
     "simha": {
@@ -68,7 +68,7 @@
       "maraka": ["saturn", "moon"],
       "notes": {
         "jupiter": "A Jupiter-Venus conjunction (kendra and kona lords) gives no auspicious result.",
-        "moon": "Killer according to association."
+        "moon": "Maraka planet according to association."
       }
     },
     "kanya": {
@@ -80,7 +80,7 @@
       "yogakaraka": [],
       "maraka": ["venus"],
       "notes": {
-        "venus": "A Venus-Mercury conjunction produces yoga; Venus is also a killer.",
+        "venus": "A Venus-Mercury conjunction produces yoga; Venus is also a maraka planet.",
         "sun": "His role depends on his association.",
         "saturn": "Not classified in the verse."
       }
@@ -96,7 +96,7 @@
       "notes": {
         "moon": "The Moon and Mercury ('chandra-tat-sutau', page image checked) cause rajayoga.",
         "venus": "The lagna lord is called neutral (he also owns the 8th).",
-        "mars": "Mars kills; Jupiter and the other malefics acquire maraka qualities."
+        "mars": "Mars acts as the maraka planet; Jupiter and the other malefics acquire maraka qualities."
       }
     },
     "vrishchika": {
@@ -121,7 +121,7 @@
       "yogakaraka": ["sun", "mercury"],
       "maraka": ["saturn", "venus"],
       "notes": {
-        "venus": "The only inauspicious planet; he also acquires killing powers.",
+        "venus": "The only inauspicious planet; he also acquires maraka powers.",
         "jupiter": "The lagna lord is called neutral.",
         "moon": "Not classified in the verse."
       }
@@ -135,9 +135,9 @@
       "yogakaraka": ["venus"],
       "maraka": ["mars"],
       "notes": {
-        "saturn": "The lagna lord is not a killer of his own; otherwise not classified.",
+        "saturn": "The lagna lord is not a maraka planet on his own; otherwise not classified.",
         "venus": "Only Venus causes a superior yoga.",
-        "maraka": "Mars and the other malefics inflict death."
+        "maraka": "Mars and the other malefics carry maraka (health-sensitive) effects."
       }
     },
     "kumbha": {
@@ -162,7 +162,7 @@
       "yogakaraka": ["mars", "jupiter"],
       "maraka": ["mars", "saturn", "mercury"],
       "notes": {
-        "mars": "A killer who will not kill the native independently."
+        "mars": "A maraka planet that does not act as one independently."
       }
     }
   }

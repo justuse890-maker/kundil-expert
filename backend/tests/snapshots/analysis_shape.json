@@ -4,6 +4,9 @@
       "score": "int",
       "statements": [
         {
+          "detail": [
+            "str"
+          ],
           "ref": "str",
           "text_en": "str",
           "text_hi": "str",
@@ -20,6 +23,9 @@
       "score": "int",
       "statements": [
         {
+          "detail": [
+            "str"
+          ],
           "ref": "str",
           "text_en": "str",
           "text_hi": "str",
@@ -36,6 +42,9 @@
       "score": "int",
       "statements": [
         {
+          "detail": [
+            "str"
+          ],
           "ref": "str",
           "text_en": "str",
           "text_hi": "str",
@@ -52,6 +61,9 @@
       "score": "int",
       "statements": [
         {
+          "detail": [
+            "str"
+          ],
           "ref": "str",
           "text_en": "str",
           "text_hi": "str",
@@ -68,6 +80,9 @@
       "score": "int",
       "statements": [
         {
+          "detail": [
+            "str"
+          ],
           "ref": "str",
           "text_en": "str",
           "text_hi": "str",
@@ -84,6 +99,9 @@
       "score": "int",
       "statements": [
         {
+          "detail": [
+            "str"
+          ],
           "ref": "str",
           "text_en": "str",
           "text_hi": "str",
@@ -100,6 +118,9 @@
       "score": "int",
       "statements": [
         {
+          "detail": [
+            "str"
+          ],
           "ref": "str",
           "text_en": "str",
           "text_hi": "str",
@@ -116,6 +137,9 @@
       "score": "int",
       "statements": [
         {
+          "detail": [
+            "str"
+          ],
           "ref": "str",
           "text_en": "str",
           "text_hi": "str",
@@ -133,6 +157,9 @@
   "disclaimer_hi": "str",
   "functional_roles": {
     "jupiter": {
+      "detail": [
+        "str"
+      ],
       "houses": [
         "int"
       ],
@@ -151,6 +178,9 @@
       ]
     },
     "ketu": {
+      "detail": [
+        "str"
+      ],
       "houses": [
         null
       ],
@@ -169,6 +199,9 @@
       ]
     },
     "mars": {
+      "detail": [
+        "str"
+      ],
       "houses": [
         "int"
       ],
@@ -187,6 +220,9 @@
       ]
     },
     "mercury": {
+      "detail": [
+        "str"
+      ],
       "houses": [
         "int"
       ],
@@ -205,6 +241,9 @@
       ]
     },
     "moon": {
+      "detail": [
+        "str"
+      ],
       "houses": [
         "int"
       ],
@@ -223,6 +262,9 @@
       ]
     },
     "rahu": {
+      "detail": [
+        "str"
+      ],
       "houses": [
         null
       ],
@@ -241,6 +283,9 @@
       ]
     },
     "saturn": {
+      "detail": [
+        "str"
+      ],
       "houses": [
         "int"
       ],
@@ -259,6 +304,9 @@
       ]
     },
     "sun": {
+      "detail": [
+        "str"
+      ],
       "houses": [
         "int"
       ],
@@ -277,6 +325,9 @@
       ]
     },
     "venus": {
+      "detail": [
+        "str"
+      ],
       "houses": [
         "int"
       ],
@@ -297,6 +348,9 @@
   },
   "income_sources": [
     {
+      "detail": [
+        "str"
+      ],
       "label_en": "str",
       "label_hi": "str",
       "planet": "str",
@@ -467,6 +521,9 @@
       "r1": {
         "code": "str",
         "delta": "float",
+        "detail": [
+          "str"
+        ],
         "ref": "str",
         "text": "str",
         "why": [
@@ -476,6 +533,9 @@
       "r10": {
         "code": "str",
         "delta": "float",
+        "detail": [
+          "str"
+        ],
         "ref": "str",
         "text": "str",
         "why": [
@@ -485,6 +545,9 @@
       "r11": {
         "code": "str",
         "delta": "float",
+        "detail": [
+          "str"
+        ],
         "ref": "str",
         "text": "str",
         "why": [
@@ -494,6 +557,9 @@
       "r12": {
         "code": "str",
         "delta": "float",
+        "detail": [
+          "str"
+        ],
         "ref": "str",
         "text": "str",
         "why": [
@@ -503,6 +569,9 @@
       "r13": {
         "code": "str",
         "delta": "float",
+        "detail": [
+          "str"
+        ],
         "ref": "str",
         "text": "str",
         "why": [
@@ -512,6 +581,9 @@
       "r14": {
         "code": "str",
         "delta": "float",
+        "detail": [
+          "str"
+        ],
         "ref": "str",
         "text": "str",
         "why": [
@@ -521,6 +593,9 @@
       "r15": {
         "code": "str",
         "delta": "float",
+        "detail": [
+          "str"
+        ],
         "ref": "str",
         "text": "str",
         "why": [
@@ -530,6 +605,9 @@
       "r16": {
         "code": "str",
         "delta": "float",
+        "detail": [
+          "str"
+        ],
         "ref": "str",
         "text": "str",
         "why": [
@@ -539,6 +617,9 @@
       "r17": {
         "code": "str",
         "delta": "float",
+        "detail": [
+          "str"
+        ],
         "ref": "str",
         "text": "str",
         "why": [
@@ -548,6 +629,9 @@
       "r18": {
         "code": "str",
         "delta": "float",
+        "detail": [
+          "str"
+        ],
         "ref": "str",
         "text": "str",
         "why": [
@@ -557,6 +641,9 @@
       "r19": {
         "code": "str",
         "delta": "float",
+        "detail": [
+          "str"
+        ],
         "ref": "str",
         "text": "str",
         "why": [
@@ -566,6 +653,45 @@
       "r2": {
         "code": "str",
         "delta": "float",
+        "detail": [
+          "str"
+        ],
+        "ref": "str",
+        "text": "str",
+        "why": [
+          "str"
+        ]
+      },
+      "r20": {
+        "code": "str",
+        "delta": "float",
+        "detail": [
+          "str"
+        ],
+        "ref": "str",
+        "text": "str",
+        "why": [
+          "str"
+        ]
+      },
+      "r21": {
+        "code": "str",
+        "delta": "float",
+        "detail": [
+          "str"
+        ],
+        "ref": "str",
+        "text": "str",
+        "why": [
+          "str"
+        ]
+      },
+      "r22": {
+        "code": "str",
+        "delta": "float",
+        "detail": [
+          "str"
+        ],
         "ref": "str",
         "text": "str",
         "why": [
@@ -575,6 +701,9 @@
       "r3": {
         "code": "str",
         "delta": "float",
+        "detail": [
+          "str"
+        ],
         "ref": "str",
         "text": "str",
         "why": [
@@ -584,6 +713,9 @@
       "r4": {
         "code": "str",
         "delta": "float",
+        "detail": [
+          "str"
+        ],
         "ref": "str",
         "text": "str",
         "why": [
@@ -593,6 +725,9 @@
       "r5": {
         "code": "str",
         "delta": "float",
+        "detail": [
+          "str"
+        ],
         "ref": "str",
         "text": "str",
         "why": [
@@ -602,6 +737,9 @@
       "r6": {
         "code": "str",
         "delta": "float",
+        "detail": [
+          "str"
+        ],
         "ref": "str",
         "text": "str",
         "why": [
@@ -611,6 +749,9 @@
       "r7": {
         "code": "str",
         "delta": "float",
+        "detail": [
+          "str"
+        ],
         "ref": "str",
         "text": "str",
         "why": [
@@ -620,6 +761,9 @@
       "r8": {
         "code": "str",
         "delta": "float",
+        "detail": [
+          "str"
+        ],
         "ref": "str",
         "text": "str",
         "why": [
@@ -629,6 +773,9 @@
       "r9": {
         "code": "str",
         "delta": "float",
+        "detail": [
+          "str"
+        ],
         "ref": "str",
         "text": "str",
         "why": [
@@ -645,6 +792,9 @@
       {
         "advice_key": "str",
         "areas": [
+          "str"
+        ],
+        "detail": [
           "str"
         ],
         "end_local": "str",

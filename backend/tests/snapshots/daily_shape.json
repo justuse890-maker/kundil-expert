@@ -1,6 +1,9 @@
 {
   "body_language": [
     {
+      "detail": [
+        "str"
+      ],
       "ref": "str",
       "text_en": "str",
       "text_hi": "str",
@@ -12,6 +15,9 @@
   "colour_avoid": {
     "colour_en": "str",
     "colour_hi": "str",
+    "detail": [
+      "str"
+    ],
     "graha": "str",
     "ref": "str",
     "source": "str",
@@ -24,6 +30,9 @@
   "colour_today": {
     "colour_en": "str",
     "colour_hi": "str",
+    "detail": [
+      "str"
+    ],
     "graha": "str",
     "ref": "str",
     "source": "str",
@@ -37,6 +46,9 @@
   "decisions": [
     {
       "category": "str",
+      "detail": [
+        "str"
+      ],
       "kind": "str",
       "ref": "str",
       "text_en": "str",
@@ -54,6 +66,9 @@
       "colour_en": "str",
       "colour_hi": "str",
       "colour_source": "str",
+      "detail": [
+        "str"
+      ],
       "end_local": "str",
       "end_utc": "str",
       "favourable": "bool",
