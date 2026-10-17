@@ -21,7 +21,7 @@ class EphemerisRangeError(InputError):
 
 @dataclass(frozen=True, slots=True)
 class Settings:
-    ayanamsa: str = "LAHIRI"
+    ayanamsa: Literal["LAHIRI", "RAMAN", "KP", "FAGAN_BRADLEY"] = "LAHIRI"
     node: Literal["MEAN", "TRUE"] = "MEAN"
     dasha_year_days: float = 365.25
     sunrise: Literal["UPPER_LIMB_REFRACTED", "CENTER_NO_REFRACTION"] = "UPPER_LIMB_REFRACTED"
@@ -30,12 +30,14 @@ class Settings:
 @dataclass(frozen=True, slots=True)
 class BirthInput:
     local: datetime  # naive local civil time
-    tz: str
+    tz: str  # IANA zone, or a fixed offset such as "UTC+05:53:20" / "UTC-04:00"
     lat: float
     lon: float
     alt: float = 0.0
     fold: int | None = None
     name: str | None = None
+    time_known: bool = True  # False: Chandra kundli (noon positions, Moon as lagna)
+    lmt: bool = False  # True: local mean time, a fixed offset of lon/15 h (``tz`` is ignored)
 
 
 @dataclass(frozen=True, slots=True)

@@ -53,7 +53,12 @@ _BODY: dict[Graha, int] = {
     Graha.SATURN: swe.SATURN,
 }
 _NODE: dict[str, int] = {"MEAN": swe.MEAN_NODE, "TRUE": swe.TRUE_NODE}
-_SUPPORTED_AYANAMSA = "LAHIRI"
+_SIDM: dict[str, int] = {
+    "LAHIRI": swe.SIDM_LAHIRI,
+    "RAMAN": swe.SIDM_RAMAN,
+    "KP": swe.SIDM_KRISHNAMURTI,
+    "FAGAN_BRADLEY": swe.SIDM_FAGAN_BRADLEY,
+}
 
 
 def init(ephe_path: Path) -> None:
@@ -93,17 +98,22 @@ def _calc(jd_ut: float, body: int, flags: int) -> tuple[float, ...]:
     return tuple(xx)
 
 
-def _check_settings(settings: Settings) -> None:
-    if settings.ayanamsa != _SUPPORTED_AYANAMSA:
-        raise InputError(f"unsupported ayanamsa {settings.ayanamsa!r}; only LAHIRI")
+def _sid_mode(settings: Settings) -> int:
+    """Swiss Ephemeris sidereal mode of ``settings.ayanamsa``; unknown names raise InputError."""
+    try:
+        return _SIDM[settings.ayanamsa]
+    except KeyError:
+        raise InputError(
+            f"unsupported ayanamsa {settings.ayanamsa!r}; one of {', '.join(_SIDM)}"
+        ) from None
 
 
 def ayanamsa(jd_ut: float, settings: Settings) -> float:
-    """True Lahiri ayanamsa (mean + nutation), the value FLG_SIDEREAL subtracts."""
+    """True ayanamsa of ``settings.ayanamsa`` (mean + nutation), the value FLG_SIDEREAL subtracts."""
     check_range(jd_ut)
-    _check_settings(settings)
+    mode = _sid_mode(settings)
     with _LOCK:
-        swe.set_sid_mode(swe.SIDM_LAHIRI)
+        swe.set_sid_mode(mode)
         try:
             ret, aya = swe.get_ayanamsa_ex_ut(jd_ut, swe.FLG_SWIEPH)
         except swe.Error as exc:
@@ -129,12 +139,12 @@ def _sidereal(jd_ut: float, graha: Graha, settings: Settings) -> GrahaPosition:
 
 
 def positions(jd_ut: float, settings: Settings) -> dict[Graha, GrahaPosition]:
-    """Sidereal (Lahiri) positions of all nine grahas. Rahu/Ketu are always retrograde."""
+    """Sidereal positions (ayanamsa per ``settings``) of all nine grahas. Rahu/Ketu are always retrograde."""
     check_range(jd_ut)
-    _check_settings(settings)
+    mode = _sid_mode(settings)
     out: dict[Graha, GrahaPosition] = {}
     with _LOCK:
-        swe.set_sid_mode(swe.SIDM_LAHIRI)
+        swe.set_sid_mode(mode)
         for graha in Graha:
             if graha is not Graha.KETU:
                 out[graha] = _sidereal(jd_ut, graha, settings)
@@ -151,9 +161,9 @@ def body_longitude(
     may lie up to DERIVED_MARGIN_DAYS past JD_MAX.
     """
     check_range(jd_ut, derived=derived)
-    _check_settings(settings)
+    mode = _sid_mode(settings)
     with _LOCK:
-        swe.set_sid_mode(swe.SIDM_LAHIRI)
+        swe.set_sid_mode(mode)
         return _sidereal(jd_ut, graha, settings).lon
 
 
@@ -169,11 +179,12 @@ def tropical_longitude(jd_ut: float, graha: Graha) -> float:
     return norm(lon + 180.0) if graha is Graha.KETU else norm(lon)
 
 
-def _ascmc(jd_ut: float, lat: float, lon: float) -> tuple[float, ...]:
-    """Sidereal (Lahiri) ``ascmc`` of ``swe.houses_ex`` for geographic ``lat``/``lon``."""
+def _ascmc(jd_ut: float, lat: float, lon: float, settings: Settings) -> tuple[float, ...]:
+    """Sidereal ``ascmc`` of ``swe.houses_ex`` for geographic ``lat``/``lon``."""
     check_range(jd_ut)
+    mode = _sid_mode(settings)
     with _LOCK:
-        swe.set_sid_mode(swe.SIDM_LAHIRI)
+        swe.set_sid_mode(mode)
         try:
             _cusps, ascmc = swe.houses_ex(jd_ut, lat, lon, b"W", swe.FLG_SIDEREAL)
         except swe.Error as exc:
@@ -181,18 +192,18 @@ def _ascmc(jd_ut: float, lat: float, lon: float) -> tuple[float, ...]:
     return tuple(ascmc)
 
 
-def ascendant(jd_ut: float, lat: float, lon: float) -> float:
-    """Sidereal (Lahiri) ascendant longitude for geographic ``lat``/``lon`` (east positive)."""
-    return norm(float(_ascmc(jd_ut, lat, lon)[0]))
+def ascendant(jd_ut: float, lat: float, lon: float, settings: Settings) -> float:
+    """Sidereal ascendant longitude for geographic ``lat``/``lon`` (east positive)."""
+    return norm(float(_ascmc(jd_ut, lat, lon, settings)[0]))
 
 
-def midheaven(jd_ut: float, lat: float, lon: float) -> float:
-    """Sidereal (Lahiri) midheaven (MC, the meridian's ecliptic degree), ``lon`` east positive.
+def midheaven(jd_ut: float, lat: float, lon: float, settings: Settings) -> float:
+    """Sidereal midheaven (MC, the meridian's ecliptic degree), ``lon`` east positive.
 
     Shadbala needs it: the Dig bala of the Sun, Mars, Moon and Venus is measured from the
     meridian (BPHS 27.7-13; Raman's "Madhya Lagna").
     """
-    return norm(float(_ascmc(jd_ut, lat, lon)[1]))
+    return norm(float(_ascmc(jd_ut, lat, lon, settings)[1]))
 
 
 def equation_of_time(jd_ut: float) -> float:
@@ -203,7 +214,6 @@ def equation_of_time(jd_ut: float) -> float:
     """
     check_range(jd_ut)
     with _LOCK:
-        swe.set_sid_mode(swe.SIDM_LAHIRI)
         try:
             return float(swe.time_equ(jd_ut))
         except swe.Error as exc:

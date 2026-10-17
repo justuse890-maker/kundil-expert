@@ -6,12 +6,15 @@ import pytest
 import swisseph as swe
 
 from vedic_engine import timeutil
-from vedic_engine.models import InputError
+from vedic_engine.models import BirthInput, InputError
 from vedic_engine.timeutil import (
     AmbiguousTimeError,
     NonexistentTimeError,
     UnknownTimezoneError,
+    birth_utc,
     jd_from_utc,
+    lmt_offset,
+    lmt_tz,
     to_local,
     to_utc,
     utc_from_jd,
@@ -145,3 +148,33 @@ def test_jd_matches_swiss_ephemeris(dt: datetime) -> None:
 def test_timeutil_does_not_import_swisseph() -> None:
     source = Path(timeutil.__file__).read_text()
     assert "swisseph" not in source
+
+
+def test_fixed_offset_converts_without_dst() -> None:
+    # 1900-01-01 12:00 at UTC+05:53:20 (Calcutta mean time) is 06:06:40 UTC.
+    got = to_utc(datetime(1900, 1, 1, 12, 0), "UTC+05:53:20")
+    assert got == datetime(1900, 1, 1, 6, 6, 40, tzinfo=UTC)
+    assert to_utc(datetime(2024, 7, 1, 12, 0), "UTC-04:00") == datetime(
+        2024, 7, 1, 16, 0, tzinfo=UTC
+    )
+    assert to_local(datetime(2024, 7, 1, 16, 0, tzinfo=UTC), "UTC-04:00").hour == 12
+
+
+def test_lmt_offset_is_longitude_over_fifteen_hours() -> None:
+    # Calcutta 88.3639 E: 5.890927 h = +05:53:27.3
+    assert lmt_offset(88.3639) == timedelta(hours=5, minutes=53, seconds=27.336)
+    assert lmt_tz(88.3639) == "UTC+05:53:27.336"
+    assert lmt_tz(-75.0) == "UTC-05:00:00.000"
+    b = BirthInput(datetime(1900, 1, 1, 12, 0), "Asia/Kolkata", 22.57, 88.3639, lmt=True)
+    assert birth_utc(b) == datetime(1900, 1, 1, 6, 6, 32, 664000, tzinfo=UTC)
+    with pytest.raises(InputError):
+        lmt_offset(200.0)
+
+
+@pytest.mark.parametrize(
+    "bad",
+    ["UTC+5:30", "UTC+05", "UTC+24:00", "UTC+05:60", "UTC+05:30:61", "UTC+0530", "UTC+05:30x"],
+)
+def test_malformed_fixed_offset_raises(bad: str) -> None:
+    with pytest.raises(InputError):
+        to_utc(datetime(2000, 1, 1, 12, 0), bad)

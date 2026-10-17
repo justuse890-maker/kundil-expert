@@ -5,10 +5,11 @@ ambiguous (DST overlap) local times are rejected rather than guessed.
 """
 
 import math
-from datetime import UTC, datetime, timedelta
+import re
+from datetime import UTC, datetime, timedelta, timezone
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError, reset_tzpath
 
-from vedic_engine.models import InputError
+from vedic_engine.models import BirthInput, InputError
 
 # Pin tz data to the `tzdata` package (locked in uv.lock): an empty search path makes
 # zoneinfo skip the OS tz database, so the same input gives the same output on any machine.
@@ -27,7 +28,59 @@ class UnknownTimezoneError(InputError):
     """Not a known IANA timezone."""
 
 
-def _zone(tz: str) -> ZoneInfo:
+_OFFSET = re.compile(r"UTC([+-])(\d{2}):(\d{2})(?::(\d{2}(?:\.\d{1,6})?))?")
+_HOURS_PER_DAY = 24
+
+
+def fixed_offset(tz: str) -> timezone | None:
+    """The fixed-offset zone of ``"UTC+HH:MM[:SS[.fff]]"`` / ``"UTC-HH:MM"``, else ``None``.
+
+    A string that starts like an offset but is malformed or out of range raises InputError.
+    """
+    if not tz.startswith(("UTC+", "UTC-")):
+        return None
+    match = _OFFSET.fullmatch(tz)
+    if match is None:
+        raise InputError(f"malformed UTC offset {tz!r}; expected UTC+HH:MM[:SS], e.g. UTC+05:53:20")
+    sign, hh, mm, ss = match.groups()
+    hours, minutes, seconds = int(hh), int(mm), float(ss or 0)
+    if hours >= _HOURS_PER_DAY or minutes >= 60 or seconds >= 60:
+        raise InputError(f"UTC offset {tz!r} out of range")
+    delta = timedelta(hours=hours, minutes=minutes, seconds=seconds)
+    return timezone(-delta if sign == "-" else delta)
+
+
+def lmt_offset(lon: float) -> timedelta:
+    """Local mean time offset of east-positive longitude ``lon``: lon/15 hours (ms resolution)."""
+    if not -180.0 <= lon <= 180.0:
+        raise InputError(f"longitude {lon} outside -180..180")
+    return timedelta(milliseconds=round(lon / 15.0 * 3_600_000))
+
+
+def lmt_tz(lon: float) -> str:
+    """The fixed-offset ``tz`` string of local mean time at ``lon``, e.g. ``UTC+05:53:27.340``."""
+    ms = round(lmt_offset(lon) / timedelta(milliseconds=1))
+    sign = "-" if ms < 0 else "+"
+    total_s, milli = divmod(abs(ms), 1000)
+    minutes, sec = divmod(total_s, 60)
+    hour, minute = divmod(minutes, 60)
+    return f"UTC{sign}{hour:02d}:{minute:02d}:{sec:02d}.{milli:03d}"
+
+
+def effective_tz(birth: BirthInput) -> str:
+    """The ``tz`` string to convert ``birth`` with: LMT (lon/15 h) when ``birth.lmt``."""
+    return lmt_tz(birth.lon) if birth.lmt else birth.tz
+
+
+def birth_utc(birth: BirthInput) -> datetime:
+    """Aware UTC instant of ``birth`` (IANA zone, fixed offset or LMT)."""
+    return to_utc(birth.local, effective_tz(birth), birth.fold)
+
+
+def _zone(tz: str) -> ZoneInfo | timezone:
+    fixed = fixed_offset(tz)
+    if fixed is not None:
+        return fixed
     try:
         return ZoneInfo(tz)
     except (ZoneInfoNotFoundError, ValueError, OSError) as exc:
@@ -41,6 +94,11 @@ def to_utc(local: datetime, tz: str, fold: int | None = None) -> datetime:
     if fold not in (None, 0, 1):
         raise InputError(f"fold must be 0, 1 or None, got {fold!r}")
     zone = _zone(tz)
+    if isinstance(zone, timezone):
+        try:
+            return local.replace(tzinfo=zone).astimezone(UTC)
+        except (OverflowError, ValueError) as exc:
+            raise InputError(f"local time {local} out of representable range in {tz}") from exc
     try:
         base = local.replace(fold=0)
         first = base.replace(tzinfo=zone)

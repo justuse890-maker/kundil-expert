@@ -186,7 +186,7 @@ def elements_at(jd_ut: float, lat: float, lon: float, alt: float, settings: Sett
 _MAX_DST_GAP = timedelta(hours=3)
 
 
-def _day_start(day: date, tz: str) -> datetime:
+def day_start(day: date, tz: str) -> datetime:
     """UTC instant at which civil ``day`` begins in ``tz``.
 
     Local midnight, its first occurrence if repeated, or the end of a DST gap that swallows it.
@@ -226,8 +226,8 @@ def day_panchang(
 
     Events are searched from local midnight to the next local midnight.
     """
-    jd_a = jd_from_utc(_day_start(day, tz))
-    jd_b = jd_from_utc(_day_start(day + timedelta(days=1), tz))
+    jd_a = jd_from_utc(day_start(day, tz))
+    jd_b = jd_from_utc(day_start(day + timedelta(days=1), tz))
 
     def event(body: Literal["sun", "moon"], kind: Literal["rise", "set"]) -> float | None:
         return _event_between(jd_a, jd_b, lat, lon, alt, body, kind, settings)

@@ -22,7 +22,7 @@ from vedic_engine.angles import nak_of, sign_of
 from vedic_engine.constants import Graha
 from vedic_engine.models import BirthInput, EngineWarning, Settings
 from vedic_engine.panchang import tithi
-from vedic_engine.timeutil import jd_from_utc, to_utc
+from vedic_engine.timeutil import birth_utc, jd_from_utc
 from vedic_engine.varga import varga_sign
 
 SEARCH_MINUTES = 120
@@ -83,11 +83,11 @@ def sensitive_items(items: Iterable[SensitivityItem]) -> tuple[str, ...]:
 def sensitivity(
     birth: BirthInput, settings: Settings
 ) -> tuple[tuple[SensitivityItem, ...], tuple[EngineWarning, ...]]:
-    jd = jd_from_utc(to_utc(birth.local, birth.tz, birth.fold))
+    jd = jd_from_utc(birth_utc(birth))
 
     @cache
     def asc(t: float) -> float:
-        return ephemeris.ascendant(t, birth.lat, birth.lon)
+        return ephemeris.ascendant(t, birth.lat, birth.lon, settings)
 
     @cache
     def moon(t: float) -> float:
