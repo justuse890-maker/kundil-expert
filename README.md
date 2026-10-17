@@ -49,3 +49,6 @@ Not yet verified: any comparison with Jagannath Hora exports (drop them into
 `backend/fixtures/golden/jhora/`), and engine-computed Shadbala against an external source.
 
 Licence: AGPL-3.0 (see `LICENSE`); data attributions in `NOTICE.md`.
+
+## Deploy
+Free hosting on Render: see [docs/DEPLOY.md](docs/DEPLOY.md).

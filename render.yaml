@@ -1,0 +1,11 @@
+# Render Blueprint: one free web service built from the repo's Dockerfile.
+# The API and the user interface are served by the same service.
+services:
+  - type: web
+    name: vedic-kundli
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/v1/health
+    autoDeploy: true
