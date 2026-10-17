@@ -7,16 +7,16 @@ Time-zone input is exactly one of ``tz`` (IANA name), ``utc_offset`` (``"+05:30"
 import datetime as dt
 from typing import Literal, Self
 
-from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
+from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from vedic_engine.constants import VIMSHOTTARI_ORDER
 from vedic_engine.dasha.yogini import YOGINIS
-from vedic_engine.models import BirthInput, Settings
-from vedic_engine.timeutil import lmt_tz
+from vedic_engine.models import BirthInput, InputError, Settings
+from vedic_engine.timeutil import fixed_offset, lmt_tz
 from vedic_engine.varga import VARGAS
 
 NOON = dt.time(12, 0)
-LORD_KEYS: tuple[str, ...] = (*(g.value for g in VIMSHOTTARI_ORDER), *YOGINIS)
+VIMSHOTTARI_LORDS: tuple[str, ...] = tuple(g.value for g in VIMSHOTTARI_ORDER)
 
 
 class Request(BaseModel):
@@ -48,6 +48,16 @@ class ZoneIn(Request):
         description='Fixed offset from UTC, e.g. "+05:30"',
     )
     lmt: bool = Field(False, description="Local mean time at the longitude (lon/15 hours)")
+
+    @field_validator("utc_offset")
+    @classmethod
+    def _offset_in_range(cls, value: str | None) -> str | None:
+        if value is not None:
+            try:
+                fixed_offset(f"UTC{value}")
+            except InputError as exc:
+                raise ValueError(str(exc)) from exc
+        return value
 
     @model_validator(mode="after")
     def _exactly_one_zone(self) -> Self:
@@ -119,24 +129,32 @@ class PanchangRequest(ZoneIn):
 
 class DashaRequest(Request):
     kundli: KundliRequest
-    path: list[str] = Field(
-        min_length=1,
-        max_length=5,
-        description="Lords from the maha down, e.g. ['jupiter', 'saturn']; Vimshottari lords "
-        "or yogini keys (an earlier-occurring maha wins if a lord appears twice)",
+    scheme: Literal["vimshottari", "yogini"]
+    maha_index: int = Field(
+        ge=0,
+        description="0-based position of the maha in the /kundli response list for this scheme "
+        "(a lord can occur twice in the 120-year span)",
     )
-    depth: int = Field(1, ge=1, le=5, description="Levels to expand below the path's period")
+    path: list[str] = Field(
+        default_factory=list,
+        max_length=4,
+        description="Lords below the maha (antar, pratyantar, ...); may be empty",
+    )
+    depth: int = Field(1, ge=1, le=5, description="Levels to expand below the addressed period")
 
     @model_validator(mode="after")
-    def _known_lords(self) -> Self:
-        bad = [p for p in self.path if p not in LORD_KEYS]
+    def _lords_of_scheme(self) -> Self:
+        known = VIMSHOTTARI_LORDS if self.scheme == "vimshottari" else YOGINIS
+        bad = [p for p in self.path if p not in known]
         if bad:
-            raise ValueError(f"unknown dasha lords {bad}")
+            raise ValueError(f"unknown {self.scheme} lords {bad}")
         return self
 
 
 class TransitRequest(Request):
-    datetime_utc: AwareDatetime
+    datetime_utc: AwareDatetime = Field(
+        description="Instant with `Z` or an offset; the response is UTC-only (no `*_local`)"
+    )
     natal: KundliRequest | None = None
     settings: SettingsIn | None = Field(
         None, description="Defaults to natal.settings if natal is given, else the defaults"

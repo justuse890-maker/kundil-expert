@@ -20,7 +20,7 @@ dev = [
     "hypothesis",
     "ruff",
     "mypy",
-    "httpx2>=2.13.1",
+    "httpx",
 ]
 
 [build-system]
@@ -35,6 +35,9 @@ testpaths = ["tests"]
 pythonpath = ["tests"]
 # Network tests are skipped by default; run them with: pytest -m network
 addopts = "-m 'not network'"
+# Starlette 1.x deprecates httpx in TestClient in favour of httpx2, whose provenance we have
+# not verified; the official httpx stays.
+filterwarnings = ["ignore:Using .httpx. with .starlette.testclient. is deprecated"]
 markers = [
     "golden: golden-file regression tests against reference data",
     "perf: performance / latency budget tests",

@@ -2,6 +2,7 @@
 
 import itertools
 import json
+import re
 from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
@@ -181,8 +182,9 @@ def test_lmt(client: TestClient) -> None:
     meta = r.json()["meta"]
     assert meta["lmt"] is True
     # 77.2090 deg / 15 = 5 h 8 min 50.16 s
-    assert meta["birth_local"] == "2000-01-01T12:00:00+05:08:50"
+    assert meta["birth_local"] == "2000-01-01T12:00:00+05:09"
     assert meta["birth_utc"] == "2000-01-01T06:51:10Z"
+    assert meta["utc_offset_seconds"] == pytest.approx(5 * 3600 + 8 * 60 + 50.16, abs=0.01)
 
 
 def test_extra_fields_rejected(client: TestClient) -> None:
@@ -269,50 +271,102 @@ def test_panchang_ok(client: TestClient) -> None:
     assert client.post("/api/v1/panchang", json={**body, "tz": "No/Where"}).status_code == 422
 
 
+INDIA_1947 = {"date": "1947-08-15", "time": "00:00", "tz": "Asia/Kolkata", **DELHI}
+
+
+def _dasha(client: TestClient, **body: Any) -> Any:
+    return client.post("/api/v1/dasha", json={"kundli": INDIA_1947, **body})
+
+
+def _levels(period: dict[str, Any]) -> list[int]:
+    out = [period["level"]]
+    while period["children"]:
+        period = period["children"][0]
+        out.append(period["level"])
+    return out
+
+
 def test_dasha_subtree_depth5(client: TestClient) -> None:
-    body = {"kundli": request_of(golden0()), "path": ["jupiter"], "depth": 5}
-    r = client.post("/api/v1/dasha", json=body)
+    r = _dasha(client, scheme="vimshottari", maha_index=1, depth=5)
     assert r.status_code == 200, r.text
     d = r.json()
-    assert d["scheme"] == "vimshottari"
+    assert (d["scheme"], d["maha_index"], d["path"]) == ("vimshottari", 1, [])
     period = d["period"]
-    assert period["lord"] == "jupiter" and period["level"] == 1
-    node = period
-    levels = [node["level"]]
-    while node["children"]:
-        node = node["children"][0]
-        levels.append(node["level"])
-    assert levels == [1, 2, 3, 4, 5]
-    assert len(period["children"]) == 9
+    assert period["lord"] == "mercury" and _levels(period) == [1, 2, 3, 4, 5]
     kids = period["children"]
-    assert kids[0]["start_utc"] == period["start_utc"]
+    assert len(kids) == 9 and kids[0]["start_utc"] == period["start_utc"]
+    assert kids[-1]["end_utc"] == period["end_utc"]
     assert all(a["end_utc"] == b["start_utc"] for a, b in itertools.pairwise(kids))
 
 
+def test_dasha_second_saturn_maha_is_addressable(client: TestClient) -> None:
+    mahas = client.post("/api/v1/kundli", json=INDIA_1947).json()["vimshottari"]
+    saturn = [i for i, m in enumerate(mahas) if m["lord"] == "saturn"]
+    assert saturn == [0, 9]  # birth maha (partly elapsed) and the one 120 years on
+    first = _dasha(client, scheme="vimshottari", maha_index=0, depth=2).json()["period"]
+    second = _dasha(client, scheme="vimshottari", maha_index=9, depth=2).json()["period"]
+    assert second["lord"] == "saturn"
+    assert second["start_utc"] == mahas[9]["start_utc"] != first["start_utc"]
+    assert second["end_utc"] == mahas[9]["end_utc"]
+    assert second["children"][0]["lord"] == "saturn"
+    assert second["children"][0]["start_utc"] == mahas[9]["start_utc"]
+    assert second["children"][-1]["end_utc"] == mahas[9]["end_utc"]
+    # an antar of the second Saturn maha, by path
+    antar = second["children"][2]
+    d = _dasha(client, scheme="vimshottari", maha_index=9, path=[antar["lord"]], depth=1).json()
+    assert d["period"]["level"] == 2
+    assert (d["period"]["start_utc"], d["period"]["end_utc"]) == (
+        antar["start_utc"],
+        antar["end_utc"],
+    )
+
+
+def test_dasha_later_dhanya_yogini_maha(client: TestClient) -> None:
+    mahas = client.post("/api/v1/kundli", json=INDIA_1947).json()["yogini"]
+    dhanya = [i for i, m in enumerate(mahas) if m["lord"] == "dhanya"]
+    assert dhanya[:4] == [0, 8, 16, 24]
+    r = _dasha(client, scheme="yogini", maha_index=16, depth=2)
+    assert r.status_code == 200, r.text
+    period = r.json()["period"]
+    assert period["lord"] == "dhanya" and period["graha"] == "jupiter"
+    assert period["start_utc"] == mahas[16]["start_utc"] != mahas[8]["start_utc"]
+    assert len(period["children"]) == 8 and period["children"][0]["children"]
+    deep = _dasha(client, scheme="yogini", maha_index=16, path=["siddha"], depth=1).json()
+    assert deep["period"]["lord"] == "siddha" and deep["period"]["level"] == 2
+
+
 def test_dasha_five_level_path_has_no_children(client: TestClient) -> None:
-    body = {"kundli": request_of(golden0()), "path": ["jupiter"] * 5, "depth": 3}
-    period = client.post("/api/v1/dasha", json=body).json()["period"]
+    r = _dasha(client, scheme="vimshottari", maha_index=1, path=["mercury"] * 4, depth=3)
+    period = r.json()["period"]
     assert period["level"] == 5 and period["children"] == []
 
 
-def test_dasha_path_and_yogini(client: TestClient) -> None:
-    k = request_of(golden0())
-    first = client.post("/api/v1/kundli", json=k).json()["vimshottari"][0]
-    antar = first["children"][1]
-    path = [first["lord"], antar["lord"]]
-    d = client.post("/api/v1/dasha", json={"kundli": k, "path": path, "depth": 1}).json()
-    assert d["period"]["level"] == 2
-    assert d["period"]["start_utc"] == antar["start_utc"]
-    assert d["period"]["end_utc"] == antar["end_utc"]
-    yog = client.post("/api/v1/dasha", json={"kundli": k, "path": ["mangala"], "depth": 2}).json()
-    assert yog["scheme"] == "yogini"
-    assert yog["period"]["graha"] == "moon" and yog["period"]["children"]
+@pytest.mark.parametrize(
+    "body",
+    [
+        {"scheme": "vimshottari", "maha_index": 10},  # only 0-9 exist
+        {"scheme": "yogini", "maha_index": 28},
+        {"scheme": "vimshottari", "maha_index": -1},
+        {"scheme": "vimshottari", "maha_index": 0, "path": ["pluto"]},
+        {"scheme": "vimshottari", "maha_index": 0, "path": ["mangala"]},  # wrong scheme
+        {"scheme": "yogini", "maha_index": 0, "path": ["jupiter"]},
+        {"scheme": "vimshottari", "maha_index": 0, "path": ["ketu"] * 5},
+        {"scheme": "other", "maha_index": 0},
+        {"maha_index": 0},
+        {"scheme": "vimshottari"},
+        {"scheme": "vimshottari", "maha_index": 0, "lord": "saturn"},
+    ],
+)
+def test_dasha_bad_request_422(client: TestClient, body: dict[str, Any]) -> None:
+    assert _dasha(client, **body).status_code == 422
 
 
-@pytest.mark.parametrize("path", [[], ["pluto"], ["jupiter", "mangala"], ["a"] * 6])
-def test_dasha_bad_path_422(client: TestClient, path: list[str]) -> None:
-    body = {"kundli": request_of(golden0()), "path": path, "depth": 1}
-    assert client.post("/api/v1/dasha", json=body).status_code == 422
+def test_dasha_error_locations(client: TestClient) -> None:
+    loc = _dasha(client, scheme="vimshottari", maha_index=10).json()["detail"][0]["loc"]
+    assert loc == ["body", "maha_index"]
+    bad = {**INDIA_1947, "tz": "No/Where"}
+    r = client.post("/api/v1/dasha", json={"kundli": bad, "scheme": "yogini", "maha_index": 0})
+    assert r.json()["detail"][0]["loc"] == ["body", "kundli", "tz"]
 
 
 def test_transit_ok(client: TestClient) -> None:
@@ -364,6 +418,7 @@ def test_health_reports_ephe(client: TestClient) -> None:
         assert r.status_code == 200
         h = r.json()
         assert h["status"] == "ok" and h["ephemeris"]["ok"] is True
+        assert "path" not in h["ephemeris"]  # no server paths in responses
         assert h["ephemeris"]["files"] == ["sepl_18.se1", "semo_18.se1", "seas_18.se1"]
         assert h["ephemeris"]["missing"] == []
     v = client.get("/version").json()
@@ -451,3 +506,139 @@ def test_openapi_snapshot(client: TestClient, request: pytest.FixtureRequest) ->
         SNAPSHOT.parent.mkdir(exist_ok=True)
         SNAPSHOT.write_text(current)
     assert SNAPSHOT.read_text() == current, "API schema changed; rerun with --update-snapshot"
+
+
+JS_DATE = re.compile(
+    r"^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}[+-][0-9]{2}:[0-9]{2}$"
+)
+
+
+def _all_local_strings(node: Any) -> Iterator[str]:
+    if isinstance(node, dict):
+        for k, v in node.items():
+            if k.endswith("_local") and isinstance(v, str):
+                yield v
+            else:
+                yield from _all_local_strings(v)
+    elif isinstance(node, list):
+        for v in node:
+            yield from _all_local_strings(v)
+
+
+@pytest.mark.parametrize(
+    "zone,label",
+    [
+        ({"lmt": True}, "+05:09"),  # true offset +05:08:50.16
+        ({"tz": "Asia/Kolkata"}, "+05:30"),
+        ({"utc_offset": "+05:53:20"}, "+05:53"),
+        ({"utc_offset": "-04:30"}, "-04:30"),
+    ],
+)
+def test_local_strings_are_js_date_parseable(
+    client: TestClient, zone: dict[str, Any], label: str
+) -> None:
+    body = {**{k: v for k, v in DELHI_2000.items() if k != "tz"}, **zone}
+    k = client.post("/api/v1/kundli", json=body).json()
+    locals_ = list(_all_local_strings(k))
+    assert len(locals_) > 100
+    assert all(JS_DATE.match(v) for v in locals_), [v for v in locals_ if not JS_DATE.match(v)][:3]
+    assert k["meta"]["birth_local"].endswith(label)
+    assert k["meta"]["utc_offset_seconds"] is not None
+
+
+def test_utc_offset_seconds_follows_dst(client: TestClient) -> None:
+    body = {
+        "date": "2021-07-01",
+        "time": "12:00",
+        "tz": "America/New_York",
+        "lat": 40.7,
+        "lon": -74,
+    }
+    meta = client.post("/api/v1/kundli", json=body).json()["meta"]
+    assert meta["utc_offset_seconds"] == -4 * 3600 and meta["birth_local"].endswith("-04:00")
+
+
+def test_utc_offset_range_error_names_the_field(client: TestClient) -> None:
+    r = client.post("/api/v1/kundli", json={**_zone_less(), "utc_offset": "+15:00"})
+    assert r.status_code == 422
+    assert r.json()["detail"][0]["loc"] == ["body", "utc_offset"]
+
+
+def test_transit_error_locations(client: TestClient) -> None:
+    r = client.post("/api/v1/transit", json={"datetime_utc": "1500-01-01T00:00:00Z"})
+    assert r.json()["detail"][0]["loc"] == ["body", "datetime_utc"]
+    natal = {**DELHI_2000, "tz": "No/Where"}
+    r = client.post(
+        "/api/v1/transit", json={"datetime_utc": "2024-01-01T00:00:00Z", "natal": natal}
+    )
+    assert r.json()["detail"][0]["loc"] == ["body", "natal", "tz"]
+
+
+def test_transit_is_utc_only(client: TestClient) -> None:
+    t = client.post("/api/v1/transit", json={"datetime_utc": "2024-03-25T05:30:00+05:30"}).json()
+    assert t["datetime_utc"] == "2024-03-25T00:00:00Z"
+    assert list(_all_local_strings(t)) == []
+
+
+@pytest.mark.parametrize("method", ["get", "post", "put", "patch", "delete"])
+@pytest.mark.parametrize("path", ["/api/nope", "/api/v1/nope", "/api/v2/kundli", "/api/"])
+def test_unknown_api_path_is_json_404(client: TestClient, method: str, path: str) -> None:
+    r = getattr(client, method)(path)
+    assert r.status_code == 404
+    assert r.headers["content-type"].startswith("application/json")
+    assert "detail" in r.json()
+
+
+# ---- response-shape snapshots (drift guard): key/type shape of the India 1947 chart
+
+
+def shape(node: Any) -> Any:
+    """Recursive key/type shape: dict -> {key: shape}, list -> [merged element shape]."""
+    if isinstance(node, dict):
+        return {k: shape(v) for k, v in sorted(node.items())}
+    if isinstance(node, list):
+        merged: Any = None
+        for item in node:
+            merged = _merge(merged, shape(item))
+        return [merged]
+    if node is None:
+        return "null"
+    return type(node).__name__
+
+
+def _merge(a: Any, b: Any) -> Any:
+    if a is None or a == b:
+        return b
+    if b is None:
+        return a
+    if isinstance(a, dict) and isinstance(b, dict):
+        return {k: _merge(a.get(k), b.get(k)) if k in a and k in b else a.get(k, b.get(k))
+                for k in sorted(a.keys() | b.keys())}  # fmt: skip
+    if isinstance(a, list) and isinstance(b, list):
+        return [_merge(a[0], b[0])]
+    if isinstance(a, str) and isinstance(b, str):
+        return "|".join(sorted(set(a.split("|")) | set(b.split("|"))))
+    return {"_union": sorted([json.dumps(a, sort_keys=True), json.dumps(b, sort_keys=True)])}
+
+
+def _check_shape(name: str, body: Any, request: pytest.FixtureRequest) -> None:
+    path = SNAPSHOT.parent / name
+    current = json.dumps(shape(body), indent=2) + "\n"
+    if request.config.getoption("--update-snapshot"):
+        path.write_text(current)
+    assert path.read_text() == current, f"{name} drifted; rerun with --update-snapshot if intended"
+
+
+def test_kundli_shape_snapshot(client: TestClient, request: pytest.FixtureRequest) -> None:
+    r = client.post("/api/v1/kundli", json=INDIA_1947)
+    assert r.status_code == 200
+    _check_shape("kundli_shape.json", r.json(), request)
+
+
+def test_kundli_time_unknown_shape_snapshot(
+    client: TestClient, request: pytest.FixtureRequest
+) -> None:
+    body = {k: v for k, v in INDIA_1947.items() if k != "time"}
+    r = client.post("/api/v1/kundli", json={**body, "time_known": False})
+    assert r.status_code == 200
+    _check_shape("kundli_time_unknown_shape.json", r.json(), request)

@@ -6,7 +6,7 @@
         "properties": {
           "depth": {
             "default": 1,
-            "description": "Levels to expand below the path's period",
+            "description": "Levels to expand below the addressed period",
             "maximum": 5.0,
             "minimum": 1.0,
             "title": "Depth",
@@ -15,20 +15,34 @@
           "kundli": {
             "$ref": "#/components/schemas/KundliRequest"
           },
+          "maha_index": {
+            "description": "0-based position of the maha in the /kundli response list for this scheme (a lord can occur twice in the 120-year span)",
+            "minimum": 0.0,
+            "title": "Maha Index",
+            "type": "integer"
+          },
           "path": {
-            "description": "Lords from the maha down, e.g. ['jupiter', 'saturn']; Vimshottari lords or yogini keys (an earlier-occurring maha wins if a lord appears twice)",
+            "description": "Lords below the maha (antar, pratyantar, ...); may be empty",
             "items": {
               "type": "string"
             },
-            "maxItems": 5,
-            "minItems": 1,
+            "maxItems": 4,
             "title": "Path",
             "type": "array"
+          },
+          "scheme": {
+            "enum": [
+              "vimshottari",
+              "yogini"
+            ],
+            "title": "Scheme",
+            "type": "string"
           }
         },
         "required": [
           "kundli",
-          "path"
+          "scheme",
+          "maha_index"
         ],
         "title": "DashaRequest",
         "type": "object"
@@ -346,6 +360,7 @@
         "additionalProperties": false,
         "properties": {
           "datetime_utc": {
+            "description": "Instant with `Z` or an offset; the response is UTC-only (no `*_local`)",
             "format": "date-time",
             "title": "Datetime Utc",
             "type": "string"
@@ -461,6 +476,7 @@
     },
     "/api/v1/dasha": {
       "post": {
+        "description": "Expand one maha of the `/kundli` response.\n\n`maha_index` is the 0-based position of the maha in `/kundli`'s `vimshottari` or `yogini`\nlist (the same lord can occur twice in the 120-year span, so a lord alone is ambiguous);\n`path` holds the lords below it (antar, pratyantar, ...), and `depth` the levels to\nexpand below the addressed period.",
         "operationId": "dasha_api_v1_dasha_post",
         "requestBody": {
           "content": {
@@ -654,6 +670,7 @@
     },
     "/api/v1/transit": {
       "post": {
+        "description": "Graha positions at `datetime_utc`, optionally as houses from a natal chart.\n\nThe one UTC-only endpoint: `datetime_utc` must carry a `Z` or offset, and the response gives\nthe instant in UTC only (no `*_local`), because no zone is attached to a transit.",
         "operationId": "transit_api_v1_transit_post",
         "requestBody": {
           "content": {

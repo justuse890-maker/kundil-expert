@@ -8,8 +8,8 @@ backend/data/cities.tsv), VEDIC_FRONTEND_DIR (default <repo>/frontend).
 import logging
 import os
 import uuid
-from collections.abc import AsyncIterator
-from contextlib import asynccontextmanager
+from collections.abc import AsyncIterator, Iterator, Sequence
+from contextlib import asynccontextmanager, contextmanager
 from dataclasses import asdict
 from pathlib import Path
 from typing import Annotated, Any
@@ -24,7 +24,6 @@ from api.schemas import DashaRequest, KundliRequest, PanchangRequest, TransitReq
 from vedic_engine import __version__, ephemeris
 from vedic_engine.angles import sign_of
 from vedic_engine.constants import Graha
-from vedic_engine.dasha._core import DashaPeriod
 from vedic_engine.dasha.vimshottari import subtree
 from vedic_engine.kundli import build_kundli
 from vedic_engine.models import EngineError, EphemerisRangeError, InputError, Settings
@@ -55,11 +54,11 @@ def frontend_dir() -> Path:
 
 
 class ApiInputError(InputError):
-    """Invalid input found by the API layer; ``field`` names the request field at fault."""
+    """Invalid input found by the API layer; ``loc`` is the path of the request field at fault."""
 
-    def __init__(self, message: str, field: str) -> None:
+    def __init__(self, message: str, loc: Sequence[str]) -> None:
         super().__init__(message)
-        self.field = field
+        self.loc = list(loc)
 
 
 _FIELD_OF: tuple[tuple[type[Exception], str], ...] = (
@@ -71,12 +70,22 @@ _FIELD_OF: tuple[tuple[type[Exception], str], ...] = (
 
 
 def _field_of(exc: InputError) -> str | None:
-    if isinstance(exc, ApiInputError):
-        return exc.field
     for kind, field in _FIELD_OF:
         if isinstance(exc, kind):
             return field
     return None
+
+
+@contextmanager
+def located(*prefix: str, field: str | None = None) -> Iterator[None]:
+    """Re-raise engine ``InputError`` with the request-field path ``prefix`` (+ field)."""
+    try:
+        yield
+    except ApiInputError as exc:
+        raise ApiInputError(str(exc), [*prefix, *exc.loc]) from exc
+    except InputError as exc:
+        name = field or _field_of(exc)
+        raise ApiInputError(str(exc), [*prefix, *([name] if name else [])]) from exc
 
 
 @asynccontextmanager
@@ -98,8 +107,11 @@ app = FastAPI(
 
 @app.exception_handler(InputError)
 async def input_error_handler(_request: Request, exc: InputError) -> JSONResponse:
-    field = _field_of(exc)
-    loc = ["body", field] if field else ["body"]
+    if isinstance(exc, ApiInputError):
+        loc = ["body", *exc.loc]
+    else:
+        field = _field_of(exc)
+        loc = ["body", field] if field else ["body"]
     return JSONResponse(
         status_code=422,
         content={"detail": [{"loc": loc, "msg": str(exc), "type": "input_error"}]},
@@ -135,7 +147,6 @@ def _health() -> JSONResponse:
         "status": "ok" if not missing else "unavailable",
         "ephemeris": {
             "ok": not missing,
-            "path": str(path),
             "files": list(ephemeris.EPHE_FILES),
             "missing": missing,
             "range": {"start": "1800-01-01", "end": "2399-12-31"},
@@ -193,34 +204,48 @@ def panchang(req: PanchangRequest) -> dict[str, Any]:
 
 @app.post(f"{API}/dasha", summary="Dasha subtree on demand", response_model=dict[str, Any])
 def dasha(req: DashaRequest) -> dict[str, Any]:
+    """Expand one maha of the `/kundli` response.
+
+    `maha_index` is the 0-based position of the maha in `/kundli`'s `vimshottari` or `yogini`
+    list (the same lord can occur twice in the 120-year span, so a lord alone is ambiguous);
+    `path` holds the lords below it (antar, pratyantar, ...), and `depth` the levels to
+    expand below the addressed period.
+    """
     birth = req.kundli.to_birth()
     settings = req.kundli.settings.to_engine()
-    result = build_kundli(birth, settings, [1], 1)
-    scheme = "vimshottari" if req.path[0] in {p.lord for p in result.vimshottari} else "yogini"
-    level: tuple[DashaPeriod, ...] = (
-        result.vimshottari if scheme == "vimshottari" else result.yogini
-    )
-    period: DashaPeriod | None = None
+    with located("kundli"):
+        result = build_kundli(birth, settings, [1], 1)
+    mahas = result.vimshottari if req.scheme == "vimshottari" else result.yogini
+    if req.maha_index >= len(mahas):
+        raise ApiInputError(
+            f"maha_index {req.maha_index} out of range: this birth has {len(mahas)} "
+            f"{req.scheme} mahas (0-{len(mahas) - 1})",
+            ["maha_index"],
+        )
+    period = mahas[req.maha_index]
     for i, lord in enumerate(req.path):
-        if i > 0:
-            assert period is not None
-            level = subtree(period, settings, 1).children
-        period = next((p for p in level if p.lord == lord), None)
-        if period is None:
-            where = " > ".join(req.path[: i + 1])
-            raise ApiInputError(f"no {scheme} period {where} for this birth", "path")
-    assert period is not None
-    tz = effective_tz(birth)
+        found = next((p for p in subtree(period, settings, 1).children if p.lord == lord), None)
+        if found is None:
+            raise ApiInputError(
+                f"no {req.scheme} period {lord!r} under {period.lord!r}", ["path", str(i)]
+            )
+        period = found
     return {
-        "scheme": scheme,
+        "scheme": req.scheme,
+        "maha_index": req.maha_index,
         "path": req.path,
         "depth": req.depth,
-        "period": serialize.dasha_period(subtree(period, settings, req.depth), tz),
+        "period": serialize.dasha_period(subtree(period, settings, req.depth), effective_tz(birth)),
     }
 
 
 @app.post(f"{API}/transit", summary="Graha positions at an instant", response_model=dict[str, Any])
 def transit(req: TransitRequest) -> dict[str, Any]:
+    """Graha positions at `datetime_utc`, optionally as houses from a natal chart.
+
+    The one UTC-only endpoint: `datetime_utc` must carry a `Z` or offset, and the response gives
+    the instant in UTC only (no `*_local`), because no zone is attached to a transit.
+    """
     if req.settings is not None:
         settings = req.settings.to_engine()
     elif req.natal is not None:
@@ -228,10 +253,12 @@ def transit(req: TransitRequest) -> dict[str, Any]:
     else:
         settings = Settings()
     at = req.datetime_utc
-    positions = positions_at(at, settings)
+    with located(field="datetime_utc"):
+        positions = positions_at(at, settings)
     natal: tuple[int, int, str] | None = None
     if req.natal is not None:
-        chart = build_kundli(req.natal.to_birth(), settings, [1], 1)
+        with located("natal"):
+            chart = build_kundli(req.natal.to_birth(), settings, [1], 1)
         natal = (
             sign_of(chart.lagna_lon),
             sign_of(chart.grahas[Graha.MOON].lon),
@@ -279,6 +306,15 @@ def _placeholder(name: str, summary: str) -> None:
 
 _placeholder("analysis", "Analysis (not implemented yet)")
 _placeholder("daily", "Daily guidance (not implemented yet)")
+
+
+@app.api_route(
+    "/api/{rest:path}",
+    methods=["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"],
+    include_in_schema=False,
+)
+def api_not_found(rest: str) -> JSONResponse:
+    return JSONResponse(status_code=404, content={"detail": f"no such API path: /api/{rest}"})
 
 
 # ---------------------------------------------------------------- the user's UI at /

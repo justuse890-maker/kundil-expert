@@ -1,9 +1,12 @@
 """Engine results -> JSON-ready dicts with stable snake_case keys (Rulings R30, R31).
 
 * Indices are 1-based and travel with their key: ``{"rashi": 4, "rashi_key": "karka"}``.
-* Every instant is a pair ``<name>_utc`` (ISO 8601, ``Z``) and ``<name>_local`` (ISO 8601 with the
-  offset of the birth zone), rounded to whole seconds. An offset with a sub-minute part (LMT,
-  1906 Madras time) is written ``+05:53:27``; a sub-second part is rounded.
+* Every instant is a pair ``<name>_utc`` (ISO 8601, ``Z``) and ``<name>_local`` (the wall-clock
+  time in the birth zone with a ``+HH:MM`` label), rounded to whole seconds. The label is the
+  offset rounded to whole minutes so that JS ``Date`` can parse it; where the true offset has
+  seconds (LMT, pre-1906 Madras time) the label is off by under 30 s, so clients must compute
+  instants from ``*_utc`` and treat ``*_local`` as the wall clock. ``meta.utc_offset_seconds``
+  gives the exact offset at birth.
 * Degrees are unrounded floats; ``dms`` is the same value truncated (never rounded up to 30)
   to hundredths of an arcsecond.
 * "No change found" (infinity) is ``null``; ``edge_*`` flags say a search stopped at the end of
@@ -48,12 +51,15 @@ def iso_local(dt: datetime, tz: str) -> str:
     local = to_local(_round_seconds(dt.astimezone(UTC)), tz)
     offset = local.utcoffset()
     assert offset is not None
-    seconds = round(offset.total_seconds())
-    sign = "-" if seconds < 0 else "+"
-    hh, rest = divmod(abs(seconds), 3600)
-    mm, ss = divmod(rest, 60)
-    zone = f"{sign}{hh:02d}:{mm:02d}" + (f":{ss:02d}" if ss else "")
-    return _round_seconds(local.replace(tzinfo=None)).isoformat() + zone
+    return _round_seconds(local.replace(tzinfo=None)).isoformat() + _zone_label(offset)
+
+
+def _zone_label(offset: timedelta) -> str:
+    """``+HH:MM`` with the offset rounded to whole minutes (JS ``Date`` cannot parse seconds)."""
+    minutes = round(offset.total_seconds() / 60)
+    sign = "-" if minutes < 0 else "+"
+    hh, mm = divmod(abs(minutes), 60)
+    return f"{sign}{hh:02d}:{mm:02d}"
 
 
 def instant(name: str, dt: datetime | None, tz: str) -> Json:
@@ -172,7 +178,18 @@ def kundli(k: Kundli, tz: str, birth_utc: datetime | None, lmt: bool, name: str 
         )
     }
     meta["ayanamsa_dms"] = dms(k.meta["ayanamsa_deg"])
-    meta.update(name=name, tz=tz, lmt=lmt, **instant("birth", birth_utc, tz))
+    offset_seconds = None
+    if birth_utc is not None:
+        offset = to_local(_round_seconds(birth_utc.astimezone(UTC)), tz).utcoffset()
+        assert offset is not None
+        offset_seconds = offset.total_seconds()
+    meta.update(
+        name=name,
+        tz=tz,
+        lmt=lmt,
+        utc_offset_seconds=offset_seconds,
+        **instant("birth", birth_utc, tz),
+    )
     ashtakavarga = {
         "bav": {g: list(v) for g, v in k.ashtakavarga["bav"].items()},
         "sav": list(k.ashtakavarga["sav"]),
