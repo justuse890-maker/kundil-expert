@@ -48,6 +48,10 @@ const DIGNITY_COLOR = {
 let kundliData = null;      // /kundli response
 let analysisState = { status: 'idle' };   // idle | ok | pending | error
 let dailyState = { status: 'idle' };
+let currentPlace = null;    // {label, lat, lon, tz} chosen under Today, else the birth place is used
+let todayPlaceText = '';
+let birthIana = '';          // IANA zone of the picked birth place (for offset births)
+let lastPayload = null;
 let birthMeta = null;       // what the user typed (display only)
 let lang = 'en';
 
@@ -158,9 +162,17 @@ function generateKundliSVG(k) {
 // Reasons are id-based: judgements carry ids into periods.reasons, month/window reasons carry
 // {source, share} pointers to timeline/transit ids, advice texts live in periods.advice.
 
-const FORCED_NOW = (() => {   // test determinism only: ?now=<ISO instant> is forwarded as now_utc
-  const raw = new URLSearchParams(location.search).get('now');
-  return raw && !isNaN(Date.parse(raw)) ? raw : null;
+// Test determinism only: ?now=<ISO instant> is honoured when the server runs with
+// KUNDLI_TEST_HOOKS=1 (GET /api/v1/config reports test_hooks); otherwise it is ignored.
+let FORCED_NOW = null;
+const configReady = (async () => {
+  try {
+    const raw = new URLSearchParams(location.search).get('now');
+    if (!raw || isNaN(Date.parse(raw))) return;
+    const res = await fetch(API + '/config');
+    const cfg = res.ok ? await res.json() : null;
+    if (cfg && cfg.test_hooks === true) FORCED_NOW = raw;
+  } catch (_) { /* no hooks */ }
 })();
 function nowMs() { return FORCED_NOW ? Date.parse(FORCED_NOW) : Date.now(); }
 
@@ -183,6 +195,9 @@ function enhi(o) { return (lang === 'hi' && o.hi) || o.en || ''; }
 function statusHtml(state) {
   if (state.status === 'error') {
     return `<div class="analysis-pending" data-state="error">Analysis is unavailable right now (${esc(state.message)})</div>`;
+  }
+  if (state.status === 'needplace') {
+    return '<div class="analysis-pending" data-state="needplace">Pick where you are today in the Today section to see this.</div>';
   }
   return '<div class="analysis-pending" data-state="loading">Loading…</div>';
 }
@@ -372,11 +387,15 @@ function horaTableHtml(d) {
   return `<div class="table-wrap"><table class="house-table hora-table collapsed" data-testid="hora-table"><thead><tr><th>#</th><th>Hora</th><th>Time</th><th>Guidance</th></tr></thead><tbody>${rows}</tbody></table></div>
     <button type="button" class="link-btn" id="horaToggle" data-testid="hora-toggle">Show all 24</button>`;
 }
+function placeShort(label) { return String(label || '').split(',')[0].trim(); }
 function todayHtml() {
+  if (dailyState.status === 'needplace') return `<p class="top-note" data-testid="today-needplace">Your birth time uses a manual UTC offset, so we do not know your time zone today. Pick where you are today above to see today's guidance.</p>`;
   if (dailyState.status !== 'ok') return statusHtml(dailyState);
   const d = dailyState.data;
-  const note = dailyState.beforeSunrise ? `<p class="top-note" data-testid="before-sunrise-note">It is before sunrise here, so this is still yesterday's Vedic day (${esc(d.date)}).</p>` : '';
-  return `<div class="data-row"><span class="data-label">Vaar</span><span class="data-value" data-testid="vaar">${VAAR_NAMES[d.vaar] ? esc(VAAR_NAMES[d.vaar]) + ' (' + pretty(d.vaar) + ')' : pretty(d.vaar)}</span></div>
+  const where = placeShort(dailyState.place) || 'your birth place';
+  const label = `<h4 class="sub-head" data-testid="today-label">Today at ${esc(where)} (${esc(d.tz)})</h4>`;
+  const note = dailyState.beforeSunrise ? `<p class="top-note" data-testid="before-sunrise-note">It is before sunrise at ${esc(where)}, so this is still yesterday's Vedic day (${esc(d.date)}).</p>` : '';
+  return `${label}<div class="data-row"><span class="data-label">Vaar</span><span class="data-value" data-testid="vaar">${VAAR_NAMES[d.vaar] ? esc(VAAR_NAMES[d.vaar]) + ' (' + pretty(d.vaar) + ')' : pretty(d.vaar)}</span></div>
     ${note}<div class="dosha-detail">Sunrise ${esc(localTime(d.sunrise_local))} · Sunset ${esc(localTime(d.sunset_local))} · ${esc(d.tz)}</div>
     ${horaTableHtml(d)}`;
 }
@@ -444,7 +463,7 @@ function renderResults() {
   const overviewHTML = `
     ${banner}
     <div class="quick-stats fade-in">
-      <div class="stat-card"><div class="stat-emoji">🌅</div><div class="stat-value" data-testid="lagna">${RASHI_NAMES[lagnaIdx]}</div><div class="stat-label">Ascendant (Lagna)</div></div>
+      <div class="stat-card"><div class="stat-emoji">🌅</div><div class="stat-value" data-testid="lagna">${RASHI_NAMES[lagnaIdx]}</div><div class="stat-label">${k.meta.lagna_basis === 'moon' ? 'Chandra Lagna (Moon)' : 'Ascendant (Lagna)'}</div></div>
       <div class="stat-card"><div class="stat-emoji">☽</div><div class="stat-value">${rashiName(moon.rashi)}</div><div class="stat-label">Moon Sign (Rashi)</div></div>
       <div class="stat-card"><div class="stat-emoji">☉</div><div class="stat-value">${rashiName(sun.rashi)}</div><div class="stat-label">Sun Sign</div></div>
       <div class="stat-card"><div class="stat-emoji">⭐</div><div class="stat-value" data-testid="nakshatra">${nakName(pc.nakshatra.index)}</div><div class="stat-label">Nakshatra</div></div>
@@ -510,7 +529,7 @@ function renderResults() {
                 </tr>`;
               }).join('')}
               <tr style="background:rgba(212,175,55,0.05)">
-                <td><span style="color:#7B1F1F;font-weight:700">⬆ Ascendant</span></td>
+                <td><span style="color:#7B1F1F;font-weight:700">${k.meta.lagna_basis === 'moon' ? '⬆ Chandra Lagna' : '⬆ Ascendant'}</span></td>
                 <td>${esc(k.lagna.dms)}</td>
                 <td>${RASHI_NAMES[lagnaIdx]}</td>
                 <td>${nakName(k.lagna.nakshatra)} P${esc(k.lagna.pada)}</td>
@@ -711,6 +730,8 @@ function renderPredictions() {
     </div>
     <div class="result-card span-3" style="animation-delay:0.8s" data-testid="today-card">
       <div class="card-header"><div class="card-icon amber">🕐</div><div><div class="card-title">Today's Guidance</div><div class="card-subtitle">Vaar and the 24 horas</div></div></div>
+      <div class="form-group today-place"><label for="todayPlace">Where are you today? (optional)</label>
+        <div class="place-wrap"><input type="text" id="todayPlace" data-testid="today-place" placeholder="Defaults to your birth place" value="${esc(todayPlaceText)}" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="todayPlaceList"><ul class="place-list" id="todayPlaceList" role="listbox" style="display:none"></ul></div></div>
       <div data-analysis="Today">${todayHtml()}</div>
     </div>
     ${card('🎨', 'blue', 'Colour & Body Language', dailyColourHtml(), '', 0.9)}
@@ -719,6 +740,7 @@ function renderPredictions() {
   document.getElementById('predictionsContent').innerHTML = html;
   const pc = document.getElementById('periodCurrent');
   if (pc) pc.innerHTML = periodCurrentHtml();
+  wireTodayPlace();
   renderHonesty();
   translateDom(document.body);
 }
@@ -770,17 +792,33 @@ function previousDate(ymd) {
   const [y, m, d] = ymd.split('-').map(Number);
   return new Date(Date.UTC(y, m - 1, d - 1)).toISOString().slice(0, 10);
 }
-/** Today's guidance for the chart's place; before local sunrise the Vedic day is still yesterday's. */
+/** The place today's guidance is for: the chosen current place, else the birth place. Returns
+ * {body, place} (body = current_* fields, {} for the birth place/zone) or null when the birth
+ * zone is only a manual offset and no IANA zone is known (the user must pick a place). */
+function dailyWhere(payload) {
+  if (currentPlace) {
+    return { body: { current_lat: currentPlace.lat, current_lon: currentPlace.lon, current_tz: currentPlace.tz }, tz: currentPlace.tz, place: currentPlace.label };
+  }
+  const place = birthMeta ? birthMeta.place : '';
+  if (payload.tz) return { body: {}, tz: payload.tz, place };
+  if (birthIana) {
+    return { body: { current_lat: payload.lat, current_lon: payload.lon, current_tz: birthIana }, tz: birthIana, place };
+  }
+  return null;
+}
+/** Today's guidance for the chosen place; before local sunrise the Vedic day is still yesterday's. */
 async function loadDaily(payload, setState) {
+  const where = dailyWhere(payload);
+  if (!where) { setState({ status: 'needplace' }); return; }
   try {
-    const today = chartDate(payload, nowMs());
-    let data = await postJson('/daily', { ...payload, today });
+    const today = chartDate({ tz: where.tz }, nowMs());
+    let data = await postJson('/daily', { ...payload, ...where.body, today });
     let beforeSunrise = false;
     if (nowMs() < ms(data.sunrise_utc)) {
-      data = await postJson('/daily', { ...payload, today: previousDate(today) });
+      data = await postJson('/daily', { ...payload, ...where.body, today: previousDate(today) });
       beforeSunrise = true;
     }
-    setState({ status: 'ok', data, beforeSunrise });
+    setState({ status: 'ok', data, beforeSunrise, place: where.place });
   } catch (e) {
     setState({ status: 'error', message: e.message });
   }
@@ -794,7 +832,9 @@ async function loadSecondary(path, payload, setState) {
   }
 }
 
+let offsetInvalid = false;
 function buildPayload() {
+  offsetInvalid = false;
   const timeUnknown = document.getElementById('timeUnknown').checked;
   const payload = {
     date: document.getElementById('dob').value,
@@ -811,6 +851,7 @@ function buildPayload() {
   const useOffset = document.getElementById('useOffset').checked;
   if (useOffset) {
     const h = parseFloat(document.getElementById('tz').value);
+    if (isNaN(h)) { offsetInvalid = true; return payload; }
     const sign = h < 0 ? '-' : '+';
     const mins = Math.round(Math.abs(h) * 60);
     payload.utc_offset = `${sign}${String(Math.floor(mins / 60)).padStart(2, '0')}:${String(mins % 60).padStart(2, '0')}`;
@@ -829,7 +870,14 @@ function showFormError(msg) {
 document.getElementById('birthForm').addEventListener('submit', async function (e) {
   e.preventDefault();
   showFormError('');
+  await configReady;
   const payload = buildPayload();
+  if (offsetInvalid) {
+    const adv = document.querySelector('.adv-box');
+    if (adv) adv.open = true;
+    showFormError('Choose a UTC offset under Advanced, or untick "Use this UTC offset".');
+    return;
+  }
   if (!payload.tz && !payload.utc_offset) {
     document.getElementById('placeHint').style.display = 'block';
     showFormError('Pick a place from the list, or open Advanced and set a UTC offset.');
@@ -850,6 +898,10 @@ document.getElementById('birthForm').addEventListener('submit', async function (
     };
     analysisState = { status: 'idle' };
     dailyState = { status: 'idle' };
+    lastPayload = payload;
+    currentPlace = null;
+    todayPlaceText = '';
+    birthIana = document.getElementById('tzName').value || '';
     renderResults();
     showSection('overview');
     // Interpretation endpoints: rendered independently so the chart never waits on them.
@@ -869,19 +921,17 @@ document.getElementById('birthForm').addEventListener('submit', async function (
 });
 
 // ---- place search --------------------------------------------------------------
-(function placeSearch() {
-  const input = document.getElementById('birthPlace');
-  const list = document.getElementById('placeList');
+/** Autocomplete on /places for ``input`` + ``list``; ``onPick(place, text)`` when one is chosen,
+ * ``onType()`` whenever the user edits the text. */
+function attachPlaceSearch(input, list, onPick, onType) {
   let timer = null, seq = 0, results = [], sel = -1;
 
   function close() { list.style.display = 'none'; input.setAttribute('aria-expanded', 'false'); sel = -1; }
   function pick(p) {
-    input.value = p.admin1 ? `${p.name}, ${p.admin1}, ${p.country}` : `${p.name}, ${p.country}`;
-    document.getElementById('lat').value = p.lat;
-    document.getElementById('lon').value = p.lon;
-    document.getElementById('tzName').value = p.tz;
-    document.getElementById('placeHint').style.display = 'none';
+    const text = p.admin1 ? `${p.name}, ${p.admin1}, ${p.country}` : `${p.name}, ${p.country}`;
+    input.value = text;
     close();
+    onPick(p, text);
   }
   function paint() {
     list.innerHTML = results.map((p, i) =>
@@ -891,9 +941,7 @@ document.getElementById('birthForm').addEventListener('submit', async function (
   }
 
   input.addEventListener('input', () => {
-    const hadTz = document.getElementById('tzName').value !== '';
-    document.getElementById('tzName').value = '';   // typed text no longer matches the chosen place
-    if (hadTz) document.getElementById('placeHint').style.display = 'block';
+    onType();
     clearTimeout(timer);
     const q = input.value.trim();
     if (q.length < 2) { results = []; close(); return; }
@@ -924,7 +972,47 @@ document.getElementById('birthForm').addEventListener('submit', async function (
     if (li) { pick(results[Number(li.dataset.i)]); ev.preventDefault(); }
   });
   document.addEventListener('click', ev => { if (!ev.target.closest('.place-wrap')) close(); });
-})();
+}
+
+attachPlaceSearch(
+  document.getElementById('birthPlace'),
+  document.getElementById('placeList'),
+  p => {
+    document.getElementById('lat').value = p.lat;
+    document.getElementById('lon').value = p.lon;
+    document.getElementById('tzName').value = p.tz;
+    document.getElementById('placeHint').style.display = 'none';
+  },
+  () => {
+    const hadTz = document.getElementById('tzName').value !== '';
+    document.getElementById('tzName').value = '';   // typed text no longer matches the chosen place
+    if (hadTz) document.getElementById('placeHint').style.display = 'block';
+  },
+);
+
+/** The Today card is re-created by every render, so its place input is wired again each time. */
+async function refreshDaily() {
+  if (!lastPayload) return;
+  dailyState = { status: 'idle' };
+  const holder = document.querySelector('[data-analysis="Today"]');
+  if (holder) holder.innerHTML = statusHtml(dailyState);
+  await loadDaily(lastPayload, s => { dailyState = s; });
+  rerenderAll();
+}
+function wireTodayPlace() {
+  const input = document.getElementById('todayPlace');
+  const list = document.getElementById('todayPlaceList');
+  if (!input || !list || input.dataset.wired) return;
+  input.dataset.wired = '1';
+  attachPlaceSearch(input, list, (p, text) => {
+    currentPlace = { label: text, lat: p.lat, lon: p.lon, tz: p.tz };
+    todayPlaceText = text;
+    refreshDaily();
+  }, () => {
+    todayPlaceText = input.value;
+    if (input.value.trim() === '' && currentPlace) { currentPlace = null; refreshDaily(); }
+  });
+}
 
 // ---- Hindi labels (UI chrome only; analysis text comes from the API as text_hi) -------------
 const HI = {
@@ -953,7 +1041,7 @@ const HI = {
   'Colour today': 'आज का रंग', 'Colour to avoid': 'बचने का रंग', 'Loading…': 'लोड हो रहा है…',
   'Graha': 'ग्रह', 'Longitude ': 'देशांतर', 'Rashi': 'राशि', 'Nakshatra': 'नक्षत्र', 'House': 'भाव', 'Dignity': 'गरिमा',
   'Status': 'स्थिति', 'Lord': 'स्वामी', 'Lord In': 'स्वामी की स्थिति', 'Occupants': 'स्थित ग्रह', 'Karaka': 'कारक',
-  'Signification': 'कारकत्व', 'Running now': 'अभी चल रही', 'Period Ends': 'अवधि समाप्ति',
+  'Signification': 'कारकत्व', 'Chandra Lagna (Moon)': 'चंद्र लग्न (चंद्रमा)', '⬆ Chandra Lagna': '⬆ चंद्र लग्न', 'Running now': 'अभी चल रही', 'Period Ends': 'अवधि समाप्ति',
 };
 const HI_PATTERNS = [
   [/^Show (\d+) more$/, (m) => `और ${m[1]} दिखाएँ`],

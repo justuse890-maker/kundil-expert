@@ -1,6 +1,7 @@
 """Birth-time sensitivity (spec 5.11, Ruling R28)."""
 
 import math
+import re
 from collections.abc import Callable
 from datetime import datetime
 from pathlib import Path
@@ -14,6 +15,7 @@ from vedic_engine.constants import Graha
 from vedic_engine.models import BirthInput, EngineWarning, Settings
 from vedic_engine.panchang import elements_at, tithi
 from vedic_engine.sensitivity import (
+    DISPLAY,
     SEARCH_MINUTES,
     SENSITIVE_MINUTES_PRIMARY,
     SENSITIVE_MINUTES_VARGA,
@@ -73,12 +75,18 @@ def _expected_triggers(items: tuple[SensitivityItem, ...]) -> tuple[str, ...]:
 
 
 def _warned_items(warnings: tuple[EngineWarning, ...]) -> tuple[str, ...]:
-    """Items named by the birth_time_sensitive warning (the list before the colon)."""
-    sensitive = [w for w in warnings if w.code == "birth_time_sensitive"]
-    if not sensitive:
-        return ()
-    assert len(sensitive) == 1
-    return tuple(sensitive[0].message.split(":", 1)[0].split(", "))
+    """Items named by the birth_time_sensitive warnings (one plain sentence per item)."""
+    names = {v: k for k, v in DISPLAY.items()}
+    out = []
+    for w in warnings:
+        assert w.code == "birth_time_sensitive"
+        assert re.fullmatch(
+            r"(.+) changes \d+(\.\d)? (seconds?|minutes) (before|after) the given birth time"
+            r" \u2014 confirm the exact time\.",
+            w.message,
+        ), w.message
+        out.append(names[w.message.split(" changes ")[0]])
+    return tuple(out)
 
 
 def _check(chart: str) -> tuple[dict[str, SensitivityItem], tuple[str, ...]]:

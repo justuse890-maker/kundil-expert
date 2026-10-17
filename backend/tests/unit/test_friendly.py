@@ -140,15 +140,67 @@ def test_friendly_cases(raw: str, want: str) -> None:
 
 def test_lordship_sentence_and_detail() -> None:
     raw = (
-        "mars rules house 7, 12 for vrishabha lagna (moolatrikona in house 12); lordship rule: "
-        "malefic kendra -> neutral; decided by: bphs_lagna"
+        "mars rules house 7, 12 for vrishabha lagna (moolatrikona in house 12); "
+        "classified as neutral by bphs_lagna; lordship rule: malefic kendra -> neutral; "
+        "decided by: bphs_lagna"
     )
     why, detail = split_why([raw])
     assert why == [
-        "Mars rules houses 7 and 12 for Vrishabha lagna, so it is functionally neutral for this lagna"
+        "Mars rules houses 7 and 12; Parasara's list for Vrishabha lagna classifies it as neutral"
     ]
     assert detail == [raw]
 
 
 def test_cap_names() -> None:
     assert cap_names("saturn in meena") == "Saturn in Meena"
+
+
+def test_why_role_word_is_the_final_role_for_every_lagna_and_graha() -> None:
+    from vedic_engine.analysis.functional import Role, functional_roles
+    from vedic_engine.constants import Graha
+
+    words = {r.value for r in Role if r is not Role.MARAKA}
+    for lagna in range(12):
+        for waxing in (True, False):
+            for g, fr in functional_roles(lagna, waxing).items():
+                if g in (Graha.RAHU, Graha.KETU):
+                    continue
+                for pre in ("", f"{g.value} is {fr.role.value} for this chart (Moon-based): "):
+                    out = friendly(pre + fr.why)
+                    found = {w for w in words if re.search(rf"\b{w}\b", out)}
+                    assert found == {fr.role.value}, (lagna, g, out, fr.role)
+                assert "->" not in out
+
+
+def _dicts(o: Any) -> Iterator[dict[str, Any]]:
+    if isinstance(o, dict):
+        yield o
+        for v in o.values():
+            yield from _dicts(v)
+    elif isinstance(o, list):
+        for v in o:
+            yield from _dicts(v)
+
+
+def test_api_role_reasons_agree_with_the_verdict(bodies: list[dict[str, Any]]) -> None:
+    roles = {"benefic", "malefic", "neutral", "yogakaraka"}
+    checked = 0
+    for body in bodies:
+        for d in _dicts(body):
+            code = d.get("code")
+            final = (
+                code.split(":", 1)[1]
+                if isinstance(code, str) and code.startswith("role:") and code != "role:maraka"
+                else d.get("role")
+                if d.get("role") in roles and "houses" in d
+                else None
+            )
+            if final is None or not d.get("why"):
+                continue
+            text = " ".join(d["why"])
+            if "rules house" not in text:
+                continue
+            checked += 1
+            found = {w for w in roles if re.search(rf"\b{w}\b", text)}
+            assert found == {final}, (final, text)
+    assert checked > 50

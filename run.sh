@@ -4,5 +4,5 @@
 #        PORT=9000 ./run.sh
 set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")/backend"
-uv sync --frozen
-exec uv run uvicorn api.main:app --host 127.0.0.1 --port "${PORT:-8000}"
+uv sync --frozen --no-dev
+exec uv run --frozen uvicorn api.main:app --host 127.0.0.1 --port "${PORT:-8000}"

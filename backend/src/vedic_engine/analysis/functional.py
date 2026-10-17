@@ -151,12 +151,22 @@ def _node_role(graha: Graha, lagna_name: str) -> FunctionalRole:
     )
 
 
-def _why(graha: Graha, lagna_sign: int, houses: tuple[int, ...], rule: str, r_role: Role) -> str:
+def _why(
+    graha: Graha,
+    lagna_sign: int,
+    houses: tuple[int, ...],
+    role: Role,
+    source: str,
+    rule: str,
+    r_role: Role,
+) -> str:
+    """Raw fact: the FINAL role and who decided it, then the generic rule's result (detail only)."""
     owned = ", ".join(str(h) for h in houses)
     mt = house_of(MOOLATRIKONA[graha][0], lagna_sign)
     return (
         f"{graha.value} rules house {owned} for {RASHIS[lagna_sign]} lagna "
-        f"(moolatrikona in house {mt}); lordship rule: {rule.replace('_', ' ')} -> {r_role.value}"
+        f"(moolatrikona in house {mt}); classified as {role.value} by {source}; "
+        f"lordship rule: {rule.replace('_', ' ')} -> {r_role.value}"
     )
 
 
@@ -211,7 +221,7 @@ def _role_of(graha: Graha, lagna_sign: int, moon_is_waxing: bool) -> FunctionalR
         rule=rule,
         rule_role=r_role,
         text=text,
-        why=_why(graha, lagna_sign, houses, rule, r_role),
+        why=_why(graha, lagna_sign, houses, role, source, rule, r_role),
         ref=ref,
         maraka_ref=maraka_ref,
         note=entry["notes"].get(g),

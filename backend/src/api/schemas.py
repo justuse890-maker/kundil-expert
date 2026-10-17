@@ -89,7 +89,9 @@ class KundliRequest(ZoneIn):
     fold: Literal[0, 1] | None = Field(None, description="0 = first, 1 = second occurrence")
     name: str | None = Field(None, max_length=200)
     settings: SettingsIn = Field(default_factory=lambda: SettingsIn())
-    vargas: list[int] | None = Field(None, description=f"Subset of {list(VARGAS)}; default all")
+    vargas: list[int] | None = Field(
+        None, max_length=16, description=f"Subset of {list(VARGAS)}; default all"
+    )
     dasha_depth: int = Field(3, ge=1, le=5)
 
     @model_validator(mode="after")

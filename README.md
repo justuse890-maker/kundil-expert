@@ -14,7 +14,7 @@ Needs [uv](https://docs.astral.sh/uv/) and Python 3.12.
 PORT=9000 ./run.sh        # different port
 ```
 
-`run.sh` binds to 127.0.0.1 only, so the app is not reachable from other machines. API docs are at
+`run.sh` installs the locked runtime dependencies only (`uv sync --frozen --no-dev`, never re-locks) and binds to 127.0.0.1 only, so the app is not reachable from other machines. API docs are at
 `/docs`, health at `/health`. With Docker: `docker build -t vedic-astro-api .` then
 `docker run --rm -p 8000:8000 vedic-astro-api` (the image is built and checked in CI only).
 

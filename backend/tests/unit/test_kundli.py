@@ -191,3 +191,19 @@ def test_warnings_sorted_and_unique() -> None:
         k = _build(b)
         keys = [(w.code, w.message) for w in k.warnings]
         assert keys == sorted(set(keys))
+
+
+def test_no_internal_names_in_any_warning_message() -> None:
+    import re
+
+    from chart_fixtures import CHART_PATHS, birth_of, load_chart
+    from vedic_engine.kundli import build_kundli
+
+    seen = 0
+    for path in CHART_PATHS:
+        k = build_kundli(birth_of(load_chart(path)))
+        for w in k.warnings:
+            seen += 1
+            assert not re.search(r"\b[a-z]+_[a-z0-9_]+\b", w.message), w.message
+            assert not re.search(r"\b[A-Z]{2,}(?:_[A-Z]+)+\b", w.message), w.message
+    assert seen > 5

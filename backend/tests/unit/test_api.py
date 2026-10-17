@@ -892,3 +892,25 @@ def test_analysis_ids_resolve(client: TestClient, detail: str, time_known: bool)
     for m in (*p["months"], *p["best_windows"], *p["challenging_windows"]):
         assert m["reasons"] and {x["source"] for x in m["reasons"]} <= sources
     assert {i["advice_key"] for i in p["timeline"]} <= set(p["advice"])
+
+
+def test_config_test_hooks_follow_the_environment(monkeypatch: pytest.MonkeyPatch) -> None:
+    with TestClient(main.app) as c:
+        monkeypatch.delenv("KUNDLI_TEST_HOOKS", raising=False)
+        assert c.get("/api/v1/config").json() == {"test_hooks": False}
+        monkeypatch.setenv("KUNDLI_TEST_HOOKS", "1")
+        assert c.get("/api/v1/config").json() == {"test_hooks": True}
+
+
+def test_422_caps_echoed_input_and_vargas_are_bounded() -> None:
+    body = {"date": "1990-01-01", "time": "10:00", "lat": 1, "lon": 1}
+    with TestClient(main.app) as c:
+        r = c.post("/api/v1/kundli", json={**body, "utc_offset": "x" * 500})
+        assert r.status_code == 422
+        assert len(r.text) < 800 and "x" * 100 not in r.text
+        r = c.post("/api/v1/kundli", json={**body, "tz": "Mars/" + "y" * 500})
+        assert r.status_code == 422
+        assert "y" * 100 not in r.text
+        r = c.post("/api/v1/kundli", json={**body, "tz": "Asia/Kolkata", "vargas": [1] * 17})
+        assert r.status_code == 422
+        assert r.json()["detail"][0]["loc"] == ["body", "vargas"]

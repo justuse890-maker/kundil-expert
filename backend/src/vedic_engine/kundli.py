@@ -103,7 +103,7 @@ def _dignities(lons: Mapping[Graha, float]) -> dict[Graha, Dignity]:
 
 def _node_warning(dig: Mapping[Graha, Dignity]) -> tuple[EngineWarning, ...]:
     flagged = [
-        f"{g.value} {dig[g].value}"
+        f"{g.value.capitalize()} {dig[g].value}"
         for g in (Graha.RAHU, Graha.KETU)
         if dig.get(g) in (Dignity.EXALTED, Dignity.DEBILITATED)
     ]
@@ -112,7 +112,8 @@ def _node_warning(dig: Mapping[Graha, Dignity]) -> tuple[EngineWarning, ...]:
     return (
         EngineWarning(
             "school_dependent",
-            f"{', '.join(flagged)}: node dignity depends on the school (NODE_DIGNITY_SCHOOL)",
+            f"{', '.join(flagged)}: whether the nodes are exalted or debilitated here depends on "
+            "the astrological school; this app follows one common convention",
         ),
     )
 
@@ -164,7 +165,7 @@ def _time_unknown_warnings(
     ]
     padas = _moon_padas(birth, tz, settings)
     if len({nak for nak, _ in padas}) > 1:  # the nakshatra itself changes (Ruling U1)
-        listed = ", ".join(f"{NAKSHATRAS[n]} pada {p}" for n, p in padas)
+        listed = ", ".join(f"{NAKSHATRAS[n].replace('_', ' ').title()} pada {p}" for n, p in padas)
         out.append(
             EngineWarning(
                 "moon_nakshatra_uncertain",

@@ -64,7 +64,7 @@ def test_moon_nakshatra_uncertain_lists_every_pada_of_the_day() -> None:
     }
     assert len(day_naks) >= 2  # the Moon changes nakshatra on this day
     for nak in day_naks:
-        assert NAKSHATRAS[nak] in msg
+        assert NAKSHATRAS[nak].replace("_", " ").title() in msg
     assert "approximate" in msg
 
 

@@ -7,6 +7,7 @@ backend/data/cities.tsv), VEDIC_FRONTEND_DIR (default <repo>/frontend).
 
 import logging
 import os
+import re
 import uuid
 from collections.abc import AsyncIterator, Iterator, Sequence
 from contextlib import asynccontextmanager, contextmanager
@@ -16,6 +17,8 @@ from pathlib import Path
 from typing import Annotated, Any
 
 from fastapi import FastAPI, Query, Request
+from fastapi.encoders import jsonable_encoder
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -125,6 +128,40 @@ app = FastAPI(
 )
 
 
+ECHO_LIMIT = 60
+_QUOTED = re.compile(rf"(['\"])([^'\"]{{{ECHO_LIMIT},}})\1")
+
+
+def _clip(text: str) -> str:
+    return text if len(text) <= ECHO_LIMIT else text[:ECHO_LIMIT] + "\u2026"
+
+
+def _clip_msg(msg: str) -> str:
+    """Shorten any quoted (echoed) input in an error message; cap the whole message."""
+    msg = _QUOTED.sub(lambda m: f"{m[1]}{_clip(m[2])}{m[1]}", msg)
+    return msg if len(msg) <= 300 else msg[:300] + "\u2026"
+
+
+def _clip_value(value: Any) -> Any:
+    if isinstance(value, str):
+        return _clip(value)
+    if isinstance(value, dict):
+        return {k: _clip_value(v) for k, v in list(value.items())[:20]}
+    if isinstance(value, list):
+        return [_clip_value(v) for v in value[:20]]
+    return value
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_error_handler(_request: Request, exc: RequestValidationError) -> JSONResponse:
+    errors = jsonable_encoder(exc.errors())
+    for e in errors:
+        e["msg"] = _clip_msg(str(e.get("msg", "")))
+        if "input" in e:
+            e["input"] = _clip_value(e["input"])
+    return JSONResponse(status_code=422, content={"detail": errors})
+
+
 @app.exception_handler(InputError)
 async def input_error_handler(_request: Request, exc: InputError) -> JSONResponse:
     if isinstance(exc, ApiInputError):
@@ -134,7 +171,7 @@ async def input_error_handler(_request: Request, exc: InputError) -> JSONRespons
         loc = ["body", field] if field else ["body"]
     return JSONResponse(
         status_code=422,
-        content={"detail": [{"loc": loc, "msg": str(exc), "type": "input_error"}]},
+        content={"detail": [{"loc": loc, "msg": _clip_msg(str(exc)), "type": "input_error"}]},
     )
 
 
@@ -191,6 +228,16 @@ def health() -> JSONResponse:
 @app.get(f"{API}/version", summary="Engine and ephemeris versions")
 def version() -> dict[str, Any]:
     return _version()
+
+
+def test_hooks_enabled() -> bool:
+    return os.environ.get("KUNDLI_TEST_HOOKS") == "1"
+
+
+@app.get(f"{API}/config", summary="Front-end switches")
+def config() -> dict[str, Any]:
+    """`test_hooks` is true only when the server was started with KUNDLI_TEST_HOOKS=1."""
+    return {"test_hooks": test_hooks_enabled()}
 
 
 @app.get("/health", include_in_schema=False)

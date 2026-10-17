@@ -73,6 +73,33 @@ def _first_change(f: Callable[[float], Hashable], jd: float, direction: int) -> 
     return math.inf, False
 
 
+DISPLAY: dict[str, str] = {
+    "lagna": "Lagna (ascendant)",
+    "moon_nakshatra_pada": "The Moon's nakshatra pada",
+    "tithi": "Tithi",
+    "d9_lagna": "Navamsa (D9) lagna",
+    "d10_lagna": "Dasamsa (D10) lagna",
+}
+
+
+def _span(minutes: float) -> str:
+    seconds = round(minutes * 60.0)
+    if seconds < 120:
+        return f"{seconds} second{'' if seconds == 1 else 's'}"
+    return f"{minutes:.1f} minutes"
+
+
+def _sensitive_message(i: SensitivityItem) -> str:
+    """Exactly which item changes, how long after/before the given time (structured items stay)."""
+    side, m = ("before", i.minutes_before)
+    if i.minutes_after < i.minutes_before:
+        side, m = "after", i.minutes_after
+    return (
+        f"{DISPLAY[i.item]} changes {_span(m)} {side} the given birth time"
+        " \u2014 confirm the exact time."
+    )
+
+
 def sensitive_items(items: Iterable[SensitivityItem]) -> tuple[str, ...]:
     """Names of the items that make a birth time sensitive under Ruling R28, in item order."""
     return tuple(
@@ -108,15 +135,9 @@ def sensitivity(
         before, edge_before = _first_change(values[name], jd, -1)
         after, edge_after = _first_change(values[name], jd, 1)
         items.append(SensitivityItem(name, before, after, edge_before, edge_after))
-    near = sensitive_items(items)
-    warnings: tuple[EngineWarning, ...] = ()
-    if near:
-        warnings = (
-            EngineWarning(
-                "birth_time_sensitive",
-                f"{', '.join(near)}: changes within {SENSITIVE_MINUTES_PRIMARY} minutes "
-                f"(lagna, Moon nakshatra/pada, tithi) or {SENSITIVE_MINUTES_VARGA} minute "
-                "(D9/D10 lagna) of the birth time",
-            ),
-        )
+    by_name = {i.item: i for i in items}
+    warnings = tuple(
+        EngineWarning("birth_time_sensitive", _sensitive_message(by_name[name]))
+        for name in sensitive_items(items)
+    )
     return tuple(items), warnings

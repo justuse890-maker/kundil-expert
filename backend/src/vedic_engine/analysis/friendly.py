@@ -36,12 +36,6 @@ _DIGNITY = {
     "enemy": "in an enemy's sign",
     "great enemy": "in a great enemy's sign",
 }
-_ROLE = {
-    "benefic": "a functional benefic",
-    "malefic": "a functional malefic",
-    "neutral": "functionally neutral",
-    "yogakaraka": "a yogakaraka (especially auspicious)",
-}
 
 
 def _fm(pattern: str, s: str) -> re.Match[str] | None:
@@ -97,20 +91,23 @@ def _rewrite(s: str) -> str:
         return f"{m[1]} {m[2]} the {ordinal(int(m[3]))} house"
     if m := _fm(rf"({_G}) owns no house for ({_R}) lagna(?:; decided by: \w+)?", s):
         return f"{m[1]} owns no house for {m[2]} lagna (a node)"
-    # lordship: "[G is ROLE for this lagna/chart:] G rules house A, B for X lagna (...); lordship
-    # rule: R -> role[; decided by: S[; note]]"
+    # lordship: "[G is ROLE for this lagna/chart:] G rules house A, B for X lagna (...); classified
+    # as ROLE by SOURCE; lordship rule: R -> generic role[; decided by: S[; note]]"
     if m := _fm(
-        rf"(?:({_G}) is (benefic|malefic|neutral|yogakaraka) for this (lagna|chart \(Moon-based\)): )?"
+        rf"(?:(?:{_G}) is (?:benefic|malefic|neutral|yogakaraka) for this (lagna|chart \(Moon-based\)): )?"
         rf"({_G}) rules house ([\d, ]+) for ({_R}) lagna \(moolatrikona in house \d+\); "
-        rf"lordship rule: [^;]*? -> (\w+)(?:; decided by: .*)?",
+        rf"classified as (\w+) by (\w+); lordship rule: [^;]*? -> \w+(?:; decided by: .*)?",
         s,
     ):
-        role = m[2] or m[7]
-        where = "this chart (Moon-based)" if m[3] and m[3] != "lagna" else "this lagna"
-        return (
-            f"{m[4]} rules {_houses(m[5])} for {m[6]} lagna, so it is "
-            f"{_ROLE.get(role, role)} for {where}"
-        )
+        scope = m[1] or "lagna"
+        base = f"{m[4]} (this chart, Moon-based)" if scope != "lagna" else f"{m[4]} lagna"
+        if m[6] == "bphs_lagna":
+            how = f"Parasara's list for {base} classifies it as {m[5]}"
+        elif m[6] == "bphs_v13":
+            how = f"it owns a kendra and a trikona, so it is {m[5]}"
+        else:
+            how = f"by the lordship rules it is {m[5]}"
+        return f"{m[2]} rules {_houses(m[3])}; {how}"
     if m := _fm(
         r"(antar|pratyantar) ([a-z]+(?:-[a-z]+)+): (\d{4}-\d\d-\d\d) to (\d{4}-\d\d-\d\d)", s
     ):

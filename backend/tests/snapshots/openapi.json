@@ -162,6 +162,7 @@
                 "items": {
                   "type": "integer"
                 },
+                "maxItems": 16,
                 "type": "array"
               },
               {
@@ -346,6 +347,7 @@
                 "items": {
                   "type": "integer"
                 },
+                "maxItems": 16,
                 "type": "array"
               },
               {
@@ -545,6 +547,7 @@
                 "items": {
                   "type": "integer"
                 },
+                "maxItems": 16,
                 "type": "array"
               },
               {
@@ -845,6 +848,27 @@
           }
         },
         "summary": "Chart analysis and 24-month timeline"
+      }
+    },
+    "/api/v1/config": {
+      "get": {
+        "description": "`test_hooks` is true only when the server was started with KUNDLI_TEST_HOOKS=1.",
+        "operationId": "config_api_v1_config_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Config Api V1 Config Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Front-end switches"
       }
     },
     "/api/v1/daily": {

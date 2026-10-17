@@ -4,6 +4,7 @@ the cheap grep test below runs by default).
 Run with: ``uv run playwright install chromium`` once, then ``uv run pytest -m e2e``.
 """
 
+import os
 import re
 import socket
 import subprocess
@@ -51,7 +52,8 @@ def test_no_hardcoded_prediction_text_in_app_js() -> None:
     # Non-prediction UI copy that is allowed (labels, errors, form hints, static dosha facts).
     allowed = ("Pick a place", "Please fill", "Cannot reach", "Something went wrong", "Request failed",
                "Analysis is unavailable", "Saturn is not currently", "Planets are distributed",
-               "Saturn's 7.5 year")  # fmt: skip
+               "Saturn's 7.5 year", "Your birth time uses", "Pick where you are",
+               "Choose a UTC offset")  # fmt: skip
     literals = re.findall(r"'([^'\\\n]{50,})'|\"([^\"\\\n]{50,})\"", src)
     # A sentence: 8+ words, capitalised, ending in a full stop. (House topic lists are not sentences.)
     long_sentences = [
@@ -82,6 +84,7 @@ def base_url() -> Iterator[str]:
             str(port),
         ],
         cwd=REPO / "backend",
+        env={**os.environ, "KUNDLI_TEST_HOOKS": "1"},
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
@@ -123,7 +126,7 @@ def test_india_1947_end_to_end(page: Page, base_url: str) -> None:
     page.on("pageerror", lambda exc: errors.append(f"pageerror: {exc}"))
     page.on("console", lambda msg: errors.append(msg.text) if msg.type == "error" else None)
 
-    # ?now= is forwarded as now_utc (test determinism only).
+    # ?now= is forwarded as now_utc (honoured only when the server runs with KUNDLI_TEST_HOOKS=1).
     page.goto(base_url + "/?now=2026-10-17T06:30:00Z")
     page.fill("#name", "India 1947")
     page.fill("#dob", "1947-08-15")
@@ -341,3 +344,91 @@ def test_before_sunrise_shows_yesterdays_vedic_day(page: Page, base_url: str) ->
     expect(page.get_by_test_id("before-sunrise-note")).to_be_visible()
     expect(page.get_by_test_id("vaar")).to_contain_text("Friday")
     assert page.locator("tr.hora-now").count() == 1
+
+
+def _submit_delhi(page: Page, base_url: str, now: str) -> None:
+    page.goto(f"{base_url}/?now={now}")
+    page.fill("#name", "Test")
+    page.fill("#dob", "1947-08-15")
+    page.fill("#tob", "00:00")
+    page.fill("#birthPlace", "New Delhi")
+    page.locator("#placeList li", has_text="New Delhi").first.click()
+    page.click("#submitBtn")
+    expect(page.get_by_test_id("lagna")).to_have_text("Vrishabha")
+    page.click("#navPredictions")
+
+
+@pytest.mark.e2e
+def test_today_follows_a_chosen_current_place(page: Page, base_url: str) -> None:
+    _submit_delhi(page, base_url, "2026-10-17T06:30:00Z")
+    label = page.get_by_test_id("today-label")
+    expect(label).to_have_text("Today at New Delhi (Asia/Kolkata)")
+    first = page.locator('[data-testid="hora-table"] tbody tr').first.locator("td").nth(2)
+    before = first.inner_text()
+
+    page.fill("#todayPlace", "London")
+    page.locator("#todayPlaceList li", has_text="Europe/London").first.click()
+    expect(page.get_by_test_id("today-label")).to_have_text(
+        re.compile(r"Today at London \(Europe/London\)")
+    )
+    after = (
+        page.locator('[data-testid="hora-table"] tbody tr').first.locator("td").nth(2).inner_text()
+    )
+    assert after != before
+    expect(page.get_by_test_id("today-place")).to_have_value(re.compile("^London"))
+
+
+@pytest.mark.e2e
+def test_offset_birth_without_zone_asks_for_a_current_place(page: Page, base_url: str) -> None:
+    page.goto(base_url)
+    page.fill("#name", "Test")
+    page.fill("#dob", "1990-03-05")
+    page.fill("#tob", "14:20")
+    page.fill("#birthPlace", "zzzz")
+    page.fill("#lat", "19.07")
+    page.fill("#lon", "72.87")
+    page.locator(".adv-box summary").click()
+    page.check("#useOffset")
+    page.click("#submitBtn")
+    page.click("#navPredictions")
+    expect(page.get_by_test_id("today-needplace")).to_be_visible()
+    page.fill("#todayPlace", "Mumbai")
+    page.locator("#todayPlaceList li", has_text="Asia/Kolkata").first.click()
+    expect(page.get_by_test_id("today-label")).to_have_text(
+        re.compile(r"Today at Mumbai \(Asia/Kolkata\)")
+    )
+
+
+@pytest.mark.e2e
+def test_empty_offset_shows_a_field_error_and_sends_nothing(page: Page, base_url: str) -> None:
+    sent: list[str] = []
+    page.on("request", lambda r: sent.append(r.url) if r.url.endswith("/kundli") else None)
+    page.goto(base_url)
+    page.fill("#name", "Test")
+    page.fill("#dob", "1990-03-05")
+    page.fill("#tob", "14:20")
+    page.fill("#birthPlace", "zzzz")
+    page.fill("#lat", "19.07")
+    page.fill("#lon", "72.87")
+    page.locator(".adv-box summary").click()
+    page.check("#useOffset")
+    page.evaluate(
+        "document.getElementById('tz').innerHTML = '<option value=\"\" selected></option>'"
+    )
+    page.click("#submitBtn")
+    expect(page.locator("#formError")).to_contain_text("UTC offset")
+    assert sent == []
+
+
+@pytest.mark.e2e
+def test_chandra_chart_labels(page: Page, base_url: str) -> None:
+    page.goto(base_url)
+    page.fill("#name", "Test")
+    page.fill("#dob", "1990-03-05")
+    page.check("#timeUnknown")
+    page.fill("#birthPlace", "Mumbai")
+    page.locator("#placeList li", has_text="Asia/Kolkata").first.click()
+    page.click("#submitBtn")
+    expect(page.get_by_test_id("lagna")).to_be_visible()
+    expect(page.locator(".stat-label", has_text="Chandra Lagna (Moon)")).to_be_visible()
+    assert page.locator(".stat-label", has_text="Ascendant (Lagna)").count() == 0
