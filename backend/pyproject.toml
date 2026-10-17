@@ -20,7 +20,7 @@ dev = [
     "hypothesis",
     "ruff",
     "mypy",
-    "httpx",
+    "httpx2>=2.13.1",
 ]
 
 [build-system]
