@@ -1,0 +1,64 @@
+{
+  "_source": "Contributors: the 10th, 11th and 2nd lords (BPHS tr. R. Santhanam, Vol. 1, Ch 24: 2nd lord vv. 13-24, 10th lord vv. 109-120, 11th lord vv. 121-132, verse = 12*(H-1)+n) and the planets in the 2nd and 11th. A lord's source type follows the house it occupies; that house-to-type table is an interpretive mapping from the house significations (BPHS Ch 11 vv. 2-13; see houses.json) and the Ch 24 results, not a classical table. A planet's type follows its significations (Phaladeepika tr. V. Subrahmanya Sastri, Ch 2 vv. 1-7 and 17-20); that planet-to-type table is also an interpretive mapping, and every planet_type ref says so. Rahu and Ketu: popular tradition. Earning away from the native place: Phaladeepika Ch 5 v. 9. One source per planet: its type comes from its highest-priority role (10th lord, 11th lord, 2nd lord, occupant, foreign indicator) and the other roles go into why. Sources are ranked by planet_strength (highest first), ties broken by role priority, then Graha order.",
+  "types": {
+    "service": {"en": "service (employment)", "hi": "सेवा (नौकरी)"},
+    "business_partnership": {"en": "business and partnership", "hi": "व्यापार और साझेदारी"},
+    "own_enterprise": {"en": "own enterprise and self-effort", "hi": "स्वयं का उद्यम और निजी प्रयास"},
+    "investments_gains": {"en": "investments and multiple streams of gain", "hi": "निवेश और आय के अनेक स्रोत"},
+    "inheritance": {"en": "inheritance and joint resources", "hi": "विरासत और साझा संसाधन"},
+    "foreign": {"en": "foreign or distant sources", "hi": "विदेश या दूर स्थान के स्रोत"},
+    "creative": {"en": "creative and intellectual work", "hi": "रचनात्मक और बौद्धिक कार्य"},
+    "property": {"en": "land, property and vehicles", "hi": "भूमि, संपत्ति और वाहन"},
+    "authority": {"en": "government and positions of authority", "hi": "सरकार और अधिकार के पद"},
+    "family_wealth": {"en": "family wealth", "hi": "पारिवारिक धन"},
+    "trade": {"en": "trade and commerce", "hi": "व्यापार और वाणिज्य"},
+    "advisory": {"en": "teaching, finance and advisory work", "hi": "शिक्षण, वित्त और परामर्श कार्य"},
+    "research": {"en": "research and spiritual work", "hi": "शोध और आध्यात्मिक कार्य"}
+  },
+  "house_type": {
+    "1": "own_enterprise",
+    "2": "family_wealth",
+    "3": "own_enterprise",
+    "4": "property",
+    "5": "creative",
+    "6": "service",
+    "7": "business_partnership",
+    "8": "inheritance",
+    "9": "authority",
+    "10": "own_enterprise",
+    "11": "investments_gains",
+    "12": "foreign"
+  },
+  "planet_type": {
+    "sun": {"type": "authority", "ref": "Phaladeepika Ch 2 vv. 1, 17; planet-to-type mapping: interpretive"},
+    "moon": {"type": "trade", "ref": "Phaladeepika Ch 2 vv. 2, 17; planet-to-type mapping: interpretive"},
+    "mars": {"type": "property", "ref": "Phaladeepika Ch 2 vv. 3, 18; planet-to-type mapping: interpretive"},
+    "mercury": {"type": "trade", "ref": "Phaladeepika Ch 2 vv. 4, 18; planet-to-type mapping: interpretive"},
+    "jupiter": {"type": "advisory", "ref": "Phaladeepika Ch 2 vv. 5, 19; planet-to-type mapping: interpretive"},
+    "venus": {"type": "creative", "ref": "Phaladeepika Ch 2 vv. 6, 19; planet-to-type mapping: interpretive"},
+    "saturn": {"type": "service", "ref": "Phaladeepika Ch 2 vv. 7, 20; planet-to-type mapping: interpretive"},
+    "rahu": {"type": "foreign", "ref": "popular tradition; planet-to-type mapping: interpretive"},
+    "ketu": {"type": "research", "ref": "popular tradition; planet-to-type mapping: interpretive"}
+  },
+  "roles": {
+    "10th lord": {"en": "10th lord", "hi": "दशमेश"},
+    "11th lord": {"en": "11th lord", "hi": "लाभेश"},
+    "2nd lord": {"en": "2nd lord", "hi": "धनेश"}
+  },
+  "templates": {
+    "lord_phrase": {"en": "the {role} {planet} in the {n} house", "hi": "{n} भाव में {role} {planet}"},
+    "occupant_phrase": {"en": "{planet} in the {n} house", "hi": "{n} भाव में {planet}"},
+    "foreign_phrase": {
+      "en": "the 10th house sign touched by planets other than its lord, with the 10th lord's navamsa not in a fixed sign",
+      "hi": "दशम भाव की राशि पर उसके स्वामी के अतिरिक्त अन्य ग्रहों का प्रभाव, और दशमेश का नवांश स्थिर राशि में नहीं"
+    },
+    "source": {
+      "en": "{rank}. {type}: indicated by {details}; contributing strength {score}/100.",
+      "hi": "{rank}. {type} — आधार: {details}; सहायक बल {score}/100।"
+    }
+  },
+  "refs": {
+    "foreign": "Phaladeepika Ch 5 v. 9",
+    "house_type": "house-to-type mapping: interpretive, from BPHS Ch 11 vv. 2-13"
+  }
+}

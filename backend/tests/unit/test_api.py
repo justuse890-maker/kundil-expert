@@ -464,11 +464,10 @@ def test_unexpected_error_is_500_with_id(monkeypatch: pytest.MonkeyPatch) -> Non
     assert r.status_code == 500 and "error_id" in r.json() and "secret" not in r.text
 
 
-@pytest.mark.parametrize("method", ["get", "post"])
 @pytest.mark.parametrize("path", ["/api/v1/analysis", "/api/v1/daily"])
-def test_placeholders_501(client: TestClient, method: str, path: str) -> None:
-    r = getattr(client, method)(path)
-    assert r.status_code == 501
+def test_analysis_endpoints_are_post_only(client: TestClient, path: str) -> None:
+    r = client.get(path)
+    assert r.status_code == 404 and r.headers["content-type"].startswith("application/json")
 
 
 def test_root_serves_frontend(client: TestClient) -> None:
@@ -642,3 +641,254 @@ def test_kundli_time_unknown_shape_snapshot(
     r = client.post("/api/v1/kundli", json={**body, "time_known": False})
     assert r.status_code == 200
     _check_shape("kundli_time_unknown_shape.json", r.json(), request)
+
+
+# ---- /analysis and /daily (Task 5)
+
+NOW_UTC = "2026-10-17T06:30:00Z"
+_CERTAIN = re.compile(r"definitely|guarantee|100%|99%|certainly|surely|undoubtedly", re.IGNORECASE)
+
+
+def _walk_statements(node: Any) -> Iterator[dict[str, Any]]:
+    if isinstance(node, dict):
+        if "text_en" in node:
+            yield node
+        for v in node.values():
+            yield from _walk_statements(v)
+    elif isinstance(node, list):
+        for v in node:
+            yield from _walk_statements(v)
+
+
+@pytest.fixture(scope="module")
+def analysis_body(client: TestClient) -> Any:
+    r = client.post("/api/v1/analysis", json={**INDIA_1947, "now_utc": NOW_UTC})
+    assert r.status_code == 200, r.text
+    return r.json()
+
+
+@pytest.fixture(scope="module")
+def daily_body(client: TestClient) -> Any:
+    r = client.post("/api/v1/daily", json={**INDIA_1947, "today": "2026-10-17"})
+    assert r.status_code == 200, r.text
+    return r.json()
+
+
+def test_analysis_india(analysis_body: Any) -> None:
+    b = analysis_body
+    cur = b["periods"]["current"]
+    assert (cur["maha"]["lord"], cur["antar"]["lord"]) == ("mars", "rahu")
+    assert cur["pratyantar"]["judgement"]["nature"] in ("favourable", "mixed", "challenging")
+    assert set(b["areas"]) == {"personality", "career", "income", "marriage", "health",
+                               "wealth", "children", "education"}  # fmt: skip
+    assert b["functional_roles"]["saturn"]["role"] == "yogakaraka"
+    assert b["lucky"][0]["items"][0]["label_hi"]
+    assert b["disclaimer_en"] == "Traditional Jyotish interpretation — guidance, not certainty."
+    assert b["disclaimer_hi"]
+    p = b["periods"]
+    assert len(p["months"]) == 24 and len(p["best_windows"]) == 3
+    assert len(p["challenging_windows"]) == 3
+    assert p["now_utc"] == NOW_UTC and p["now_local"] == "2026-10-17T12:00:00+05:30"
+    for item in p["timeline"]:
+        assert item["why"] and item["ref"] and item["start_local"].endswith("+05:30")
+    for s in _walk_statements(b):
+        assert s["why"] and s["ref"], s
+        assert not _CERTAIN.search(s["text_en"]), s
+
+
+def test_analysis_is_deterministic(client: TestClient, analysis_body: Any) -> None:
+    again = client.post("/api/v1/analysis", json={**INDIA_1947, "now_utc": NOW_UTC}).json()
+    assert again == analysis_body
+
+
+def test_analysis_gender(client: TestClient) -> None:
+    body = {**INDIA_1947, "now_utc": NOW_UTC, "gender": "female"}
+    r = client.post("/api/v1/analysis", json=body)
+    assert r.status_code == 200 and r.json()["meta"]["gender"] == "female"
+    r = client.post("/api/v1/analysis", json={**body, "gender": "other"})
+    assert r.status_code == 422 and r.json()["detail"][0]["loc"] == ["body", "gender"]
+
+
+def test_analysis_now_out_of_dasha_span_is_422(client: TestClient) -> None:
+    r = client.post("/api/v1/analysis", json={**INDIA_1947, "now_utc": "1900-01-01T00:00:00Z"})
+    assert r.status_code == 422 and r.json()["detail"][0]["loc"] == ["body", "now_utc"]
+
+
+def test_daily_india(daily_body: Any) -> None:
+    b = daily_body
+    assert b["vaar"] == "shani" and b["vaar_lord"] == "saturn" and b["tz"] == "Asia/Kolkata"
+    horas = b["horas"]
+    assert len(horas) == 24 and horas[0]["lord"] == "saturn"
+    assert (
+        horas[0]["start_utc"] == b["sunrise_utc"] and horas[-1]["end_utc"] == b["next_sunrise_utc"]
+    )
+    assert horas[0]["start_local"].startswith("2026-10-17T06:2")
+    for h in horas:
+        assert set(h) >= {"lord", "start_utc", "start_local", "end_utc", "end_local",
+                          "colour_en", "colour_hi", "favourable", "avoid", "why", "ref"}  # fmt: skip
+    assert b["colour_today"]["graha"] == "saturn"
+    assert b["body_language"] and b["decisions"]
+    for s in _walk_statements(b):
+        assert s["why"] and s["ref"], s
+
+
+def test_daily_current_location(client: TestClient) -> None:
+    body = {**INDIA_1947, "today": "2026-10-17", "current_lat": 25.2048,
+            "current_lon": 55.2708, "current_tz": "Asia/Dubai"}  # fmt: skip
+    r = client.post("/api/v1/daily", json=body)
+    assert r.status_code == 200, r.text
+    b = r.json()
+    assert b["tz"] == "Asia/Dubai" and b["place"] == {"lat": 25.2048, "lon": 55.2708}
+    assert b["horas"][0]["start_local"].endswith("+04:00")
+    r = client.post("/api/v1/daily", json={**body, "current_tz": "Mars/Olympus"})
+    assert r.status_code == 422 and r.json()["detail"][0]["loc"] == ["body", "current_tz"]
+    r = client.post("/api/v1/daily", json={**INDIA_1947, "today": "2026-10-17", "current_lat": 1.0})
+    assert r.status_code == 422
+
+
+def test_daily_time_unknown_still_gives_horas(client: TestClient, daily_body: Any) -> None:
+    birth = {k: v for k, v in INDIA_1947.items() if k != "time"}
+    r = client.post("/api/v1/daily", json={**birth, "time_known": False, "today": "2026-10-17"})
+    assert r.status_code == 200, r.text
+    b = r.json()
+    assert len(b["horas"]) == 24
+    assert [h["lord"] for h in b["horas"]] == [h["lord"] for h in daily_body["horas"]]
+    assert b["sunrise_utc"] == daily_body["sunrise_utc"]
+    assert "Moon sign" in b["body_language"][0]["why"][0]
+
+
+def test_analysis_shape_snapshot(analysis_body: Any, request: pytest.FixtureRequest) -> None:
+    _check_shape("analysis_shape.json", analysis_body, request)
+
+
+def test_daily_shape_snapshot(daily_body: Any, request: pytest.FixtureRequest) -> None:
+    _check_shape("daily_shape.json", daily_body, request)
+
+
+def test_analysis_time_unknown_shape_snapshot(
+    client: TestClient, request: pytest.FixtureRequest
+) -> None:
+    birth = {k: v for k, v in INDIA_1947.items() if k != "time"}
+    r = client.post("/api/v1/analysis", json={**birth, "time_known": False, "now_utc": NOW_UTC})
+    assert r.status_code == 200, r.text
+    _check_shape("analysis_time_unknown_shape.json", r.json(), request)
+
+
+# ---- Task 5 fix round 1
+
+
+def test_analysis_default_is_lean_and_full_mode_has_every_reason(
+    client: TestClient, analysis_body: Any
+) -> None:
+    r = client.post("/api/v1/analysis", json={**INDIA_1947, "now_utc": NOW_UTC})
+    # 100 KB is a budget (ruling U13), not a hard property of the data
+    assert len(r.content) < 100_000, len(r.content)
+    lean = analysis_body["periods"]
+    for item in lean["timeline"]:
+        j = item["judgement"]
+        assert len(j["reasons"]) == min(3, j["reasons_total"])
+        assert all(rid in lean["reasons"] for rid in j["reasons"])
+    for m in lean["months"]:  # pointers into the timeline and transits
+        ids = {i["id"] for i in lean["timeline"]} | {t["id"] for t in lean["transits"]}
+        assert all(x["source"] in ids for x in m["reasons"])
+    full = client.post(
+        "/api/v1/analysis", json={**INDIA_1947, "now_utc": NOW_UTC, "detail": "full"}
+    )
+    assert full.status_code == 200 and len(full.content) > len(r.content)
+    fp = full.json()["periods"]
+    for small, item in zip(lean["timeline"], fp["timeline"], strict=True):
+        j = item["judgement"]
+        assert len(j["reasons"]) == j["reasons_total"] > 3
+        deltas = sorted((abs(fp["reasons"][x]["delta"]) for x in j["reasons"]), reverse=True)
+        kept = sorted((abs(lean["reasons"][x]["delta"]) for x in small["judgement"]["reasons"]),
+                      reverse=True)  # fmt: skip
+        assert kept == deltas[:3]
+    for m in fp["months"]:
+        assert all(x["why"] and x["ref"] for x in m["reasons"])
+    bad = client.post("/api/v1/analysis", json={**INDIA_1947, "detail": "all"})
+    assert bad.status_code == 422 and bad.json()["detail"][0]["loc"] == ["body", "detail"]
+
+
+def test_analysis_labels_interpretive_weights(client: TestClient, analysis_body: Any) -> None:
+    p = analysis_body["periods"]
+    assert "interpretive" in p["scoring_note"]["en"] and p["scoring_note"]["hi"]
+    assert "weights: interpretive" in p["scoring_note"]["ref"]
+    assert all(t["ref"].endswith("weights: interpretive") for t in p["transits"])
+    full = client.post(
+        "/api/v1/analysis", json={**INDIA_1947, "now_utc": NOW_UTC, "detail": "full"}
+    ).json()["periods"]
+    for m in (*full["months"], *full["best_windows"], *full["challenging_windows"]):
+        assert all(r["ref"].endswith("weights: interpretive") for r in m["reasons"])
+
+
+@pytest.mark.parametrize(
+    "extra",
+    [
+        {"current_tz": "Asia/Dubai"},
+        {"current_lat": 25.2, "current_lon": 55.27},
+        {"current_lon": 55.27, "current_tz": "Asia/Dubai"},
+    ],
+)
+def test_daily_current_place_is_all_or_nothing(client: TestClient, extra: dict[str, Any]) -> None:
+    r = client.post("/api/v1/daily", json={**INDIA_1947, "today": "2026-10-17", **extra})
+    assert r.status_code == 422, r.text
+
+
+def test_daily_polar_day_is_422_naming_the_date(client: TestClient) -> None:
+    body = {**INDIA_1947, "today": "2026-05-15", "current_lat": 69.6492,
+            "current_lon": 18.9553, "current_tz": "Europe/Oslo"}  # fmt: skip
+    r = client.post("/api/v1/daily", json=body)
+    assert r.status_code == 422
+    d = r.json()["detail"][0]
+    assert d["loc"] == ["body", "today"]
+    assert "2026-05-16" in d["msg"] and "end 2026-05-15's horas" in d["msg"]
+
+
+def test_daily_lmt_birth(client: TestClient) -> None:
+    body = {k: v for k, v in INDIA_1947.items() if k != "tz"}
+    r = client.post("/api/v1/daily", json={**body, "lmt": True, "today": "2026-10-17"})
+    assert r.status_code == 200, r.text
+    b = r.json()
+    assert b["tz"].startswith("UTC+05:08")  # LMT at 77.209 E
+    assert b["horas"][0]["start_local"].endswith("+05:09") and b["vaar"] == "shani"
+
+
+@pytest.mark.parametrize(
+    ("today", "first", "last"),
+    [("2026-03-29", "+01:00", "+01:00"), ("2026-10-24", "+01:00", "+00:00")],
+)
+def test_daily_london_dst_horas(client: TestClient, today: str, first: str, last: str) -> None:
+    body = {**INDIA_1947, "today": today, "current_lat": 51.5074, "current_lon": -0.1278,
+            "current_tz": "Europe/London"}  # fmt: skip
+    r = client.post("/api/v1/daily", json=body)
+    assert r.status_code == 200, r.text
+    horas = r.json()["horas"]
+    assert len(horas) == 24
+    assert horas[0]["start_local"].startswith(today) and horas[0]["start_local"].endswith(first)
+    assert horas[-1]["end_local"].endswith(last)
+    for a, b in itertools.pairwise(horas):
+        assert a["end_utc"] == b["start_utc"]
+
+
+@pytest.mark.parametrize("detail", ["summary", "full"])
+@pytest.mark.parametrize("time_known", [True, False])
+def test_analysis_ids_resolve(client: TestClient, detail: str, time_known: bool) -> None:
+    birth = (
+        dict(INDIA_1947)
+        if time_known
+        else {**{k: v for k, v in INDIA_1947.items() if k != "time"}, "time_known": False}
+    )
+    r = client.post("/api/v1/analysis", json={**birth, "now_utc": NOW_UTC, "detail": detail})
+    assert r.status_code == 200, r.text
+    p = r.json()["periods"]
+    reason_ids = set(p["reasons"])
+    judgements = [c["judgement"] for c in p["current"].values()]
+    judgements += [i["judgement"] for i in p["timeline"]]
+    assert len(judgements) == 3 + len(p["timeline"])
+    for j in judgements:
+        assert j["reasons"] and set(j["reasons"]) <= reason_ids
+    sources = {i["id"] for i in p["timeline"]} | {t["id"] for t in p["transits"]}
+    assert len(sources) == len(p["timeline"]) + len(p["transits"])  # ids are unique
+    for m in (*p["months"], *p["best_windows"], *p["challenging_windows"]):
+        assert m["reasons"] and {x["source"] for x in m["reasons"]} <= sources
+    assert {i["advice_key"] for i in p["timeline"]} <= set(p["advice"])

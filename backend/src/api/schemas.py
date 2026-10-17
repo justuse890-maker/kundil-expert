@@ -159,3 +159,42 @@ class TransitRequest(Request):
     settings: SettingsIn | None = Field(
         None, description="Defaults to natal.settings if natal is given, else the defaults"
     )
+
+
+class AnalysisRequest(KundliRequest):
+    """The `/kundli` body plus the analysis options."""
+
+    gender: Literal["male", "female"] | None = Field(
+        None, description="Used only for the marriage karaka (Venus male, Jupiter female)"
+    )
+    now_utc: AwareDatetime | None = Field(
+        None, description="Start of the 24-month timeline; defaults to the current time"
+    )
+    detail: Literal["summary", "full"] = Field(
+        "summary",
+        description="summary: each timeline item keeps its top 3 judgement reasons by |delta|; "
+        "full: all reasons",
+    )
+
+
+class DailyRequest(KundliRequest):
+    """The `/kundli` body (the birth chart) plus the day and, optionally, where the user is now.
+
+    `today` is a local civil date at the current place. The current place is `current_lat`,
+    `current_lon` and `current_tz` (IANA), given all together or not at all; without them the
+    birth place and birth zone are used (for an LMT birth, local mean time at the birth
+    longitude).
+    """
+
+    today: dt.date
+    current_lat: float | None = Field(None, ge=-90.0, le=90.0)
+    current_lon: float | None = Field(None, ge=-180.0, le=180.0)
+    current_tz: str | None = Field(None, min_length=1, description="IANA zone, e.g. Asia/Dubai")
+
+    @model_validator(mode="after")
+    def _both_coordinates(self) -> Self:
+        given = [self.current_lat is not None, self.current_lon is not None,
+                 self.current_tz is not None]  # fmt: skip
+        if any(given) and not all(given):
+            raise ValueError("give current_lat, current_lon and current_tz together, or none")
+        return self

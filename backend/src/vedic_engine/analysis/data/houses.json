@@ -1,0 +1,69 @@
+{
+  "_source": "BPHS = Brihat Parasara Hora Sastra, tr. R. Santhanam, Vol. 1, Ch 11 'Judgement of Houses' (printed pp. 121-123): verse 2 gives the 1st house and verse n+1 the nth house, through verse 13 for the 12th. Areas are short English renderings of those indications; where an area is a later traditional association not named in Ch 11, the house carries a 'note'.",
+  "houses": {
+    "1": {
+      "en": ["self", "body and health", "temperament"],
+      "hi": ["स्वयं", "शरीर और स्वास्थ्य", "स्वभाव"],
+      "ref": "BPHS Ch 11 v. 2"
+    },
+    "2": {
+      "en": ["wealth", "family", "food"],
+      "hi": ["धन", "परिवार", "भोजन"],
+      "ref": "BPHS Ch 11 v. 3"
+    },
+    "3": {
+      "en": ["courage and effort", "siblings", "journeys"],
+      "hi": ["पराक्रम", "भाई-बहन", "यात्राएँ"],
+      "ref": "BPHS Ch 11 v. 4"
+    },
+    "4": {
+      "en": ["mother", "home and land", "vehicles", "happiness"],
+      "hi": ["माता", "घर और भूमि", "वाहन", "सुख"],
+      "ref": "BPHS Ch 11 v. 5"
+    },
+    "5": {
+      "en": ["children", "learning", "authority"],
+      "hi": ["संतान", "विद्या", "अधिकार"],
+      "ref": "BPHS Ch 11 v. 6"
+    },
+    "6": {
+      "en": ["enemies and disputes", "illness", "maternal relatives"],
+      "hi": ["शत्रु और विवाद", "रोग", "मामा पक्ष"],
+      "ref": "BPHS Ch 11 v. 7"
+    },
+    "7": {
+      "en": ["spouse and marriage", "trade and partnership", "travel"],
+      "hi": ["जीवनसाथी और विवाह", "व्यापार और साझेदारी", "यात्रा"],
+      "ref": "BPHS Ch 11 v. 8"
+    },
+    "8": {
+      "en": ["longevity", "obstacles", "inheritance"],
+      "hi": ["आयु", "बाधाएँ", "विरासत"],
+      "ref": "BPHS Ch 11 v. 9",
+      "note": "Ch 11 names longevity, battle, enemies and 'wealth of the dead' (inheritance); 'obstacles' is a traditional association."
+    },
+    "9": {
+      "en": ["fortune", "dharma", "pilgrimage", "father"],
+      "hi": ["भाग्य", "धर्म", "तीर्थयात्रा", "पिता"],
+      "ref": "BPHS Ch 11 v. 10",
+      "note": "Santhanam's notes to Ch 11 v. 11 study the father as an individual from the 9th."
+    },
+    "10": {
+      "en": ["career", "status", "father's influence"],
+      "hi": ["करियर", "प्रतिष्ठा", "पिता का प्रभाव"],
+      "ref": "BPHS Ch 11 v. 11"
+    },
+    "11": {
+      "en": ["gains", "income", "network"],
+      "hi": ["लाभ", "आय", "संपर्क"],
+      "ref": "BPHS Ch 11 v. 12",
+      "note": "Ch 11 names income, prosperity and all articles; 'network' is a modern traditional association."
+    },
+    "12": {
+      "en": ["expenses", "losses", "liberation"],
+      "hi": ["व्यय", "हानि", "मोक्ष"],
+      "ref": "BPHS Ch 11 v. 13",
+      "note": "Liberation (final emancipation) is from BPHS Ch 23 (effects of the 12th house), not Ch 11."
+    }
+  }
+}

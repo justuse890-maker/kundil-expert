@@ -1,0 +1,96 @@
+{
+  "_source": "Traditional associations, not predictions. Phaladeepika (tr. V. Subrahmanya Sastri, 2nd ed. 1950) Ch 2: vv. 8-14 (garment and body colours of the Sun ... Saturn), vv. 15-16 (quarters of the compass), v. 27 (presiding deities: Rudra, Amba, Guha, Vishnu, Brahma, Lakshmi, Kala, Adisesha, Brahma), v. 29 (gems), v. 30 (substances: copper, bell-metal, copper ore, lead, gold, silver, iron; apparel in each planet's colour), vv. 33-35 (Rahu black, Ketu smoky; lead for Rahu, a mud vessel for Ketu). Weekday: the traditional vara (weekday) lordship; for Rahu and Ketu, which rule no weekday, popular tradition. Lucky numbers are numerology, not in BPHS or Phaladeepika: popular tradition. Where a popular modern substitute differs from the classical item it is shown in brackets as 'popularly ...'. BPHS Ch 3 vv. 16-18 gives other complexions and deities (e.g. Agni for the Sun); Phaladeepika's lists are used here.",
+  "label": {"en": "traditional association", "hi": "पारंपरिक संबंध"},
+  "kinds": {
+    "colour": {"en": "colour", "hi": "रंग"},
+    "gemstone": {"en": "gemstone", "hi": "रत्न"},
+    "day": {"en": "day", "hi": "दिन"},
+    "number": {"en": "number", "hi": "अंक"},
+    "direction": {"en": "direction", "hi": "दिशा"},
+    "deity": {"en": "deity", "hi": "देवता"},
+    "metal": {"en": "metal", "hi": "धातु"}
+  },
+  "planets": {
+    "sun": {
+      "colour": {"en": "red", "hi": "लाल", "source": "Phaladeepika Ch 2 vv. 8, 30"},
+      "gemstone": {"en": "ruby", "hi": "माणिक्य", "source": "Phaladeepika Ch 2 v. 29"},
+      "day": {"en": "Sunday", "hi": "रविवार", "source": "traditional weekday (vara) lordship"},
+      "number": {"en": "1", "hi": "१", "source": "popular tradition"},
+      "direction": {"en": "east", "hi": "पूर्व", "source": "Phaladeepika Ch 2 v. 15"},
+      "deity": {"en": "Rudra (Shiva)", "hi": "रुद्र (शिव)", "source": "Phaladeepika Ch 2 v. 27"},
+      "metal": {"en": "copper", "hi": "ताँबा", "source": "Phaladeepika Ch 2 v. 30"}
+    },
+    "moon": {
+      "colour": {"en": "white", "hi": "सफ़ेद", "source": "Phaladeepika Ch 2 vv. 9, 30"},
+      "gemstone": {"en": "pearl", "hi": "मोती", "source": "Phaladeepika Ch 2 v. 29"},
+      "day": {"en": "Monday", "hi": "सोमवार", "source": "traditional weekday (vara) lordship"},
+      "number": {"en": "2", "hi": "२", "source": "popular tradition"},
+      "direction": {"en": "north-west", "hi": "उत्तर-पश्चिम (वायव्य)", "source": "Phaladeepika Ch 2 v. 15"},
+      "deity": {"en": "Amba (Parvati)", "hi": "अंबा (पार्वती)", "source": "Phaladeepika Ch 2 v. 27"},
+      "metal": {"en": "bell-metal", "hi": "काँसा", "source": "Phaladeepika Ch 2 v. 30"}
+    },
+    "mars": {
+      "colour": {"en": "red", "hi": "लाल", "source": "Phaladeepika Ch 2 vv. 10, 30"},
+      "gemstone": {"en": "coral", "hi": "मूँगा", "source": "Phaladeepika Ch 2 v. 29"},
+      "day": {"en": "Tuesday", "hi": "मंगलवार", "source": "traditional weekday (vara) lordship"},
+      "number": {"en": "9", "hi": "९", "source": "popular tradition"},
+      "direction": {"en": "south", "hi": "दक्षिण", "source": "Phaladeepika Ch 2 v. 15"},
+      "deity": {"en": "Guha (Kumara, Kartikeya)", "hi": "गुह (कुमार कार्तिकेय)", "source": "Phaladeepika Ch 2 v. 27"},
+      "metal": {"en": "copper ore", "hi": "ताम्र अयस्क", "source": "Phaladeepika Ch 2 v. 30"}
+    },
+    "mercury": {
+      "colour": {"en": "green", "hi": "हरा", "source": "Phaladeepika Ch 2 vv. 11, 30"},
+      "gemstone": {"en": "emerald", "hi": "पन्ना", "source": "Phaladeepika Ch 2 v. 29"},
+      "day": {"en": "Wednesday", "hi": "बुधवार", "source": "traditional weekday (vara) lordship"},
+      "number": {"en": "5", "hi": "५", "source": "popular tradition"},
+      "direction": {"en": "north", "hi": "उत्तर", "source": "Phaladeepika Ch 2 v. 15"},
+      "deity": {"en": "Vishnu", "hi": "विष्णु", "source": "Phaladeepika Ch 2 v. 27"},
+      "metal": {"en": "lead", "hi": "सीसा", "source": "Phaladeepika Ch 2 v. 30"}
+    },
+    "jupiter": {
+      "colour": {"en": "yellow", "hi": "पीला", "source": "Phaladeepika Ch 2 vv. 12, 30"},
+      "gemstone": {"en": "topaz (popularly yellow sapphire)", "hi": "पुखराज", "source": "Phaladeepika Ch 2 v. 29"},
+      "day": {"en": "Thursday", "hi": "गुरुवार", "source": "traditional weekday (vara) lordship"},
+      "number": {"en": "3", "hi": "३", "source": "popular tradition"},
+      "direction": {"en": "north-east", "hi": "उत्तर-पूर्व (ईशान)", "source": "Phaladeepika Ch 2 v. 16"},
+      "deity": {"en": "Brahma", "hi": "ब्रह्मा", "source": "Phaladeepika Ch 2 v. 27"},
+      "metal": {"en": "gold", "hi": "सोना", "source": "Phaladeepika Ch 2 v. 30"}
+    },
+    "venus": {
+      "colour": {"en": "variegated (many colours)", "hi": "रंग-बिरंगा", "source": "Phaladeepika Ch 2 vv. 13, 30"},
+      "gemstone": {"en": "diamond", "hi": "हीरा", "source": "Phaladeepika Ch 2 v. 29"},
+      "day": {"en": "Friday", "hi": "शुक्रवार", "source": "traditional weekday (vara) lordship"},
+      "number": {"en": "6", "hi": "६", "source": "popular tradition"},
+      "direction": {"en": "south-east", "hi": "दक्षिण-पूर्व (आग्नेय)", "source": "Phaladeepika Ch 2 v. 16"},
+      "deity": {"en": "Lakshmi", "hi": "लक्ष्मी", "source": "Phaladeepika Ch 2 v. 27"},
+      "metal": {"en": "silver", "hi": "चाँदी", "source": "Phaladeepika Ch 2 v. 30"}
+    },
+    "saturn": {
+      "colour": {"en": "black", "hi": "काला", "source": "Phaladeepika Ch 2 vv. 14, 30"},
+      "gemstone": {"en": "blue sapphire", "hi": "नीलम", "source": "Phaladeepika Ch 2 v. 29"},
+      "day": {"en": "Saturday", "hi": "शनिवार", "source": "traditional weekday (vara) lordship"},
+      "number": {"en": "8", "hi": "८", "source": "popular tradition"},
+      "direction": {"en": "west", "hi": "पश्चिम", "source": "Phaladeepika Ch 2 v. 16"},
+      "deity": {"en": "Kala (Yama)", "hi": "काल (यम)", "source": "Phaladeepika Ch 2 v. 27"},
+      "metal": {"en": "iron", "hi": "लोहा", "source": "Phaladeepika Ch 2 v. 30"}
+    },
+    "rahu": {
+      "colour": {"en": "black", "hi": "काला", "source": "Phaladeepika Ch 2 v. 33"},
+      "gemstone": {"en": "agate (popularly hessonite)", "hi": "अकीक (लोक-प्रचलन में गोमेद)", "source": "Phaladeepika Ch 2 v. 29"},
+      "day": {"en": "Saturday", "hi": "शनिवार", "source": "popular tradition"},
+      "number": {"en": "4", "hi": "४", "source": "popular tradition"},
+      "direction": {"en": "south-west", "hi": "दक्षिण-पश्चिम (नैऋत्य)", "source": "Phaladeepika Ch 2 v. 16"},
+      "deity": {"en": "Adisesha (the serpent)", "hi": "आदिशेष (सर्पराज)", "source": "Phaladeepika Ch 2 v. 27"},
+      "metal": {"en": "lead", "hi": "सीसा", "source": "Phaladeepika Ch 2 v. 35"}
+    },
+    "ketu": {
+      "colour": {"en": "smoky grey", "hi": "धूम्र (धुएँ जैसा)", "source": "Phaladeepika Ch 2 v. 34"},
+      "gemstone": {"en": "lapis lazuli or turquoise (popularly cat's eye)", "hi": "लाजवर्द या फ़िरोज़ा (लोक-प्रचलन में लहसुनिया)", "source": "Phaladeepika Ch 2 v. 29"},
+      "day": {"en": "Tuesday", "hi": "मंगलवार", "source": "popular tradition"},
+      "number": {"en": "7", "hi": "७", "source": "popular tradition"},
+      "direction": {"en": "south-west", "hi": "दक्षिण-पश्चिम (नैऋत्य)", "source": "Phaladeepika Ch 2 v. 16"},
+      "deity": {"en": "Brahma", "hi": "ब्रह्मा", "source": "Phaladeepika Ch 2 v. 27"},
+      "metal": {"en": "no metal named (an earthen vessel)", "hi": "कोई धातु नहीं (मिट्टी का पात्र)", "source": "Phaladeepika Ch 2 v. 35"}
+    }
+  }
+}

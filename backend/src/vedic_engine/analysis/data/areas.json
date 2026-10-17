@@ -1,0 +1,222 @@
+{
+  "_source": "Shared labels and the templates for marriage, health, wealth, children and education. BPHS = Brihat Parasara Hora Sastra, tr. R. Santhanam, Vol. 1: Ch 24 'Effects of the bhava lords' (the lord of house H in house n is verse 12*(H-1)+n; section headers checked: 1st lord vv. 1-12 ... 12th lord vv. 133-144), Ch 32 vv. 31-34 (bhava karakas), Ch 41 'Combinations for wealth' (vv. 2-8: 5th lord in 5th with 11th lord in 11th; v. 16: the 5th and 9th lords and planets joining them give wealth), Ch 7 vv. 1-8 (spouse from the navamsa, power and position from the dasamsa), Ch 12 'Effects of first house'. Phaladeepika = tr. V. Subrahmanya Sastri, 2nd ed. 1950: Ch 2 vv. 2, 4, 5, 6 (Moon: mental tranquillity, bodily health; Mercury: learning, intelligence; Jupiter: sons, happiness of the husband; Venus: wife, marriage), Ch 15 vv. 18-19 (malefics in the 6th, 8th, 12th do good; benefics there spoil), v. 25 (a bhava gives good effects when the bhava, its lord and its karaka are strong), Ch 9 v. 13 (the Moon's sign read like the lagna), Ch 5 v. 1 (wealth judged from the lagna or the Moon). Texts are short paraphrases, not quotations.",
+  "labels": {
+    "grahas": {
+      "sun": {"en": "Sun", "hi": "सूर्य"},
+      "moon": {"en": "Moon", "hi": "चंद्रमा"},
+      "mars": {"en": "Mars", "hi": "मंगल"},
+      "mercury": {"en": "Mercury", "hi": "बुध"},
+      "jupiter": {"en": "Jupiter", "hi": "गुरु"},
+      "venus": {"en": "Venus", "hi": "शुक्र"},
+      "saturn": {"en": "Saturn", "hi": "शनि"},
+      "rahu": {"en": "Rahu", "hi": "राहु"},
+      "ketu": {"en": "Ketu", "hi": "केतु"}
+    },
+    "rashis": {
+      "mesha": {"en": "Mesha", "hi": "मेष"},
+      "vrishabha": {"en": "Vrishabha", "hi": "वृषभ"},
+      "mithuna": {"en": "Mithuna", "hi": "मिथुन"},
+      "karka": {"en": "Karka", "hi": "कर्क"},
+      "simha": {"en": "Simha", "hi": "सिंह"},
+      "kanya": {"en": "Kanya", "hi": "कन्या"},
+      "tula": {"en": "Tula", "hi": "तुला"},
+      "vrishchika": {"en": "Vrishchika", "hi": "वृश्चिक"},
+      "dhanu": {"en": "Dhanu", "hi": "धनु"},
+      "makara": {"en": "Makara", "hi": "मकर"},
+      "kumbha": {"en": "Kumbha", "hi": "कुंभ"},
+      "meena": {"en": "Meena", "hi": "मीन"}
+    },
+    "nakshatras": {
+      "ashwini": {"en": "Ashwini", "hi": "अश्विनी"},
+      "bharani": {"en": "Bharani", "hi": "भरणी"},
+      "krittika": {"en": "Krittika", "hi": "कृत्तिका"},
+      "rohini": {"en": "Rohini", "hi": "रोहिणी"},
+      "mrigashira": {"en": "Mrigashira", "hi": "मृगशिरा"},
+      "ardra": {"en": "Ardra", "hi": "आर्द्रा"},
+      "punarvasu": {"en": "Punarvasu", "hi": "पुनर्वसु"},
+      "pushya": {"en": "Pushya", "hi": "पुष्य"},
+      "ashlesha": {"en": "Ashlesha", "hi": "आश्लेषा"},
+      "magha": {"en": "Magha", "hi": "मघा"},
+      "purva_phalguni": {"en": "Purva Phalguni", "hi": "पूर्वा फाल्गुनी"},
+      "uttara_phalguni": {"en": "Uttara Phalguni", "hi": "उत्तरा फाल्गुनी"},
+      "hasta": {"en": "Hasta", "hi": "हस्त"},
+      "chitra": {"en": "Chitra", "hi": "चित्रा"},
+      "swati": {"en": "Swati", "hi": "स्वाति"},
+      "vishakha": {"en": "Vishakha", "hi": "विशाखा"},
+      "anuradha": {"en": "Anuradha", "hi": "अनुराधा"},
+      "jyeshtha": {"en": "Jyeshtha", "hi": "ज्येष्ठा"},
+      "mula": {"en": "Mula", "hi": "मूल"},
+      "purva_ashadha": {"en": "Purva Ashadha", "hi": "पूर्वाषाढ़ा"},
+      "uttara_ashadha": {"en": "Uttara Ashadha", "hi": "उत्तराषाढ़ा"},
+      "shravana": {"en": "Shravana", "hi": "श्रवण"},
+      "dhanishta": {"en": "Dhanishta", "hi": "धनिष्ठा"},
+      "shatabhisha": {"en": "Shatabhisha", "hi": "शतभिषा"},
+      "purva_bhadrapada": {"en": "Purva Bhadrapada", "hi": "पूर्वा भाद्रपद"},
+      "uttara_bhadrapada": {"en": "Uttara Bhadrapada", "hi": "उत्तरा भाद्रपद"},
+      "revati": {"en": "Revati", "hi": "रेवती"}
+    },
+    "ordinals": {
+      "1": {"en": "1st", "hi": "पहले"},
+      "2": {"en": "2nd", "hi": "दूसरे"},
+      "3": {"en": "3rd", "hi": "तीसरे"},
+      "4": {"en": "4th", "hi": "चौथे"},
+      "5": {"en": "5th", "hi": "पाँचवें"},
+      "6": {"en": "6th", "hi": "छठे"},
+      "7": {"en": "7th", "hi": "सातवें"},
+      "8": {"en": "8th", "hi": "आठवें"},
+      "9": {"en": "9th", "hi": "नौवें"},
+      "10": {"en": "10th", "hi": "दसवें"},
+      "11": {"en": "11th", "hi": "ग्यारहवें"},
+      "12": {"en": "12th", "hi": "बारहवें"}
+    },
+    "areas": {
+      "personality": {"en": "personality", "hi": "व्यक्तित्व"},
+      "career": {"en": "career", "hi": "करियर"},
+      "income": {"en": "income", "hi": "आय"},
+      "marriage": {"en": "marriage", "hi": "विवाह"},
+      "health": {"en": "health", "hi": "स्वास्थ्य"},
+      "wealth": {"en": "wealth", "hi": "धन-संपत्ति"},
+      "children": {"en": "children", "hi": "संतान"},
+      "education": {"en": "education", "hi": "शिक्षा"}
+    },
+    "bands": {
+      "strong": {"en": "well supported", "hi": "अच्छा समर्थन"},
+      "moderate": {"en": "moderately supported", "hi": "मध्यम समर्थन"},
+      "weak": {"en": "weakly supported", "hi": "कमज़ोर समर्थन"}
+    },
+    "d9_dignity": {
+      "exalted": {"en": "exalted", "hi": "उच्च"},
+      "own": {"en": "own sign", "hi": "स्वराशि"},
+      "debilitated": {"en": "debilitated", "hi": "नीच"},
+      "ordinary": {"en": "neither exalted, own nor debilitated", "hi": "न उच्च, न स्वराशि, न नीच"}
+    },
+    "for_chart": {
+      "male": {"en": "for a male chart", "hi": "पुरुष की कुंडली में"},
+      "female": {"en": "for a female chart", "hi": "स्त्री की कुंडली में"}
+    },
+    "relations": {
+      "conjoined": {"en": "conjunction", "hi": "युति"},
+      "mutual_aspect": {"en": "mutual aspect", "hi": "परस्पर दृष्टि"}
+    }
+  },
+  "summaries": {
+    "strong": {
+      "en": "Most classical indicators for {area} in this chart are supportive.",
+      "hi": "इस कुंडली में {area} के अधिकांश शास्त्रीय संकेत सहायक हैं।"
+    },
+    "moderate": {
+      "en": "The classical indicators for {area} are mixed: some support, some need care.",
+      "hi": "{area} के शास्त्रीय संकेत मिश्रित हैं: कुछ सहायक हैं, कुछ में सावधानी चाहिए।"
+    },
+    "weak": {
+      "en": "Several classical indicators for {area} are weak; this area tends to need more effort.",
+      "hi": "{area} के कई शास्त्रीय संकेत कमज़ोर हैं; इस क्षेत्र में अधिक प्रयास की आवश्यकता रहती है।"
+    }
+  },
+  "moon_basis_note": {
+    "en": "Birth time unknown: the houses in this reading are counted from the Moon sign (Chandra lagna), so it is approximate, and readings from divisional lagnas (D9, D10) are left out.",
+    "hi": "जन्म समय अज्ञात है: इस फल में भाव चंद्र राशि (चंद्र लग्न) से गिने गए हैं, इसलिए यह अनुमानित है, और वर्ग-लग्नों (D9, D10) पर आधारित फल छोड़ दिए गए हैं।",
+    "ref": "Phaladeepika Ch 9 v. 13 (the Moon's sign read like the lagna); Phaladeepika Ch 5 v. 1 (judged from the lagna or the Moon)"
+  },
+  "lord_in_house": {
+    "en": "The {h} lord, {planet}, sits in the {n} house: it ties {h}-house matters ({areas_h}) to {n}-house matters ({areas_n}). Its strength is {score}/100 ({band}).",
+    "hi": "{h} भाव का स्वामी {planet} {n} भाव में है: यह {h} भाव के विषयों ({areas_h}) को {n} भाव के विषयों ({areas_n}) से जोड़ता है। इसका बल {score}/100 ({band}) है।"
+  },
+  "marriage": {
+    "seventh_lord": {
+      "en": "The 7th lord {planet} in the {n} house ({sign}), strength {score}/100 ({band}): {text}.",
+      "hi": "सप्तमेश {planet} {n} भाव ({sign}) में, बल {score}/100 ({band}): {text}।"
+    },
+    "seventh_lord_in_house": {
+      "1": {"en": "partnership is drawn close to one's own identity; BPHS also warns of wandering affections and a wavering resolve", "hi": "साझेदारी व्यक्ति की अपनी पहचान से गहराई से जुड़ती है; BPHS भटकते आकर्षण और डगमगाते संकल्प की चेतावनी भी देता है"},
+      "2": {"en": "marriage is linked with wealth: gains through the spouse are indicated, with a tendency to delay decisions", "hi": "विवाह धन से जुड़ता है: जीवनसाथी के माध्यम से लाभ का संकेत है, साथ में निर्णयों में देरी की प्रवृत्ति"},
+      "3": {"en": "BPHS links this placement with concerns about children; partnership matters connect with effort and siblings", "hi": "BPHS इस स्थिति को संतान संबंधी चिंताओं से जोड़ता है; साझेदारी के विषय पराक्रम और भाई-बहनों से जुड़ते हैं"},
+      "4": {"en": "indicates a spouse with a strong will of their own, while the native tends to be truthful, intelligent and religious", "hi": "स्वतंत्र इच्छाशक्ति वाले जीवनसाथी का संकेत है, जबकि जातक सत्यप्रिय, बुद्धिमान और धार्मिक प्रवृत्ति का होता है"},
+      "5": {"en": "indicates honour, good qualities and wealth; commentators add that marriage may come with delays", "hi": "सम्मान, सद्गुण और धन का संकेत है; टीकाकार जोड़ते हैं कि विवाह में देरी हो सकती है"},
+      "6": {"en": "indicates strain in marriage: health concerns for the spouse and friction tend to arise", "hi": "वैवाहिक जीवन में तनाव का संकेत है: जीवनसाथी के स्वास्थ्य की चिंता और मनमुटाव की प्रवृत्ति रहती है"},
+      "7": {"en": "indicates happiness through the spouse, courage and skill; BPHS names only a tendency to wind (vata) ailments", "hi": "जीवनसाथी से सुख, साहस और कुशलता का संकेत है; BPHS केवल वात रोगों की प्रवृत्ति बताता है"},
+      "8": {"en": "indicates reduced marital happiness and health concerns for the spouse", "hi": "वैवाहिक सुख में कमी और जीवनसाथी के स्वास्थ्य की चिंता का संकेत है"},
+      "9": {"en": "indicates many undertakings and goodwill towards the spouse, along with a pull towards other attachments", "hi": "अनेक कार्यों और जीवनसाथी के प्रति सद्भाव का संकेत है, साथ में अन्य आकर्षणों की ओर झुकाव"},
+      "10": {"en": "indicates a spouse with a mind of their own, alongside religiousness, wealth and children", "hi": "स्वतंत्र विचारों वाले जीवनसाथी का संकेत है, साथ में धार्मिकता, धन और संतान"},
+      "11": {"en": "indicates gains through the spouse; BPHS also mentions limited happiness from sons and the birth of daughters", "hi": "जीवनसाथी के माध्यम से लाभ का संकेत है; BPHS पुत्रों से सीमित सुख और कन्याओं के जन्म का भी उल्लेख करता है"},
+      "12": {"en": "indicates financial strain and a spouse inclined to spend", "hi": "आर्थिक तंगी और खर्चीले स्वभाव के जीवनसाथी का संकेत है"}
+    },
+    "karaka": {
+      "en": "{planet}, natural significator of the spouse {for_chart}, sits in the {n} house with strength {score}/100 ({band}).",
+      "hi": "{for_chart} जीवनसाथी का नैसर्गिक कारक {planet} {n} भाव में है, बल {score}/100 ({band})।"
+    },
+    "d9_seventh_lord": {
+      "en": "In the navamsa (D9) the 7th lord {planet} stands in {sign}, the {n} house from the D9 lagna; its navamsa dignity is {dignity}.",
+      "hi": "नवांश (D9) में सप्तमेश {planet} {sign} राशि में, D9 लग्न से {n} भाव में है; इसकी नवांश स्थिति {dignity} है।"
+    },
+    "manglik": {
+      "none": {"en": "Mars is not in the 1st, 2nd, 4th, 7th, 8th or 12th from the lagna, the Moon or Venus: no Manglik indication.", "hi": "मंगल लग्न, चंद्रमा या शुक्र से पहले, दूसरे, चौथे, सातवें, आठवें या बारहवें भाव में नहीं है: मांगलिक संकेत नहीं है।"},
+      "low": {"en": "Manglik (Kuja dosha) indication is low: Mars is in a Manglik house from one of the lagna, the Moon and Venus.", "hi": "मांगलिक (कुज दोष) संकेत कम है: मंगल लग्न, चंद्रमा और शुक्र में से एक से मांगलिक भाव में है।"},
+      "medium": {"en": "Manglik (Kuja dosha) indication is medium: Mars is in a Manglik house from two of the lagna, the Moon and Venus.", "hi": "मांगलिक (कुज दोष) संकेत मध्यम है: मंगल लग्न, चंद्रमा और शुक्र में से दो से मांगलिक भाव में है।"},
+      "high": {"en": "Manglik (Kuja dosha) indication is high: Mars is in a Manglik house from all three of the lagna, the Moon and Venus.", "hi": "मांगलिक (कुज दोष) संकेत अधिक है: मंगल लग्न, चंद्रमा और शुक्र तीनों से मांगलिक भाव में है।"},
+      "ref": "Kuja dosha: later tradition, not in BPHS; engine rule: Mars in houses 1, 2, 4, 7, 8, 12 counted from the lagna, the Moon and Venus, without cancellations"
+    },
+    "manglik_moon": {
+      "none": {"en": "Mars is not in the 1st, 2nd, 4th, 7th, 8th or 12th from the Moon or Venus: no Manglik indication.", "hi": "मंगल चंद्रमा या शुक्र से पहले, दूसरे, चौथे, सातवें, आठवें या बारहवें भाव में नहीं है: मांगलिक संकेत नहीं है।"},
+      "low": {"en": "Manglik (Kuja dosha) indication is low: Mars is in a Manglik house from one of the Moon and Venus.", "hi": "मांगलिक (कुज दोष) संकेत कम है: मंगल चंद्रमा और शुक्र में से एक से मांगलिक भाव में है।"},
+      "medium": {"en": "Manglik (Kuja dosha) indication is medium: Mars is in a Manglik house from both the Moon and Venus.", "hi": "मांगलिक (कुज दोष) संकेत मध्यम है: मंगल चंद्रमा और शुक्र दोनों से मांगलिक भाव में है।"}
+    },
+    "refs": {
+      "karaka_male": "Phaladeepika Ch 2 v. 6; BPHS Ch 32 vv. 31-34",
+      "karaka_female": "Phaladeepika Ch 2 v. 5",
+      "d9": "BPHS Ch 7 vv. 1-8 (spouse from the navamsa)"
+    }
+  },
+  "health": {
+    "lagna_lord": {
+      "en": "The lagna lord {planet} carries the vitality of the body; in the {n} house its strength is {score}/100 ({band}).",
+      "hi": "लग्नेश {planet} शरीर की जीवनशक्ति का सूचक है; {n} भाव में इसका बल {score}/100 ({band}) है।"
+    },
+    "moon": {
+      "en": "The Moon, significator of the mind and bodily health, sits in the {n} house with strength {score}/100 ({band}).",
+      "hi": "मन और शारीरिक स्वास्थ्य का कारक चंद्रमा {n} भाव में है, बल {score}/100 ({band})।"
+    },
+    "dusthana_malefic": {
+      "en": "{planet} in the {n} house: a natural malefic in a dusthana tends to subdue the troubles of that house.",
+      "hi": "{planet} {n} भाव में है: दुःस्थान में नैसर्गिक पाप ग्रह उस भाव की कठिनाइयों को दबाने में सहायक माना जाता है।"
+    },
+    "dusthana_benefic": {
+      "en": "{planet} in the {n} house: a natural benefic in a dusthana tends to lose some of its good effect, so the health matters of this house favour care.",
+      "hi": "{planet} {n} भाव में है: दुःस्थान में नैसर्गिक शुभ ग्रह का शुभ फल कुछ घट जाता है, इसलिए इस भाव से जुड़े स्वास्थ्य विषयों में सावधानी उचित है।"
+    },
+    "dusthana_empty": {
+      "en": "No planet occupies the 6th, 8th or 12th house, so these houses are judged mainly by their lords.",
+      "hi": "छठे, आठवें या बारहवें भाव में कोई ग्रह नहीं है, इसलिए इन भावों का विचार मुख्यतः इनके स्वामियों से होता है।"
+    },
+    "refs": {
+      "lagna_lord": "BPHS Ch 12 (effects of the first house), chapter-level; Phaladeepika Ch 15 v. 25",
+      "moon": "Phaladeepika Ch 2 v. 2",
+      "dusthana": "Phaladeepika Ch 15 vv. 18-19; natural benefics and malefics: Phaladeepika Ch 2 v. 27"
+    }
+  },
+  "wealth": {
+    "dhana_pair": {
+      "en": "{a} and {b} are joined by {relation}: a dhana (wealth) combination among the lords of 1, 2, 5, 9 and 11.",
+      "hi": "{a} और {b} के बीच {relation} है: 1, 2, 5, 9 और 11 के स्वामियों के बीच यह धन योग है।"
+    },
+    "dhana_none": {
+      "en": "No conjunction or mutual aspect links the lords of 1, 2, 5, 9 and 11; wealth is read from the individual lords.",
+      "hi": "1, 2, 5, 9 और 11 के स्वामियों के बीच कोई युति या परस्पर दृष्टि नहीं है; धन का विचार अलग-अलग स्वामियों से होता है।"
+    },
+    "ref": "BPHS Ch 41 v. 16 (the 5th and 9th lords, and planets joining them, give wealth), vv. 2-8 (5th and 11th lords); the combined rule for the lords of 1, 2, 5, 9 and 11 is later Parasari tradition, chapter-level; aspects: BPHS Ch 26"
+  },
+  "children": {
+    "jupiter": {
+      "en": "Jupiter, significator of children, sits in the {n} house with strength {score}/100 ({band}).",
+      "hi": "संतान का कारक गुरु {n} भाव में है, बल {score}/100 ({band})।"
+    },
+    "ref": "Phaladeepika Ch 2 v. 5; BPHS Ch 32 vv. 31-34"
+  },
+  "education": {
+    "mercury": {
+      "en": "Mercury, significator of learning and intelligence, sits in the {n} house with strength {score}/100 ({band}).",
+      "hi": "विद्या और बुद्धि का कारक बुध {n} भाव में है, बल {score}/100 ({band})।"
+    },
+    "ref": "Phaladeepika Ch 2 v. 4"
+  }
+}

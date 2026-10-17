@@ -1,0 +1,20 @@
+{
+  "_source": "Hora (planetary hour) lords follow the Chaldean order Saturn, Jupiter, Mars, Sun, Venus, Mercury, Moon (slowest to fastest); the first hora of a Vedic day (from sunrise) belongs to the weekday lord, and BPHS Ch 3 vv. 35-38 counts the hora lord among the time lords (archive.org 'Parashara Hora Sastra' text); the Chaldean sequence itself is the traditional hora order, not a verse checked here. Colours: the base colour is BPHS Ch 3 vv. 16-17 (complexions: Sun blood-red, Moon tawny, Mars blood-red, Mercury the green of grass, Jupiter tawny, Venus variegated, Saturn dark) read with Phaladeepika Ch 2 vv. 8-14 (the Moon white, Jupiter yellow), checked against the cached texts. The extra shades (copper, silver, coral, gold, pastel/pink, dark blue) are later popular usage and are labelled 'traditional association'.",
+  "order_ref": "traditional (Chaldean) hora order from the weekday lord at sunrise; BPHS Ch 3 vv. 35-38 (hora lord among the time lords)",
+  "colours": {
+    "sun": {"en": "red / copper", "hi": "लाल / ताँबे जैसा", "source": "red: BPHS Ch 3 vv. 16-17 (blood-red), Phaladeepika Ch 2 v. 8; copper: traditional association"},
+    "moon": {"en": "white / silver", "hi": "सफ़ेद / चाँदी जैसा", "source": "white: Phaladeepika Ch 2 v. 9 (BPHS Ch 3 vv. 16-17 says tawny); silver: traditional association"},
+    "mars": {"en": "red / coral", "hi": "लाल / मूँगिया", "source": "red: BPHS Ch 3 vv. 16-17 (blood-red), Phaladeepika Ch 2 v. 10; coral: traditional association"},
+    "mercury": {"en": "green", "hi": "हरा", "source": "BPHS Ch 3 vv. 16-17 (green of grass), Phaladeepika Ch 2 v. 11; traditional association for daily wear"},
+    "jupiter": {"en": "yellow / gold", "hi": "पीला / सुनहरा", "source": "yellow: Phaladeepika Ch 2 v. 12 (BPHS Ch 3 vv. 16-17 says tawny); gold: traditional association"},
+    "venus": {"en": "white / pastel / pink", "hi": "सफ़ेद / हल्के रंग / गुलाबी", "source": "BPHS Ch 3 vv. 16-17 and Phaladeepika Ch 2 v. 13 say variegated; white, pastel and pink: traditional association"},
+    "saturn": {"en": "black / dark blue", "hi": "काला / गहरा नीला", "source": "black: BPHS Ch 3 vv. 16-17 (dark), Phaladeepika Ch 2 v. 14; dark blue: traditional association"}
+  },
+  "hora": {
+    "favourable": {"en": "Hora of {graha}, a functional benefic for this chart: a supportive hour to begin things.", "hi": "{graha} की होरा, जो इस कुंडली में शुभ फल देने वाला ग्रह है: काम शुरू करने के लिए सहायक समय।"},
+    "avoid": {"en": "Hora of {graha}, a functional malefic for this chart: better for routine work than for new beginnings.", "hi": "{graha} की होरा, जो इस कुंडली में अशुभ फल देने वाला ग्रह है: नई शुरुआत के बजाय सामान्य काम के लिए बेहतर।"},
+    "neutral": {"en": "Hora of {graha}, neutral for this chart.", "hi": "{graha} की होरा, इस कुंडली के लिए सम।"}
+  },
+  "colour_today": {"en": "Colour that may support you today: {colour} ({graha}).", "hi": "आज आपके लिए सहायक हो सकने वाला रंग: {colour} ({graha})।"},
+  "colour_avoid": {"en": "Colour to use sparingly today: {colour} ({graha}).", "hi": "आज कम प्रयोग करने वाला रंग: {colour} ({graha})।"}
+}

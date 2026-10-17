@@ -1,0 +1,82 @@
+{
+  "_source": "Phaladeepika (tr. V. Subrahmanya Sastri, 2nd ed. 1950) Ch 9 vv. 1-12: effects of Mesha ... Meena rising (verse n = sign n); Ch 9 v. 13: the same effects apply to the sign holding the Moon; Ch 2 vv. 8-14 (natures of the Sun ... Saturn), vv. 33-34 (Rahu, Ketu), v. 1 (the Sun signifies the self, prowess and courage); Ch 1 v. 9 (movable, fixed and dual signs). BPHS (tr. R. Santhanam, Vol. 1) Ch 4 vv. 6-24: sign descriptions, which name each sign fiery, earthy, airy or watery; Ch 24 vv. 1-12: the lagna lord in houses 1-12; BPHS Vol. 2 Ch 46 vv. 12-14: nakshatra (Vimshottari) lords. Sign texts keep only the temperament from the verses (physical marks and crude phrases are left out); they are paraphrases, not quotations. The element and modality trait words are a traditional gloss, chapter-level.",
+  "elements": {
+    "fire": {"en": "fire", "hi": "अग्नि", "trait": {"en": "drive and enthusiasm", "hi": "उत्साह और जोश"}},
+    "earth": {"en": "earth", "hi": "पृथ्वी", "trait": {"en": "practicality and steadiness", "hi": "व्यावहारिकता और स्थिरता"}},
+    "air": {"en": "air", "hi": "वायु", "trait": {"en": "ideas and communication", "hi": "विचार और संवाद"}},
+    "water": {"en": "water", "hi": "जल", "trait": {"en": "feeling and intuition", "hi": "भावना और अंतर्ज्ञान"}}
+  },
+  "modalities": {
+    "movable": {"en": "movable", "hi": "चर", "trait": {"en": "initiative", "hi": "पहल"}},
+    "fixed": {"en": "fixed", "hi": "स्थिर", "trait": {"en": "persistence", "hi": "दृढ़ता"}},
+    "dual": {"en": "dual", "hi": "द्विस्वभाव", "trait": {"en": "adaptability", "hi": "अनुकूलनशीलता"}}
+  },
+  "sign_element": ["fire", "earth", "air", "water", "fire", "earth", "air", "water", "fire", "earth", "air", "water"],
+  "sign_modality": ["movable", "fixed", "dual", "movable", "fixed", "dual", "movable", "fixed", "dual", "movable", "fixed", "dual"],
+  "signs": {
+    "mesha": {"en": "energetic, bold and restless, quick to act and quick to change course", "hi": "ऊर्जावान, साहसी और चंचल, जल्दी काम शुरू करने और जल्दी दिशा बदलने वाले", "ref": "Phaladeepika Ch 9 v. 1"},
+    "vrishabha": {"en": "patient, generous and forgiving, able to endure hardship, with comfort tending to grow in the middle and later years", "hi": "धैर्यवान, उदार और क्षमाशील, कठिनाइयाँ सहने में सक्षम, जिनका सुख जीवन के मध्य और उत्तर भाग में बढ़ता है", "ref": "Phaladeepika Ch 9 v. 2"},
+    "mithuna": {"en": "perceptive and good at reading others' thoughts, fond of music and dance, and attached to home", "hi": "समझदार और दूसरों के मन की बात भाँपने में कुशल, संगीत और नृत्य के प्रेमी तथा घर से जुड़े हुए", "ref": "Phaladeepika Ch 9 v. 3"},
+    "karka": {"en": "intelligent, surrounded by friends, fond of water and inclined to acquire property", "hi": "बुद्धिमान, मित्रों से घिरे, जल-प्रिय और संपत्ति जुटाने की प्रवृत्ति वाले", "ref": "Phaladeepika Ch 9 v. 4"},
+    "simha": {"en": "proud, powerful and firm-minded, devoted to the mother, yet quick to anger over small matters", "hi": "स्वाभिमानी, शक्तिशाली और दृढ़ मन वाले, माता के प्रति समर्पित, पर छोटी बातों पर जल्दी क्रोधित होने वाले", "ref": "Phaladeepika Ch 9 v. 5"},
+    "kanya": {"en": "truthful, kind in speech and modest, learned in the scriptures, gaining standing through others' resources", "hi": "सत्यवादी, मधुरभाषी और विनम्र, शास्त्रों के जानकार, दूसरों के साधनों से प्रतिष्ठा पाने वाले", "ref": "Phaladeepika Ch 9 v. 6"},
+    "tula": {"en": "devout, fair in argument, clever in trade and fond of travel", "hi": "धर्मपरायण, तर्क में निष्पक्ष, व्यापार में चतुर और भ्रमणप्रिय", "ref": "Phaladeepika Ch 9 v. 7"},
+    "vrishchika": {"en": "intense and determined, honoured by those in authority, often parted early from parents or teachers", "hi": "तीव्र और दृढ़, अधिकारियों से सम्मानित, प्रायः माता-पिता या गुरुओं से जल्दी दूर होने वाले", "ref": "Phaladeepika Ch 9 v. 8"},
+    "dhanu": {"en": "eloquent, generous and strong, intent on their work, favoured by those in power and won over by kindness", "hi": "वाक्पटु, उदार और बलवान, अपने काम में लगे रहने वाले, सत्ता के प्रिय और स्नेह से जीते जाने वाले", "ref": "Phaladeepika Ch 9 v. 9"},
+    "makara": {"en": "courageous and persistent, carrying through what they undertake, though prone to indolence", "hi": "साहसी और लगनशील, जो काम उठाएँ उसे पूरा करने वाले, यद्यपि आलस्य की ओर झुकाव भी", "ref": "Phaladeepika Ch 9 v. 10"},
+    "kumbha": {"en": "enduring on long journeys, fond of perfumes and flowers, with alternating gains and losses", "hi": "लंबी यात्राओं में सहनशील, सुगंध और फूलों के प्रेमी, लाभ और हानि के उतार-चढ़ाव वाले", "ref": "Phaladeepika Ch 9 v. 11"},
+    "meena": {"en": "learned and grateful, devoted to the spouse, able to overcome opponents, and gaining from the produce of the sea", "hi": "विद्वान और कृतज्ञ, जीवनसाथी के प्रति समर्पित, विरोधियों पर विजय पाने वाले और समुद्री वस्तुओं से लाभ पाने वाले", "ref": "Phaladeepika Ch 9 v. 12"}
+  },
+  "graha_nature": {
+    "sun": {"en": "courage, authority and a fiery temper", "hi": "साहस, अधिकार-भाव और तेज़ स्वभाव", "ref": "Phaladeepika Ch 2 v. 8"},
+    "moon": {"en": "gentleness, soft speech and a mild temperament", "hi": "कोमलता, मधुर वाणी और शांत स्वभाव", "ref": "Phaladeepika Ch 2 v. 9"},
+    "mars": {"en": "boldness and generosity with a quick temper", "hi": "निर्भीकता और उदारता, साथ में जल्दी क्रोध", "ref": "Phaladeepika Ch 2 v. 10"},
+    "mercury": {"en": "pleasant speech, wit and a love of fun", "hi": "मधुर वाणी, हाज़िरजवाबी और विनोदप्रियता", "ref": "Phaladeepika Ch 2 v. 11"},
+    "jupiter": {"en": "deep intelligence and a resonant voice", "hi": "गहरी बुद्धि और प्रभावशाली वाणी", "ref": "Phaladeepika Ch 2 v. 12"},
+    "venus": {"en": "charm, beauty and a love of refinement", "hi": "आकर्षण, सौंदर्य और परिष्कार के प्रति प्रेम", "ref": "Phaladeepika Ch 2 v. 13"},
+    "saturn": {"en": "a slow, reserved and enduring temperament", "hi": "धीमा, संयमी और सहनशील स्वभाव", "ref": "Phaladeepika Ch 2 v. 14"},
+    "rahu": {"en": "an unconventional, restless and shrewd temperament", "hi": "अपरंपरागत, बेचैन और चतुर स्वभाव", "ref": "Phaladeepika Ch 2 v. 33"},
+    "ketu": {"en": "intensity, sharpness and detachment", "hi": "तीव्रता, पैनापन और विरक्ति", "ref": "Phaladeepika Ch 2 v. 34"}
+  },
+  "lagna_lord_in_house": {
+    "1": {"en": "a self-reliant identity with physical well-being, prowess and intelligence, though the mind can be changeable", "hi": "आत्मनिर्भर पहचान, शारीरिक सुख, पराक्रम और बुद्धि, यद्यपि मन चंचल हो सकता है"},
+    "2": {"en": "identity tied to wealth and learning: gainful, scholarly and of good qualities, with wealth through one's own effort", "hi": "पहचान धन और विद्या से जुड़ी: लाभ पाने वाले, विद्वान और सद्गुणी, अपने प्रयास से धन अर्जित करने वाले"},
+    "3": {"en": "lion-like courage and honour, with the self expressed through initiative and effort", "hi": "सिंह जैसा साहस और सम्मान, पहल और पराक्रम से आत्म-अभिव्यक्ति"},
+    "4": {"en": "happiness from both parents, charm and virtue, and prosperity through one's own efforts", "hi": "माता-पिता दोनों से सुख, आकर्षण और सद्गुण, अपने प्रयासों से समृद्धि"},
+    "5": {"en": "honour and favour from those in authority, a quick temper, and children's matters that need attention", "hi": "अधिकारियों से सम्मान और कृपा, जल्दी क्रोध, और संतान के विषयों पर ध्यान की आवश्यकता"},
+    "6": {"en": "health, service and competition are prominent themes, and the native tends to meet opponents directly", "hi": "स्वास्थ्य, सेवा और प्रतिस्पर्धा प्रमुख विषय रहते हैं, और जातक विरोधियों का सीधे सामना करने की प्रवृत्ति रखता है"},
+    "6_afflicted": {"en": "with malefic contact and no benefic aspect, health and opponents tend to test the native; competition shapes the self", "hi": "पाप ग्रहों के संपर्क और शुभ दृष्टि के अभाव में स्वास्थ्य और विरोधी परीक्षा लेते हैं; प्रतिस्पर्धा व्यक्तित्व को गढ़ती है"},
+    "7": {"en": "life revolves around partners and the public, and identity is shaped through relationships", "hi": "जीवन साझेदारों और जनसमूह के इर्द-गिर्द घूमता है, और पहचान संबंधों से आकार लेती है"},
+    "7_strong": {"en": "life revolves around partners and the public, and this strong lagna lord can raise one's status", "hi": "जीवन साझेदारों और जनसमूह के इर्द-गिर्द घूमता है, और यह बलवान लग्नेश प्रतिष्ठा बढ़ा सकता है"},
+    "7_weak": {"en": "life revolves around partners and the public; with a weak lagna lord here, wandering and strain tend to arise", "hi": "जीवन साझेदारों और जनसमूह के इर्द-गिर्द घूमता है; यहाँ निर्बल लग्नेश होने से भटकाव और तनाव की प्रवृत्ति रहती है"},
+    "8": {"en": "scholarly accomplishment alongside health concerns, with a pull towards hidden matters and risk", "hi": "विद्वत्ता के साथ स्वास्थ्य की चिंताएँ, और गुप्त विषयों तथा जोखिम की ओर झुकाव"},
+    "9": {"en": "fortunate, eloquent and skilful, devoted to dharma, and blessed with spouse, children and wealth", "hi": "भाग्यशाली, वाक्पटु और कुशल, धर्मनिष्ठ, जीवनसाथी, संतान और धन से संपन्न"},
+    "10": {"en": "self-identity through work: support from the father, honour from authority and self-earned wealth", "hi": "कर्म से पहचान: पिता का सहयोग, अधिकारियों से सम्मान और स्व-अर्जित धन"},
+    "11": {"en": "gains, good qualities and reputation shape the self", "hi": "लाभ, सद्गुण और यश व्यक्तित्व को आकार देते हैं"},
+    "12": {"en": "inner life, distant places and expenses draw the self, and benefic support softens the spending", "hi": "आंतरिक जीवन, दूर स्थान और व्यय व्यक्ति को आकर्षित करते हैं, और शुभ सहयोग खर्च को संतुलित करता है"},
+    "12_unsupported": {"en": "without benefic support, a tendency to spend fruitlessly and to have little physical comfort; inner and distant matters draw the self", "hi": "शुभ सहयोग के बिना व्यर्थ खर्च और शारीरिक सुख की कमी की प्रवृत्ति; आंतरिक और दूर देश के विषय आकर्षित करते हैं"}
+  },
+  "templates": {
+    "lagna": {
+      "en": "{sign} lagna ({element} element, {modality} sign): {traits}.",
+      "hi": "{sign} लग्न ({element} तत्व, {modality} राशि): {traits}।"
+    },
+    "lagna_lord": {
+      "en": "The lagna lord {planet} in the {n} house ({sign}), strength {score}/100 ({band}): {text}.",
+      "hi": "लग्नेश {planet} {n} भाव ({sign}) में, बल {score}/100 ({band}): {text}।"
+    },
+    "moon": {
+      "en": "Moon in {sign}, {nakshatra} nakshatra (lord {nak_lord}): the mind leans towards being {traits}; the nakshatra lord adds {nature}.",
+      "hi": "चंद्रमा {sign} राशि और {nakshatra} नक्षत्र (स्वामी {nak_lord}) में: मन का झुकाव इस ओर है: {traits}; नक्षत्र स्वामी इसमें {nature} जोड़ता है।"
+    },
+    "sun": {
+      "en": "Sun in {sign} in the {n} house: the self, prowess and courage (the Sun's significations) express through a sign of the {element} element and {modality} nature, favouring {element_trait} with {modality_trait}.",
+      "hi": "सूर्य {sign} राशि में {n} भाव में: आत्मा, पराक्रम और साहस (सूर्य के कारकत्व) {element} तत्व और {modality} स्वभाव की राशि से प्रकट होते हैं, जो {modality_trait} के साथ {element_trait} को बढ़ावा देती है।"
+    }
+  },
+  "refs": {
+    "lagna_class": "BPHS Ch 4 vv. 6-24 (sign natures); Phaladeepika Ch 1 v. 9 (movable, fixed, dual)",
+    "moon": "Phaladeepika Ch 9 v. 13 (the Moon's sign read like the lagna); BPHS Ch 46 vv. 12-14 (nakshatra lords)",
+    "sun": "Phaladeepika Ch 2 v. 1 (the Sun: self, prowess, courage); BPHS Ch 4 vv. 6-24; element and modality traits: traditional gloss, chapter-level"
+  }
+}

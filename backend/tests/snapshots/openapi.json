@@ -1,6 +1,370 @@
 {
   "components": {
     "schemas": {
+      "AnalysisRequest": {
+        "additionalProperties": false,
+        "description": "The `/kundli` body plus the analysis options.",
+        "properties": {
+          "alt": {
+            "default": 0.0,
+            "maximum": 10000.0,
+            "minimum": -500.0,
+            "title": "Alt",
+            "type": "number"
+          },
+          "dasha_depth": {
+            "default": 3,
+            "maximum": 5.0,
+            "minimum": 1.0,
+            "title": "Dasha Depth",
+            "type": "integer"
+          },
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "detail": {
+            "default": "summary",
+            "description": "summary: each timeline item keeps its top 3 judgement reasons by |delta|; full: all reasons",
+            "enum": [
+              "summary",
+              "full"
+            ],
+            "title": "Detail",
+            "type": "string"
+          },
+          "fold": {
+            "anyOf": [
+              {
+                "enum": [
+                  0,
+                  1
+                ],
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "0 = first, 1 = second occurrence",
+            "title": "Fold"
+          },
+          "gender": {
+            "anyOf": [
+              {
+                "enum": [
+                  "male",
+                  "female"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Used only for the marriage karaka (Venus male, Jupiter female)",
+            "title": "Gender"
+          },
+          "lat": {
+            "maximum": 90.0,
+            "minimum": -90.0,
+            "title": "Lat",
+            "type": "number"
+          },
+          "lmt": {
+            "default": false,
+            "description": "Local mean time at the longitude (lon/15 hours)",
+            "title": "Lmt",
+            "type": "boolean"
+          },
+          "lon": {
+            "maximum": 180.0,
+            "minimum": -180.0,
+            "title": "Lon",
+            "type": "number"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "now_utc": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Start of the 24-month timeline; defaults to the current time",
+            "title": "Now Utc"
+          },
+          "settings": {
+            "$ref": "#/components/schemas/SettingsIn"
+          },
+          "time": {
+            "anyOf": [
+              {
+                "format": "time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "HH:MM[:SS]; may be omitted if time_known=false",
+            "title": "Time"
+          },
+          "time_known": {
+            "default": true,
+            "title": "Time Known",
+            "type": "boolean"
+          },
+          "tz": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "IANA zone, e.g. Asia/Kolkata",
+            "title": "Tz"
+          },
+          "utc_offset": {
+            "anyOf": [
+              {
+                "pattern": "^[+-][0-9]{2}:[0-9]{2}(:[0-9]{2})?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Fixed offset from UTC, e.g. \"+05:30\"",
+            "title": "Utc Offset"
+          },
+          "vargas": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Subset of [1, 2, 3, 4, 7, 9, 10, 12, 16, 20, 24, 27, 30, 40, 45, 60]; default all",
+            "title": "Vargas"
+          }
+        },
+        "required": [
+          "date",
+          "lat",
+          "lon"
+        ],
+        "title": "AnalysisRequest",
+        "type": "object"
+      },
+      "DailyRequest": {
+        "additionalProperties": false,
+        "description": "The `/kundli` body (the birth chart) plus the day and, optionally, where the user is now.\n\n`today` is a local civil date at the current place. The current place is `current_lat`,\n`current_lon` and `current_tz` (IANA), given all together or not at all; without them the\nbirth place and birth zone are used (for an LMT birth, local mean time at the birth\nlongitude).",
+        "properties": {
+          "alt": {
+            "default": 0.0,
+            "maximum": 10000.0,
+            "minimum": -500.0,
+            "title": "Alt",
+            "type": "number"
+          },
+          "current_lat": {
+            "anyOf": [
+              {
+                "maximum": 90.0,
+                "minimum": -90.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Lat"
+          },
+          "current_lon": {
+            "anyOf": [
+              {
+                "maximum": 180.0,
+                "minimum": -180.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Lon"
+          },
+          "current_tz": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "IANA zone, e.g. Asia/Dubai",
+            "title": "Current Tz"
+          },
+          "dasha_depth": {
+            "default": 3,
+            "maximum": 5.0,
+            "minimum": 1.0,
+            "title": "Dasha Depth",
+            "type": "integer"
+          },
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "fold": {
+            "anyOf": [
+              {
+                "enum": [
+                  0,
+                  1
+                ],
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "0 = first, 1 = second occurrence",
+            "title": "Fold"
+          },
+          "lat": {
+            "maximum": 90.0,
+            "minimum": -90.0,
+            "title": "Lat",
+            "type": "number"
+          },
+          "lmt": {
+            "default": false,
+            "description": "Local mean time at the longitude (lon/15 hours)",
+            "title": "Lmt",
+            "type": "boolean"
+          },
+          "lon": {
+            "maximum": 180.0,
+            "minimum": -180.0,
+            "title": "Lon",
+            "type": "number"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "settings": {
+            "$ref": "#/components/schemas/SettingsIn"
+          },
+          "time": {
+            "anyOf": [
+              {
+                "format": "time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "HH:MM[:SS]; may be omitted if time_known=false",
+            "title": "Time"
+          },
+          "time_known": {
+            "default": true,
+            "title": "Time Known",
+            "type": "boolean"
+          },
+          "today": {
+            "format": "date",
+            "title": "Today",
+            "type": "string"
+          },
+          "tz": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "IANA zone, e.g. Asia/Kolkata",
+            "title": "Tz"
+          },
+          "utc_offset": {
+            "anyOf": [
+              {
+                "pattern": "^[+-][0-9]{2}:[0-9]{2}(:[0-9]{2})?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Fixed offset from UTC, e.g. \"+05:30\"",
+            "title": "Utc Offset"
+          },
+          "vargas": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Subset of [1, 2, 3, 4, 7, 9, 10, 12, 16, 20, 24, 27, 30, 40, 45, 60]; default all",
+            "title": "Vargas"
+          }
+        },
+        "required": [
+          "date",
+          "lat",
+          "lon",
+          "today"
+        ],
+        "title": "DailyRequest",
+        "type": "object"
+      },
       "DashaRequest": {
         "additionalProperties": false,
         "properties": {
@@ -444,34 +808,84 @@
   "paths": {
     "/api/v1/analysis": {
       "post": {
+        "description": "The `/kundli` body plus optional `gender` and `now_utc` (default: the current time).\n\nReturns life `areas`, `income_sources`, `lucky`, `functional_roles` and `periods` (the\nrunning maha/antar/pratyantar with judgements, the antar and pratyantar `timeline` over\nthe next 24 months, monthly ratings, the three best and challenging months, and the\nSaturn/Jupiter transit overlays). Every statement has `why` and `ref`.",
         "operationId": "analysis_api_v1_analysis_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnalysisRequest"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Analysis Api V1 Analysis Post",
+                  "type": "object"
+                }
               }
             },
             "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
           }
         },
-        "summary": "Analysis (not implemented yet)"
+        "summary": "Chart analysis and 24-month timeline"
       }
     },
     "/api/v1/daily": {
       "post": {
-        "operationId": "daily_api_v1_daily_post",
+        "description": "The `/kundli` body plus `today` (local date) and optional `current_lat`, `current_lon`,\n`current_tz` (default: the birth place and zone). Horas run from sunrise of `today` to the\nnext sunrise at the current place; `*_local` times are in the current zone.",
+        "operationId": "daily_guidance_api_v1_daily_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DailyRequest"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Daily Guidance Api V1 Daily Post",
+                  "type": "object"
+                }
               }
             },
             "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
           }
         },
-        "summary": "Daily guidance (not implemented yet)"
+        "summary": "Today's guidance: horas, colours, conduct, decisions"
       }
     },
     "/api/v1/dasha": {

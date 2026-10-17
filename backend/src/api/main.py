@@ -11,6 +11,7 @@ import uuid
 from collections.abc import AsyncIterator, Iterator, Sequence
 from contextlib import asynccontextmanager, contextmanager
 from dataclasses import asdict
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Annotated, Any
 
@@ -19,13 +20,31 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from api import places, serialize
-from api.schemas import DashaRequest, KundliRequest, PanchangRequest, TransitRequest
+from api import analysis_out, places, serialize
+from api.schemas import (
+    AnalysisRequest,
+    DailyRequest,
+    DashaRequest,
+    KundliRequest,
+    PanchangRequest,
+    TransitRequest,
+)
 from vedic_engine import __version__, ephemeris
+from vedic_engine.analysis import (
+    current_periods,
+    daily,
+    functional_roles,
+    income_sources,
+    judge_period,
+    life_areas,
+    lucky_elements,
+    moon_waxing,
+    timeline,
+)
 from vedic_engine.angles import sign_of
 from vedic_engine.constants import Graha
 from vedic_engine.dasha.vimshottari import subtree
-from vedic_engine.kundli import build_kundli
+from vedic_engine.kundli import Kundli, build_kundli
 from vedic_engine.models import EngineError, EphemerisRangeError, InputError, Settings
 from vedic_engine.panchang import day_panchang
 from vedic_engine.timeutil import (
@@ -34,6 +53,7 @@ from vedic_engine.timeutil import (
     UnknownTimezoneError,
     birth_utc,
     effective_tz,
+    lmt_tz,
 )
 from vedic_engine.transit import positions_at
 
@@ -288,24 +308,78 @@ def search_places(
     return [asdict(p) for p in places.search(q, limit)]
 
 
-# ---------------------------------------------------------------- placeholders (Task 6 wires these)
+# ---------------------------------------------------------------- analysis
 
 
-def _not_implemented() -> JSONResponse:
-    return JSONResponse(status_code=501, content={"detail": "not implemented yet"})
+def _analysis_chart(req: KundliRequest) -> tuple[Kundli, str]:
+    birth = req.to_birth()
+    # all vargas: the readings use D9 and D10 whatever the request's `vargas` says
+    return build_kundli(birth, req.settings.to_engine(), dasha_depth=req.dasha_depth), (
+        effective_tz(birth)
+    )
 
 
-def _placeholder(name: str, summary: str) -> None:
-    def handler() -> JSONResponse:
-        return _not_implemented()
+@app.post(
+    f"{API}/analysis", summary="Chart analysis and 24-month timeline", response_model=dict[str, Any]
+)
+def analysis(req: AnalysisRequest) -> dict[str, Any]:
+    """The `/kundli` body plus optional `gender` and `now_utc` (default: the current time).
 
-    handler.__name__ = name
-    app.post(f"{API}/{name}", summary=summary)(handler)
-    app.get(f"{API}/{name}", include_in_schema=False)(handler)
+    Returns life `areas`, `income_sources`, `lucky`, `functional_roles` and `periods` (the
+    running maha/antar/pratyantar with judgements, the antar and pratyantar `timeline` over
+    the next 24 months, monthly ratings, the three best and challenging months, and the
+    Saturn/Jupiter transit overlays). Every statement has `why` and `ref`.
+    """
+    k, tz = _analysis_chart(req)
+    now = req.now_utc or datetime.now(UTC)
+    with located(field="now_utc"):
+        maha, antar, pratyantar = current_periods(k, now)
+        tl = timeline(k, now)
+    chain = (maha, antar, pratyantar)
+    current = [
+        (level, chain[i], judge_period(k, tuple(Graha(p.lord) for p in chain[: i + 1])))
+        for i, level in enumerate(("maha", "antar", "pratyantar"))
+    ]
+    return analysis_out.analysis(
+        life_areas(k, req.gender),
+        income_sources(k),
+        lucky_elements(k),
+        functional_roles(sign_of(k.lagna_lon), moon_waxing(k)),
+        analysis_out.periods(current, tl, tz, full=req.detail == "full"),
+        {
+            "time_known": k.meta["time_known"],
+            "lagna_basis": k.meta["lagna_basis"],
+            "tz": tz,
+            "gender": req.gender,
+        },
+    )
 
 
-_placeholder("analysis", "Analysis (not implemented yet)")
-_placeholder("daily", "Daily guidance (not implemented yet)")
+@app.post(
+    f"{API}/daily",
+    summary="Today's guidance: horas, colours, conduct, decisions",
+    response_model=dict[str, Any],
+)
+def daily_guidance(req: DailyRequest) -> dict[str, Any]:
+    """The `/kundli` body plus `today` (local date) and optional `current_lat`, `current_lon`,
+    `current_tz` (default: the birth place and zone). Horas run from sunrise of `today` to the
+    next sunrise at the current place; `*_local` times are in the current zone."""
+    k, birth_tz = _analysis_chart(req)
+    lat = req.current_lat if req.current_lat is not None else req.lat
+    lon = req.current_lon if req.current_lon is not None else req.lon
+    if req.current_tz is not None:
+        tz = req.current_tz
+    elif req.lmt:
+        tz = lmt_tz(lon)
+    else:
+        tz = birth_tz
+    try:
+        g = daily(k, req.today, tz, lat, lon)
+    except UnknownTimezoneError as exc:
+        raise ApiInputError(str(exc), ["current_tz"]) from exc
+    except InputError as exc:  # no sunrise (polar), date out of range, beyond the dasha span
+        raise ApiInputError(str(exc), ["today"]) from exc
+    return analysis_out.daily(g, lat, lon)
 
 
 @app.api_route(

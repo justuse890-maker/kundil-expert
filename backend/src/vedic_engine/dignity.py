@@ -28,17 +28,21 @@ NODE_DIGNITY_SCHOOL: dict[str, dict[str, int]] = {
     "ketu": {"exalted": 7},
 }
 
-_EXALT_SIGN = {
+# Sign index (0-based) of each graha's exaltation; debilitation is the opposite sign.
+EXALT_SIGN: dict[Graha, int] = {
     Graha.SUN: 0, Graha.MOON: 1, Graha.MARS: 9, Graha.MERCURY: 5,
     Graha.JUPITER: 3, Graha.VENUS: 11, Graha.SATURN: 6,
 }  # fmt: skip
 
 # (sign, start_deg, end_deg) half-open [start, end)
-_MOOLATRIKONA = {
+MOOLATRIKONA: dict[Graha, tuple[int, float, float]] = {
     Graha.SUN: (4, 0.0, 20.0), Graha.MOON: (1, 3.0, 30.0), Graha.MARS: (0, 0.0, 12.0),
     Graha.MERCURY: (5, 15.0, 20.0), Graha.JUPITER: (8, 0.0, 10.0),
     Graha.VENUS: (6, 0.0, 15.0), Graha.SATURN: (10, 0.0, 20.0),
 }  # fmt: skip
+
+_EXALT_SIGN = EXALT_SIGN  # backward-compatible private aliases
+_MOOLATRIKONA = MOOLATRIKONA
 
 _FRIENDS = {
     Graha.SUN: (Graha.MOON, Graha.MARS, Graha.JUPITER),
@@ -104,8 +108,8 @@ def dignity(graha: Graha, lon: float, positions: Mapping[Graha, float]) -> Digni
         return Dignity.NEUTRAL
 
     deg = deg_in_sign(lon)
-    mt_sign, mt_start, mt_end = _MOOLATRIKONA[graha]
-    exalt = _EXALT_SIGN[graha]
+    mt_sign, mt_start, mt_end = MOOLATRIKONA[graha]
+    exalt = EXALT_SIGN[graha]
     if sign == (exalt + 6) % 12:
         return Dignity.DEBILITATED
     # Moolatrikona carves out the upper part of the exaltation sign (Moon, Mercury).

@@ -1,0 +1,118 @@
+{
+  "_source": "BPHS = Brihat Parasara Hora Sastra, tr. R. Santhanam, Vol. 1 (Ranjan Publications, New Delhi), Ch 34 'Yoga Karakas' (printed pp. 341-349), Ch 3 'Planetary characters', Ch 6-7 (divisional charts), Ch 27 'Evaluation of strengths', Ch 44 'Maraka (killer) planets'. Phaladeepika = Phaladeepika of Mantreswara, tr. V. Subrahmanya Sastri, 2nd ed. 1950, Adhyaya 20 'Dasas of the several bhava lords and their bhuktis'. Every verse number below was read in the archive.org full text of these editions; where only a chapter is given, the verse was not checked.",
+  "natural": {
+    "benefic": ["jupiter", "venus", "mercury", "moon"],
+    "malefic": ["sun", "mars", "saturn"],
+    "note": "Phase 1: Mercury is treated as a benefic (BPHS Ch 34 vv. 8-10: Mercury takes the nature of his associates and is favourable when alone; association is not evaluated yet). The Moon is a benefic when waxing (shukla paksha) and a malefic when waning.",
+    "ref": "BPHS Ch 34 vv. 8-10"
+  },
+  "rules": {
+    "lagna_lord": {
+      "text": "The lagna lord is specially auspicious, since the lagna is both a kendra and a trikona; it stays benefic even when it also owns an evil house.",
+      "ref": "BPHS Ch 34 vv. 2-7; Phaladeepika Ch 20 v. 41"
+    },
+    "yogakaraka": {
+      "text": "Owning a kendra and a trikona together makes a planet a yogakaraka.",
+      "ref": "BPHS Ch 34 v. 13"
+    },
+    "trikona_lord": {
+      "text": "The lord of a trikona (5th or 9th) gives auspicious results, even when it also owns the 8th or another evil house.",
+      "ref": "BPHS Ch 34 vv. 2-7; Phaladeepika Ch 20 v. 41"
+    },
+    "dusthana_3_6_11": {
+      "text": "The lord of the 3rd, 6th or 11th gives evil effects.",
+      "ref": "BPHS Ch 34 vv. 2-7; Phaladeepika Ch 20 v. 41"
+    },
+    "eighth_lord": {
+      "text": "The 8th lord is not auspicious, as the 8th is the 12th from the 9th.",
+      "ref": "BPHS Ch 34 vv. 2-7; Phaladeepika Ch 20 v. 41"
+    },
+    "eighth_lord_luminary": {
+      "text": "The 8th lordship of the Sun or the Moon is not evil; with no other lordship the luminary is neutral.",
+      "ref": "BPHS Ch 34 vv. 2-7; Phaladeepika Ch 20 v. 41"
+    },
+    "kendradhipati_dosha": {
+      "text": "A natural benefic owning a kendra does not give benefic effects (kendradhipati dosha) and is neutral.",
+      "ref": "BPHS Ch 34 vv. 2-7, 8-10"
+    },
+    "malefic_kendra": {
+      "text": "A natural malefic owning a kendra is not inauspicious; without a trikona it is neutral, not benefic.",
+      "ref": "BPHS Ch 34 vv. 2-7, 14"
+    },
+    "lord_2_12": {
+      "text": "The lords of the 2nd and 12th act according to their association; by lordship alone they are neutral.",
+      "ref": "BPHS Ch 34 vv. 2-7"
+    },
+    "maraka": {
+      "text": "The 2nd and 7th are the maraka (death-inflicting) houses; their lords carry the maraka role in addition to their other nature.",
+      "ref": "BPHS Ch 44; BPHS Ch 34 vv. 19-22; Phaladeepika Ch 20 v. 40"
+    },
+    "bphs_lagna": {
+      "text": "Parasara's list for this lagna classifies the planet as {category}.",
+      "categories": {
+        "yogakaraka": "a yoga-giver (yogakaraka)",
+        "benefic": "auspicious",
+        "malefic": "malefic",
+        "neutral": "neutral"
+      },
+      "ref": "BPHS Ch 34 vv. 19-44 (per lagna; see functional_bphs.json)"
+    },
+    "node": {
+      "text": "Rahu and Ketu own no sign for this purpose and are neutral by lordship.",
+      "ref": "BPHS Ch 34 vv. 16-17",
+      "node_note": "Rahu and Ketu give results according to the house they occupy and the lords they join; in a kendra related to a trikona lord, or in a trikona related to a kendra lord, a node becomes a yogakaraka (BPHS Ch 34 v. 17). This relation is not evaluated yet."
+    }
+  },
+  "strength_factors": {
+    "dignity": {
+      "text": "Dignity of the planet in the rashi chart.",
+      "ref": "BPHS Ch 3; Phaladeepika Ch 20 v. 30"
+    },
+    "shadbala": {
+      "text": "Shadbala against the required minimum (ratio of at least 1 is strong).",
+      "ref": "BPHS Ch 27"
+    },
+    "combust": {
+      "text": "A combust planet acts like a debilitated one.",
+      "ref": "Phaladeepika Ch 20 v. 30"
+    },
+    "house": {
+      "text": "Placement in a kendra or trikona strengthens a planet; placement in the 6th, 8th or 12th weakens it.",
+      "ref": "BPHS Ch 27 (Kendradi bala: kendra placement); Phaladeepika Ch 20 vv. 22, 27 (6th, 8th, 12th placement); trikona placement: traditional, chapter-level only"
+    },
+    "vargottama": {
+      "text": "A vargottama planet (same sign in D1 and D9) gives favourable results in its dasha.",
+      "ref": "Phaladeepika Ch 20 v. 22"
+    },
+    "d9_dignity": {
+      "text": "Dignity of the planet by sign in the navamsa (D9).",
+      "ref": "BPHS Ch 6-7; BPHS Ch 3"
+    }
+  },
+  "period_rules": {
+    "role": {
+      "text": "The dasha lord gives results according to its functional nature for this lagna.",
+      "ref": "Phaladeepika Ch 20 v. 41; BPHS Ch 34"
+    },
+    "strength": {
+      "text": "A stronger dasha lord gives its results more fully.",
+      "ref": "Phaladeepika Ch 20 v. 30"
+    },
+    "rules": {
+      "text": "The dasha lord activates the houses it owns.",
+      "ref": "Phaladeepika Ch 20 vv. 2-14"
+    },
+    "occupies": {
+      "text": "The dasha lord activates the house it occupies.",
+      "ref": "Phaladeepika Ch 20 v. 35"
+    },
+    "mutual_dusthana": {
+      "text": "The sub-period lord stands 6/8 or 2/12 from the period lord; the 6th, 8th and 12th from the dasha lord give unhappy results.",
+      "ref": "Phaladeepika Ch 20 v. 29"
+    },
+    "mutual_kendra_trikona": {
+      "text": "The sub-period lord stands in a kendra or trikona from the period lord; the two lords co-operate.",
+      "ref": "Phaladeepika Ch 20 vv. 29, 42"
+    }
+  }
+}
