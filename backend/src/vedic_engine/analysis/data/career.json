@@ -1,0 +1,105 @@
+{
+  "_source": "BPHS (tr. R. Santhanam, Vol. 1) Ch 24 vv. 109-120: the 10th lord in houses 1-12 (verse 108+n; the OCR misprints v. 114 as '5th', the notes confirm the 6th); Ch 7 vv. 1-8: power and position from the dasamsa (D10). Phaladeepika (tr. V. Subrahmanya Sastri, 2nd ed. 1950) Ch 5 'Profession and livelihood': v. 1 (source of gains by the planet in the 10th from the lagna or Moon: Sun father, Moon mother, Mars foe, Mercury friend, Jupiter brother, Venus wife, Saturn servant; profession from the lord of the navamsa occupied by the 10th lord), vv. 2-8 (professions for a navamsa of the Sun ... Saturn). Classical field lists are short paraphrases (not every item is kept); 'modern' lists are interpretive equivalents, not classical text. Rahu and Ketu are not in Phaladeepika Ch 5: their fields are popular tradition.",
+  "tenth_lord_in_house": {
+    "1": {"en": "career builds the native's own name, with learning and fame and wealth that tends to grow steadily", "hi": "करियर व्यक्ति की अपनी पहचान बनाता है: विद्या, यश और धीरे-धीरे बढ़ता धन"},
+    "2": {"en": "career brings wealth and honour from authority, and profession and family resources support each other", "hi": "करियर से धन और अधिकारियों से सम्मान मिलता है, और व्यवसाय तथा पारिवारिक साधन एक-दूसरे को सहारा देते हैं"},
+    "3": {"en": "work through courage, communication and the help of siblings or staff, with valour and eloquence", "hi": "साहस, संवाद और भाई-बहनों या सहायकों की मदद से कार्य, पराक्रम और वाक्पटुता के साथ"},
+    "4": {"en": "career connected with land, property and vehicles, with happiness and care for the mother", "hi": "करियर भूमि, संपत्ति और वाहनों से जुड़ा, साथ में सुख और माता की देखभाल"},
+    "5": {"en": "a learning-led career with lasting wealth, favouring teaching, advisory and creative work", "hi": "विद्या पर आधारित करियर और स्थायी धन; शिक्षण, परामर्श और रचनात्मक कार्य अनुकूल"},
+    "6": {"en": "career meets competition and opponents; BPHS indicates obstacles to wealth although skill is present, so service roles tend to suit", "hi": "करियर में प्रतिस्पर्धा और विरोधी आते हैं; BPHS कुशलता के बावजूद धन में बाधा बताता है, इसलिए सेवा-कार्य अधिक अनुकूल रहते हैं"},
+    "7": {"en": "career through partnership and dealings with the public, with intelligence, eloquence and happiness through the spouse", "hi": "साझेदारी और जनसंपर्क से करियर, साथ में बुद्धि, वाक्पटुता और जीवनसाथी से सुख"},
+    "8": {"en": "BPHS indicates obstacles in undertakings together with a long life; work behind the scenes tends to suit", "hi": "BPHS कार्यों में बाधा और दीर्घायु बताता है; पर्दे के पीछे का कार्य अधिक अनुकूल रहता है"},
+    "9": {"en": "a fortunate career with standing close to authority, supported by wealth and children", "hi": "भाग्यशाली करियर, सत्ता के निकट प्रतिष्ठा, धन और संतान का सहयोग"},
+    "10": {"en": "skill in many kinds of work, truthfulness and respect for elders, with a strong career focus", "hi": "अनेक प्रकार के कार्यों में कुशलता, सत्यनिष्ठा और बड़ों का आदर, करियर पर गहरा ध्यान"},
+    "11": {"en": "career brings wealth and happiness, with gains from many quarters", "hi": "करियर से धन और सुख, अनेक स्रोतों से लाभ"},
+    "12": {"en": "spending through government or authorities, and worry from opponents despite skill", "hi": "सरकार या अधिकारियों के माध्यम से खर्च, और कुशलता के बावजूद विरोधियों से चिंता"}
+  },
+  "persons": {
+    "sun": {"en": "the father", "hi": "पिता"},
+    "moon": {"en": "the mother", "hi": "माता"},
+    "mars": {"en": "rivals or opponents", "hi": "प्रतिद्वंद्वी या विरोधी"},
+    "mercury": {"en": "friends", "hi": "मित्र"},
+    "jupiter": {"en": "brothers", "hi": "भाई"},
+    "venus": {"en": "the spouse", "hi": "जीवनसाथी"},
+    "saturn": {"en": "servants or employees", "hi": "सेवक या कर्मचारी"}
+  },
+  "fields": {
+    "sun": {
+      "classical": {"en": "medicine, work with metals and wool, mantra recitation, and service under a ruler or a respected person", "hi": "औषधि, धातु और ऊन का काम, मंत्र-जप, और राजा या प्रतिष्ठित व्यक्ति की सेवा"},
+      "modern": {"en": "government and administration, medicine, leadership roles", "hi": "सरकार और प्रशासन, चिकित्सा, नेतृत्व की भूमिकाएँ"},
+      "ref": "Phaladeepika Ch 5 v. 2"
+    },
+    "moon": {
+      "classical": {"en": "pearls, coral and other water products, agriculture and cattle, pilgrimage, trade in clothes", "hi": "मोती, मूँगा और अन्य जल-उत्पाद, कृषि और पशुपालन, तीर्थयात्रा, वस्त्र-व्यापार"},
+      "modern": {"en": "hospitality, food and dairy, nursing and care, textiles, public-facing roles", "hi": "आतिथ्य, खाद्य और डेयरी, नर्सिंग और देखभाल, वस्त्र उद्योग, जनसंपर्क वाले कार्य"},
+      "ref": "Phaladeepika Ch 5 v. 3"
+    },
+    "mars": {
+      "classical": {"en": "metals, land, gold, weapons, cooking, battle and adventurous acts", "hi": "धातु, भूमि, सोना, शस्त्र, रसोई, युद्ध और साहसिक कार्य"},
+      "modern": {"en": "defence and police, engineering, real estate, surgery, sports", "hi": "रक्षा और पुलिस, इंजीनियरिंग, रियल एस्टेट, शल्य-चिकित्सा, खेल"},
+      "ref": "Phaladeepika Ch 5 v. 4"
+    },
+    "mercury": {
+      "classical": {"en": "poetry and writing, clerical work, the study of scriptures, astrology, and priestly work", "hi": "काव्य और लेखन, लिपिक कार्य, शास्त्र-अध्ययन, ज्योतिष, और पुरोहित कार्य"},
+      "modern": {"en": "writing and media, accounting, IT and communication, teaching, trade", "hi": "लेखन और मीडिया, लेखा, आईटी और संचार, शिक्षण, व्यापार"},
+      "ref": "Phaladeepika Ch 5 v. 5"
+    },
+    "jupiter": {
+      "classical": {"en": "royal favour, reciting the Puranas, teaching sastras and morality, religious instruction, money-lending", "hi": "राजकृपा, पुराण-वाचन, शास्त्र और नीति का शिक्षण, धार्मिक उपदेश, ब्याज पर धन देना"},
+      "modern": {"en": "teaching, law, finance and banking, advisory and counselling", "hi": "शिक्षण, विधि, वित्त और बैंकिंग, परामर्श"},
+      "ref": "Phaladeepika Ch 5 v. 6"
+    },
+    "venus": {
+      "classical": {"en": "music and dance, silver, scents, ornaments and silks, cattle and horses, poetic talent, companionship to a ruler", "hi": "संगीत और नृत्य, चाँदी, सुगंध, आभूषण और रेशम, पशु और घोड़े, काव्य-प्रतिभा, राजा का साहचर्य"},
+      "modern": {"en": "arts and entertainment, fashion and design, luxury goods, hospitality", "hi": "कला और मनोरंजन, फ़ैशन और डिज़ाइन, विलासिता की वस्तुएँ, आतिथ्य"},
+      "ref": "Phaladeepika Ch 5 v. 7"
+    },
+    "saturn": {
+      "classical": {"en": "physical labour, roots and fruits, wood and sculpture, work through servants, carrying loads", "hi": "शारीरिक श्रम, कंद-मूल और फल, लकड़ी और मूर्तिकला, सेवकों के माध्यम से कार्य, भार ढोना"},
+      "modern": {"en": "manufacturing, construction, mining, labour-intensive industry, operations", "hi": "विनिर्माण, निर्माण कार्य, खनन, श्रम-प्रधान उद्योग, संचालन"},
+      "ref": "Phaladeepika Ch 5 v. 8"
+    },
+    "rahu": {
+      "classical": {"en": "no classical list in Phaladeepika Ch 5", "hi": "फलदीपिका अध्याय 5 में कोई शास्त्रीय सूची नहीं"},
+      "modern": {"en": "technology, foreign trade, unconventional work", "hi": "प्रौद्योगिकी, विदेश व्यापार, अपरंपरागत कार्य"},
+      "ref": "popular tradition"
+    },
+    "ketu": {
+      "classical": {"en": "no classical list in Phaladeepika Ch 5", "hi": "फलदीपिका अध्याय 5 में कोई शास्त्रीय सूची नहीं"},
+      "modern": {"en": "research, spiritual work, healing", "hi": "शोध, आध्यात्मिक कार्य, उपचार"},
+      "ref": "popular tradition"
+    }
+  },
+  "templates": {
+    "tenth_lord": {
+      "en": "The 10th lord {planet} in the {n} house ({sign}), strength {score}/100 ({band}): {text}.",
+      "hi": "दशमेश {planet} {n} भाव ({sign}) में, बल {score}/100 ({band}): {text}।"
+    },
+    "fields_tenth_lord": {
+      "en": "Fields traditionally linked with {planet} as 10th lord: {classical}. Modern equivalents (interpretive): {modern}.",
+      "hi": "दशमेश के रूप में {planet} से पारंपरिक रूप से जुड़े क्षेत्र: {classical}। आधुनिक समकक्ष (व्याख्यात्मक): {modern}।"
+    },
+    "fields_navamsa": {
+      "en": "Phaladeepika reads the profession from the lord of the navamsa held by the 10th lord: {planet} rules {sign}, pointing to {classical}. Modern equivalents (interpretive): {modern}.",
+      "hi": "फलदीपिका दशमेश के नवांश के स्वामी से आजीविका देखती है: {sign} का स्वामी {planet} है, जो इस ओर संकेत करता है: {classical}। आधुनिक समकक्ष (व्याख्यात्मक): {modern}।"
+    },
+    "occupant": {
+      "en": "{planet} in the 10th house brings its significations into work; Phaladeepika names {person} as a source of gains. Modern equivalents (interpretive): {modern}.",
+      "hi": "दशम भाव में {planet} अपने कारकत्व कार्यक्षेत्र में लाता है; फलदीपिका के अनुसार लाभ का एक स्रोत {person} हैं। आधुनिक समकक्ष (व्याख्यात्मक): {modern}।"
+    },
+    "occupant_node": {
+      "en": "{planet} in the 10th house tends to bring unconventional or sudden turns into work. Modern equivalents (interpretive): {modern}.",
+      "hi": "दशम भाव में {planet} कार्यक्षेत्र में अपरंपरागत या अचानक मोड़ लाने की प्रवृत्ति रखता है। आधुनिक समकक्ष (व्याख्यात्मक): {modern}।"
+    },
+    "d10": {
+      "en": "In the dasamsa (D10) the lagna is {sign}; its lord {planet} stands in the {n} house of the D10, with a rashi-chart strength of {score}/100 ({band}).",
+      "hi": "दशमांश (D10) में लग्न {sign} है; इसका स्वामी {planet} D10 के {n} भाव में है, और जन्म कुंडली में इसका बल {score}/100 ({band}) है।"
+    }
+  },
+  "refs": {
+    "occupant": "Phaladeepika Ch 5 v. 1",
+    "occupant_node": "popular tradition (Rahu and Ketu are not named in Phaladeepika Ch 5 v. 1)",
+    "navamsa": "Phaladeepika Ch 5 v. 1 (10th from the lagna; the text also allows the 10th from the Moon or the Sun, whichever is stronger)",
+    "d10": "BPHS Ch 7 vv. 1-8 (power and position from the dasamsa)"
+  }
+}

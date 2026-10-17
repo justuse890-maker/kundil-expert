@@ -4,6 +4,16 @@ Every statement carries ``why`` (chart facts) and ``ref`` (classical source); te
 from ``analysis/data/*.json``. Traditional Jyotish interpretation: guidance, not certainty.
 """
 
+from vedic_engine.analysis.areas import (
+    AreaReading,
+    IncomeSource,
+    LuckyItem,
+    LuckySet,
+    Statement,
+    income_sources,
+    life_areas,
+    lucky_elements,
+)
 from vedic_engine.analysis.dasha_judgement import (
     PeriodJudgement,
     Reason,
@@ -14,15 +24,23 @@ from vedic_engine.analysis.functional import FunctionalRole, Role, functional_ro
 from vedic_engine.analysis.strength import ChartFacts, Factor, Strength, planet_strength
 
 __all__ = [
+    "AreaReading",
     "ChartFacts",
     "Factor",
     "FunctionalRole",
+    "IncomeSource",
+    "LuckyItem",
+    "LuckySet",
     "PeriodJudgement",
     "Reason",
     "Role",
+    "Statement",
     "Strength",
     "functional_roles",
+    "income_sources",
     "judge_period",
+    "life_areas",
+    "lucky_elements",
     "moon_waxing",
     "planet_strength",
 ]
