@@ -28,8 +28,8 @@ class UnknownTimezoneError(InputError):
     """Not a known IANA timezone."""
 
 
-_OFFSET = re.compile(r"UTC([+-])(\d{2}):(\d{2})(?::(\d{2}(?:\.\d{1,6})?))?")
-_HOURS_PER_DAY = 24
+_OFFSET = re.compile(r"UTC([+-])([0-9]{2}):([0-9]{2})(?::([0-9]{2}(?:\.[0-9]{1,6})?))?")
+MAX_OFFSET = timedelta(hours=14)  # UTC+14 (Kiritimati) .. UTC-12 are the real extremes
 
 
 def fixed_offset(tz: str) -> timezone | None:
@@ -44,9 +44,11 @@ def fixed_offset(tz: str) -> timezone | None:
         raise InputError(f"malformed UTC offset {tz!r}; expected UTC+HH:MM[:SS], e.g. UTC+05:53:20")
     sign, hh, mm, ss = match.groups()
     hours, minutes, seconds = int(hh), int(mm), float(ss or 0)
-    if hours >= _HOURS_PER_DAY or minutes >= 60 or seconds >= 60:
+    if minutes >= 60 or seconds >= 60:
         raise InputError(f"UTC offset {tz!r} out of range")
     delta = timedelta(hours=hours, minutes=minutes, seconds=seconds)
+    if delta > MAX_OFFSET:
+        raise InputError(f"UTC offset {tz!r} beyond +/-14:00 (the extreme real zones)")
     return timezone(-delta if sign == "-" else delta)
 
 

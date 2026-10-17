@@ -178,3 +178,12 @@ def test_lmt_offset_is_longitude_over_fifteen_hours() -> None:
 def test_malformed_fixed_offset_raises(bad: str) -> None:
     with pytest.raises(InputError):
         to_utc(datetime(2000, 1, 1, 12, 0), bad)
+
+
+def test_fixed_offset_bounds() -> None:
+    assert to_utc(datetime(2000, 1, 2, 12, 0), "UTC+14:00") == datetime(
+        2000, 1, 1, 22, 0, tzinfo=UTC
+    )
+    for bad in ("UTC+14:01", "UTC-14:01", "UTC+23:59"):
+        with pytest.raises(InputError):
+            to_utc(datetime(2000, 1, 1, 12, 0), bad)
